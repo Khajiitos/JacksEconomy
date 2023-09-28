@@ -40,13 +40,16 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
     private float progress = 0.f;
     protected SlottedItemStackHandler itemHandlerInput;
     protected SlottedItemStackHandler itemHandlerOutput;
+    protected SlottedItemStackHandler itemHandlerRejectionOutput;
     protected LazyOptional<IItemHandler> itemHandlerInputLazy = LazyOptional.of(() -> itemHandlerInput);
     protected LazyOptional<IItemHandler> itemHandlerOutputLazy = LazyOptional.of(() -> itemHandlerOutput);
+    protected LazyOptional<IItemHandler> itemHandlerRejectionOutputLazy = LazyOptional.of(() -> itemHandlerRejectionOutput);
 
     public MechanicalExporterBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityReg.MECHANICAL_EXPORTER.get(), pos, state);
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
+        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, itemStack -> ItemPriceManager.getSellPrice(ItemDescription.of(itemStack)) == -1);
     }
 
     protected Component getDefaultName() {
@@ -160,7 +163,8 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
         switch (this.sideConfig.getValue(SideConfig.directionRelative(facing, pSide))) {
             case INPUT -> {
                 return slotsInput;
-            } case OUTPUT -> {
+            } 
+            case OUTPUT -> {
                 return slotsOutput;
             }
         }
@@ -176,8 +180,11 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
                 case INPUT -> {
                     return itemHandlerInputLazy.cast();
                 }
-                case OUTPUT, REJECTION_OUTPUT -> {
+                case OUTPUT -> {
                     return itemHandlerOutputLazy.cast();
+                }
+                case REJECTION_OUTPUT -> {
+                    return itemHandlerRejectionOutput.cast();
                 }
             }
         }
@@ -190,6 +197,7 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
         super.invalidateCaps();
         itemHandlerInputLazy.invalidate();
         itemHandlerOutputLazy.invalidate();
+        itemHandlerRejectionOutputLazy.invalidate();
     }
 
     @Override

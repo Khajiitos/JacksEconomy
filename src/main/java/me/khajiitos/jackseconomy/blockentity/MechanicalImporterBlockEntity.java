@@ -41,8 +41,10 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
     protected static final int slotTicket = 6;
     protected SlottedItemStackHandler itemHandlerInput;
     protected SlottedItemStackHandler itemHandlerOutput;
+    protected SlottedItemStackHandler itemHandlerRejectionOutput;
     protected LazyOptional<IItemHandler> itemHandlerInputLazy = LazyOptional.of(() -> itemHandlerInput);
     protected LazyOptional<IItemHandler> itemHandlerOutputLazy = LazyOptional.of(() -> itemHandlerOutput);
+    protected LazyOptional<IItemHandler> itemHandlerRejectionOutput = LazyOptional.of(() -> itemHandlerRejectionOutput);
 
     public ItemDescription selectedItem;
     private float progress;
@@ -51,6 +53,11 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
         super(BlockEntityReg.MECHANICAL_IMPORTER.get(), pos, state);
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
+        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, isItemRejected);
+    }
+
+    protected boolean isItemRejected(ItemStack itemStack) {
+        return ItemPriceManager.getImporterBuyPrice(ItemDescription.of(itemStack)) == -1;
     }
 
     @Override
@@ -95,6 +102,7 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
         // When items are loaded, the items array is a completely new array
         this.itemHandlerInput.changeItems(this.items);
         this.itemHandlerOutput.changeItems(this.items);
+        this.itemHandlerRejectionOutput.changeItems(this.items);
 
         this.progress = tag.getFloat("Progress");
 
@@ -128,8 +136,11 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
                 case INPUT -> {
                     return itemHandlerInputLazy.cast();
                 }
-                case OUTPUT, REJECTION_OUTPUT -> {
+                case OUTPUT-> {
                     return itemHandlerOutputLazy.cast();
+                }
+                case REJECTION_OUTPUT -> {
+                    return itemHandlerRejectionOutput.cast();
                 }
             }
         }
@@ -142,6 +153,7 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
         super.invalidateCaps();
         itemHandlerInputLazy.invalidate();
         itemHandlerOutputLazy.invalidate();
+        itemHandlerRejectionOutputLazy.invalidate();
     }
 
     public double getProgressPerTick() {
