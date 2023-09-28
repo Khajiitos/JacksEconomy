@@ -39,8 +39,10 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
     private static final int slotTicket = 6;
     protected SlottedItemStackHandler itemHandlerInput;
     protected SlottedItemStackHandler itemHandlerOutput;
+    protected SlottedItemStackHandler itemHandlerRejectionOutput;
     protected LazyOptional<IItemHandler> itemHandlerInputLazy = LazyOptional.of(() -> itemHandlerInput);
     protected LazyOptional<IItemHandler> itemHandlerOutputLazy = LazyOptional.of(() -> itemHandlerOutput);
+    protected LazyOptional<IItemHandler> itemHandlerRejectionOutputLazy = LazyOptional.of(() -> itemHandlerRejectionOutput);
 
     public ItemDescription selectedItem;
     private float progress;
@@ -49,6 +51,7 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
         super(BlockEntityReg.IMPORTER.get(), pos, state);
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false, itemStack -> itemStack.getItem() instanceof CurrencyItem);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
+        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, itemStack -> !(itemStack instanceof CurrencyItem));
     }
 
     @Override
@@ -131,8 +134,11 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
                 case INPUT -> {
                     return itemHandlerInputLazy.cast();
                 }
-                case OUTPUT, REJECTION_OUTPUT -> {
+                case OUTPUT -> {
                     return itemHandlerOutputLazy.cast();
+                }
+                case REJECTION_OUTPUT -> {
+                    return itemHandlerRejectionOutputLazy.cast();
                 }
             }
         }
@@ -145,6 +151,7 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
         super.invalidateCaps();
         itemHandlerInputLazy.invalidate();
         itemHandlerOutputLazy.invalidate();
+        itemHandlerRejectionOutputLazy.invalidate();
     }
 
     public double getProgressPerTick() {
@@ -200,8 +207,7 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
 
         if (ticketItemStack.isEmpty() || !importer.canAddItem(itemStackToAdd, slotsOutput) || price < 0 || importer.currency.compareTo(new BigDecimal(price)) < 0) {
             if (importer.progress >= 0.f) {
-                importer.progress = Math.max(0.f, importer.progress - 0.01f);
-                //updated = true;
+                importer.progress = Math.max(0.f, importer.progress - 0.01f);0
             }
         } else {
             double progressPerTick = importer.getProgressPerTick();
@@ -210,7 +216,6 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
             if (importer.getEnergyStored() < energyUsage || !importer.doesRedstoneSettingMatchWorld(level, pos)) {
                 if (importer.progress >= 0.f) {
                     importer.progress = Math.max(0.f, importer.progress - 0.01f);
-                    //updated = true;
                 }
             } else {
                 importer.energyStorage.extractEnergy(energyUsage, false);
@@ -221,14 +226,10 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
                     importer.addItem(itemStackToAdd, slotsOutput);
                     importer.progress = 0.f;
                 }
-
-                //updated = true;
             }
         }
 
-        //if (updated) {
         importer.markUpdated();
-        //}
     }
 
     @Override
