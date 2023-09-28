@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "jackseconomy:block/exporter",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "jackseconomy:block/exporter"
+    },
+    "facing=south": {
+      "model": "jackseconomy:block/exporter",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "jackseconomy:block/exporter",
+      "y": 270
+    }
+  }
+}

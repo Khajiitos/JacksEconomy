@@ -1,0 +1,29 @@
+
+{
+    "variants": {
+      "layers=1": {
+        "model": "jackseconomy:block/nickel_stack_height2"
+      },
+      "layers=2": {
+        "model": "jackseconomy:block/nickel_stack_height4"
+      },
+      "layers=3": {
+        "model": "jackseconomy:block/nickel_stack_height6"
+      },
+      "layers=4": {
+        "model": "jackseconomy:block/nickel_stack_height8"
+      },
+      "layers=5": {
+        "model": "jackseconomy:block/nickel_stack_height10"
+      },
+      "layers=6": {
+        "model": "jackseconomy:block/nickel_stack_height12"
+      },
+      "layers=7": {
+        "model": "jackseconomy:block/nickel_stack_height14"
+      },
+      "layers=8": {
+        "model": "jackseconomy:block/nickel_stack_height16"
+      }
+    }
+  }

@@ -1,0 +1,26 @@
+{
+  "coin": {
+    "subtitle": "jackseconomy.subtitle.coin",
+    "sounds": [
+      "jackseconomy:coin1",
+      "jackseconomy:coin2",
+      "jackseconomy:coin3",
+      "jackseconomy:coin4"
+    ]
+  },
+  "cash": {
+    "subtitle": "jackseconomy.subtitle.cash",
+    "sounds": [
+      "jackseconomy:cash1",
+      "jackseconomy:cash2",
+      "jackseconomy:cash3",
+      "jackseconomy:cash4"
+    ]
+  },
+  "checkout": {
+    "subtitle": "jackseconomy.subtitle.checkout",
+    "sounds": [
+      "jackseconomy:checkout1"
+    ]
+  }
+}

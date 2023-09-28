@@ -1,0 +1,48 @@
+{
+  "parent": "minecraft:item/generated",
+  "display": {
+    "thirdperson_righthand": {
+        "rotation": [ 358, 270, 256 ],
+        "translation": [ 0.25, 3.50, 1.25 ],
+        "scale": [ 0.50, 0.50, 0.50 ]
+    },
+    "thirdperson_lefthand": {
+        "rotation": [ 358, 270, 256 ],
+        "translation": [ 0.25, 3.50, 1.25 ],
+        "scale": [ 0.50, 0.50, 0.50 ]
+    },
+    "firstperson_righthand": {
+        "rotation": [ 106, 258, 62 ],
+        "translation": [ 0.50, 2.75, -0.75 ],
+        "scale": [ 0.40, 0.40, 0.40 ]
+    },
+    "firstperson_lefthand": {
+        "rotation": [ 106, 258, 62 ],
+        "translation": [ 0.50, 2.75, -0.75 ],
+        "scale": [ 0.40, 0.40, 0.40 ]
+    },
+    "gui": {
+        "rotation": [ 0, 0, 0 ],
+        "translation": [ 0.00, 0.00, 0.00 ],
+        "scale": [ 0.92, 0.92, 0.92 ]
+    },
+    "head": {
+        "rotation": [ 0, 0, 0 ],
+        "translation": [ 0.00, 0.00, 0.00 ],
+        "scale": [ 1.00, 1.00, 1.00 ]
+    },
+    "fixed": {
+        "rotation": [ 0, 0, 0 ],
+        "translation": [ 0.00, 0.00, 0.00 ],
+        "scale": [ 1.00, 1.00, 1.00 ]
+    },
+    "ground": {
+        "rotation": [ 0, 0, 0 ],
+        "translation": [ 0.00, 2.50, 0.00 ],
+        "scale": [ 0.43, 0.43, 0.43 ]
+        }
+    },
+  "textures": {
+    "layer0": "jackseconomy:item/ten_dollar_bill"
+  }
+}

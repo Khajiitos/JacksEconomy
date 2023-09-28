@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "jackseconomy:block/currency_converter",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "jackseconomy:block/currency_converter"
+    },
+    "facing=south": {
+      "model": "jackseconomy:block/currency_converter",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "jackseconomy:block/currency_converter",
+      "y": 270
+    }
+  }
+}

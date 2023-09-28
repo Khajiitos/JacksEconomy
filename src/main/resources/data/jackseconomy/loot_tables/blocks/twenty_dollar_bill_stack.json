@@ -1,0 +1,164 @@
+
+{
+    "type": "minecraft:block",
+    "pools": [
+      {
+        "name": "twenty_dollar_bill_stack",
+        "rolls": 1.0,
+        "entries": [
+          {
+            "type": "minecraft:item",
+            "conditions": [
+              {
+                "condition": "minecraft:block_state_property",
+                "block": "jackseconomy:twenty_dollar_bill_stack",
+                "properties": {
+                  "layers": "1"
+                }
+              }
+            ],
+            "functions": [
+              {
+                "function": "minecraft:set_count",
+                "count": 9
+              }
+            ],
+            "name": "jackseconomy:twenty_dollar_bill"
+          },
+          {
+            "type": "minecraft:item",
+            "conditions": [
+              {
+                "condition": "minecraft:block_state_property",
+                "block": "jackseconomy:twenty_dollar_bill_stack",
+                "properties": {
+                  "layers": "2"
+                }
+              }
+            ],
+            "functions": [
+              {
+                "function": "minecraft:set_count",
+                "count": 18
+              }
+            ],
+            "name": "jackseconomy:twenty_dollar_bill"
+          },
+          {
+            "type": "minecraft:item",
+            "conditions": [
+              {
+                "condition": "minecraft:block_state_property",
+                "block": "jackseconomy:twenty_dollar_bill_stack",
+                "properties": {
+                  "layers": "3"
+                }
+              }
+            ],
+            "functions": [
+              {
+                "function": "minecraft:set_count",
+                "count": 27
+              }
+            ],
+            "name": "jackseconomy:twenty_dollar_bill"
+          },
+          {
+            "type": "minecraft:item",
+            "conditions": [
+              {
+                "condition": "minecraft:block_state_property",
+                "block": "jackseconomy:twenty_dollar_bill_stack",
+                "properties": {
+                  "layers": "4"
+                }
+              }
+            ],
+            "functions": [
+              {
+                "function": "minecraft:set_count",
+                "count": 36
+              }
+            ],
+            "name": "jackseconomy:twenty_dollar_bill"
+          },
+          {
+            "type": "minecraft:item",
+            "conditions": [
+              {
+                "condition": "minecraft:block_state_property",
+                "block": "jackseconomy:twenty_dollar_bill_stack",
+                "properties": {
+                  "layers": "5"
+                }
+              }
+            ],
+            "functions": [
+              {
+                "function": "minecraft:set_count",
+                "count": 45
+              }
+            ],
+            "name": "jackseconomy:twenty_dollar_bill"
+          },
+          {
+            "type": "minecraft:item",
+            "conditions": [
+              {
+                "condition": "minecraft:block_state_property",
+                "block": "jackseconomy:twenty_dollar_bill_stack",
+                "properties": {
+                  "layers": "6"
+                }
+              }
+            ],
+            "functions": [
+              {
+                "function": "minecraft:set_count",
+                "count": 54
+              }
+            ],
+            "name": "jackseconomy:twenty_dollar_bill"
+          },
+          {
+            "type": "minecraft:item",
+            "conditions": [
+              {
+                "condition": "minecraft:block_state_property",
+                "block": "jackseconomy:twenty_dollar_bill_stack",
+                "properties": {
+                  "layers": "7"
+                }
+              }
+            ],
+            "functions": [
+              {
+                "function": "minecraft:set_count",
+                "count": 63
+              }
+            ],
+            "name": "jackseconomy:twenty_dollar_bill"
+          },
+          {
+            "type": "minecraft:item",
+            "conditions": [
+              {
+                "condition": "minecraft:block_state_property",
+                "block": "jackseconomy:twenty_dollar_bill_stack",
+                "properties": {
+                  "layers": "8"
+                }
+              }
+            ],
+            "functions": [
+              {
+                "function": "minecraft:set_count",
+                "count": 72
+              }
+            ],
+            "name": "jackseconomy:twenty_dollar_bill"
+          }
+        ]
+      }
+    ]
+  }

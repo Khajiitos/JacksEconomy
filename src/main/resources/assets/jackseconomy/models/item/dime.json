@@ -1,0 +1,48 @@
+{
+  "parent": "minecraft:item/generated",
+"display": {
+    "thirdperson_righthand": {
+        "rotation": [ 26, 270, 0 ],
+        "translation": [ 0.25, 2.00, 0.00 ],
+        "scale": [ 0.35, 0.35, 0.40 ]
+    },
+    "thirdperson_lefthand": {
+        "rotation": [ 26, 270, 0 ],
+        "translation": [ 0.25, 2.00, 0.00 ],
+        "scale": [ 0.35, 0.35, 0.40 ]
+    },
+    "firstperson_righthand": {
+        "rotation": [ 0, 272, 24 ],
+        "translation": [ 0.50, 2.50, 0.50 ],
+        "scale": [ 0.30, 0.30, 0.30 ]
+    },
+    "firstperson_lefthand": {
+        "rotation": [ 0, 272, 24 ],
+        "translation": [ 0.50, 2.50, 0.50 ],
+        "scale": [ 0.30, 0.30, 0.30 ]
+    },
+    "gui": {
+        "rotation": [ 0, 0, 0 ],
+        "translation": [ 0.00, 0.00, 0.00 ],
+        "scale": [ 0.80, 0.80, 0.80 ]
+    },
+    "head": {
+        "rotation": [ 0, 0, 0 ],
+        "translation": [ 0.00, 0.00, 0.00 ],
+        "scale": [ 1.00, 1.00, 1.00 ]
+    },
+    "fixed": {
+        "rotation": [ 0, 0, 0 ],
+        "translation": [ 0.00, 0.00, 0.00 ],
+        "scale": [ 0.70, 0.70, 0.70 ]
+    },
+    "ground": {
+        "rotation": [ 0, 0, 0 ],
+        "translation": [ 0.00, 2.50, 0.00 ],
+        "scale": [ 0.35, 0.35, 0.35 ]
+    }
+},
+  "textures": {
+    "layer0": "jackseconomy:item/dime"
+  }
+}
