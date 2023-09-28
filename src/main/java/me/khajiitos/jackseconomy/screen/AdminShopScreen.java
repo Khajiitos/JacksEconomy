@@ -44,9 +44,10 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     protected static final ResourceLocation BACKGROUND = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/admin_shop.png");
     protected static final ResourceLocation NO_WALLET = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/no_wallet.png");
     protected static final ResourceLocation BALANCE_PROGRESS = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/balance_progress.png");
-    protected final LinkedHashMap<InnerCategory, List<ShopItem>> shopItems = new LinkedHashMap<>();
+    protected final LinkedHashMap<Category, LinkedHashMap<InnerCategory, List<ShopItem>>> shopItems = new LinkedHashMap<>();
     public LinkedHashMap<ShopItem, Integer> shoppingCart = new LinkedHashMap<>();
     protected InnerCategory selectedCategory = null;
+    protected Category selectedBigCategory = null;
     protected int categoryOffset = 0;
     protected int page = 0;
     protected List<Component> tooltip;
@@ -57,16 +58,9 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     protected ImageButton pagePreviousButton;
 
     protected boolean shouldRenderBackground;
-    private final AdminShopCategoryList parent;
 
-    public AdminShopScreen(AdminShopMenu pMenu, Inventory pPlayerInventory, Component pTitle, AdminShopCategoryList parent) {
+    public AdminShopScreen(AdminShopMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
-
-        if (parent != null) {
-            this.shoppingCart = parent.shoppingCart;
-        }
-
-        this.parent = parent;
 
         CompoundTag data = pMenu.data;
 
@@ -82,16 +76,36 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                     return;
                 }
 
-                InnerCategory category = new InnerCategory(categoryName, item);
-                shopItems.put(category, new ArrayList<>());
+                Category category = new Category(categoryName, item);
+                List<InnerCategory>> innerCategories = new ArrayList<>();
+                shopItems.put(categories, innerCategories);
+                ListTag categoriesInnerTag = compoundTag.getList("categories", Tag.TAG_COMPOUND);
 
-                if (selectedCategory == null) {
-                    selectedCategory = category;
+                categoriesInnerTag.forEach(innerTag -> {
+                    if (innerTag instanceof CompoundTag innerCompoundTag) {
+                        String innerCategoryName = innerCompoundTag.getString("name");
+                        Item innerItem = ItemHelper.getItem(innerCompoundTag.getString("item"));
+
+                        if (item == null) {
+                            return;
+                        }
+
+                        InnerCategory innerCategory = new InnerCategory(innerCategoryName, item);
+                        shopItems.put(innerCategory, new ArrayList<>());
+
+                        if (selectedCategory == null) {
+                            selectedCategory = innerCategory;
+                        }
+                    }
+                });
+
+                if (selectedBigCategory == null && !innerCategories.isEmpty()) {
+                    selectedBigCategory = category;
                 }
             }
         });
 
-        LinkedHashMap<String, List<UnpreparedShopItem>> slotlessShopItems = new LinkedHashMap<>();
+        protected LinkedHashMap<String, List<UnpreparedShopItem>> slotlessShopItems = new LinkedHashMap<>();
 
         itemsTag.forEach(tag -> {
             if (tag instanceof CompoundTag compoundTag) {
@@ -121,6 +135,17 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         });
 
         slotlessShopItems.forEach((categoryName, list) -> {
+            String[] categoriesNames = categoryName.split(":", 2);
+
+            if (categoryName.length < 2) {
+                return;
+            }
+
+            String bigCategoryName = categoryNames[0];
+            String innerCategoryName = categoryNames[1];
+
+
+            
             for (Map.Entry<InnerCategory, List<ShopItem>> entry : shopItems.entrySet()) {
                 if (entry.getKey().name.equals(categoryName)) {
                     for (UnpreparedShopItem item : list) {
@@ -248,6 +273,13 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     protected void init() {
         super.init();
         initButtons();
+        
+        this.categoryPanel = this.addRenderableWidget(new BetterScrollPanel(this.leftPos - 80, this.topPos + 4, 75, this.imageHeight - 4));
+
+        for (Category category : shopItems.keySet()) {
+            // TODO: This will require fixing
+            this.categoryPanel.children.add(new CategoryEntry(0, 0, 75, 20, category.item, category.name));
+        }
 
         if (!this.isEditMode()) {
             this.addRenderableWidget(new ImageButton(this.leftPos + 139, this.topPos + 121, 30, 26, 176, 0, 26, BACKGROUND, 256, 256, (b) -> {
