@@ -30,7 +30,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
     protected FloatingEditBoxWidget floatingEditBox;
 
     public EditAdminShopScreen(AdminShopMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
-        super(pMenu, pPlayerInventory, pTitle, null);
+        super(pMenu, pPlayerInventory, pTitle);
 
         pMenu.setSlotsLocked(true);
     }
@@ -41,7 +41,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
     }
 
     protected String getUnnamedCategoryName() {
-        List<InnerCategory> categories = this.shopItems.keySet().stream().toList();
+        List<InnerCategory> categories = this.shopItems.get(selectedBigCategory).keySet().stream().toList();
         int i = -1;
         while (true) {
             String name = "Unnamed" + (i == -1 ? "" : " " + i);
@@ -65,11 +65,11 @@ public class EditAdminShopScreen extends AdminShopScreen {
     @Override
     protected boolean onCategorySlotClicked(int pButton, int categoryId) {
         if (pButton == 0) {
-            List<InnerCategory> categories = this.shopItems.keySet().stream().toList();
+            List<InnerCategory> categories = this.shopItems.get(selectedBigCategory).keySet().stream().toList();
 
             if (categoryId == categories.size() && this.itemOnCursor != null && this.floatingEditBox == null) {
                 InnerCategory category = new InnerCategory(this.getUnnamedCategoryName(), this.itemOnCursor.itemDescription().item());
-                this.shopItems.put(category, new ArrayList<>());
+                this.shopItems.get(selectedBigCategory).put(category, new ArrayList<>());
 
                 int categoryRenderId = categoryId - this.categoryOffset;
                 int categoryX = this.leftPos + 17 + categoryRenderId * 18, categoryY = this.topPos + 27;
@@ -117,7 +117,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
             InnerCategory category = this.getCategoryById(categoryId);
 
             if (category != null) {
-                this.shopItems.remove(category);
+                this.shopItems.get(selectedBigCategory).remove(category);
 
                 if (this.selectedCategory == category) {
                     this.selectedCategory = null;
@@ -210,7 +210,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
         ListTag itemsTag = new ListTag();
         ListTag categoriesTag = new ListTag();
 
-        this.shopItems.forEach((category, itemList) -> {
+        this.shopItems.get(selectedBigCategory).forEach((category, itemList) -> {
             String itemName = ItemHelper.getItemName(category.item);
 
             if (itemName == null) {
@@ -283,30 +283,30 @@ public class EditAdminShopScreen extends AdminShopScreen {
                 return false;
             }
 
-            int categoryIndex = this.shopItems.keySet().stream().toList().indexOf(this.selectedCategory);
+            int categoryIndex = this.shopItems.get(selectedBigCategory).keySet().stream().toList().indexOf(this.selectedCategory);
 
             if (categoryIndex == -1 || categoryIndex == 0) {
                 return false;
             }
 
-            List<ShopItem> items = this.shopItems.remove(this.selectedCategory);
+            List<ShopItem> items = this.shopItems.get(selectedBigCategory).remove(this.selectedCategory);
 
-            this.addAtIndex(this.shopItems, this.selectedCategory, items, categoryIndex - 1);
+            this.addAtIndex(this.shopItems.get(selectedBigCategory), this.selectedCategory, items, categoryIndex - 1);
             return true;
         } else if (pKeyCode == GLFW.GLFW_KEY_RIGHT) {
             if (this.getFocused() instanceof Widget widget && this.renderables.contains(widget)) {
                 return false;
             }
 
-            int categoryIndex = this.shopItems.keySet().stream().toList().indexOf(this.selectedCategory);
+            int categoryIndex = this.shopItems.get(selectedBigCategory).keySet().stream().toList().indexOf(this.selectedCategory);
 
             if (categoryIndex == -1 || categoryIndex == this.shopItems.size() - 1) {
                 return false;
             }
 
-            List<ShopItem> items = this.shopItems.remove(this.selectedCategory);
+            List<ShopItem> items = this.shopItems.get(selectedBigCategory).remove(this.selectedCategory);
 
-            this.addAtIndex(this.shopItems, this.selectedCategory, items, categoryIndex + 1);
+            this.addAtIndex(this.shopItems.get(selectedBigCategory), this.selectedCategory, items, categoryIndex + 1);
             return true;
         } else {
             return super.keyPressed(pKeyCode, pScanCode, pModifiers);

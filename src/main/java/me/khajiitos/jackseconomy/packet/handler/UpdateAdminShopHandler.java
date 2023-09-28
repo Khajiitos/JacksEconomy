@@ -16,7 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.function.Supplier;
 
 public class UpdateAdminShopHandler {
-    public static void handle(UpdateAdminShopPacket msg, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(UpdateAdminShopPacket msg, Supplier<NetworkEvent.Context> ctx) {/*
         ServerPlayer sender = ctx.get().getSender();
 
         if (sender == null) {
@@ -81,6 +81,7 @@ public class UpdateAdminShopHandler {
             }
         });
 
-        ItemPriceManager.save();
+        ItemPriceManager.save();*/
+        // TODO: UNCOMMENT!!!
     }
 }

@@ -44,7 +44,7 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
     protected SlottedItemStackHandler itemHandlerRejectionOutput;
     protected LazyOptional<IItemHandler> itemHandlerInputLazy = LazyOptional.of(() -> itemHandlerInput);
     protected LazyOptional<IItemHandler> itemHandlerOutputLazy = LazyOptional.of(() -> itemHandlerOutput);
-    protected LazyOptional<IItemHandler> itemHandlerRejectionOutput = LazyOptional.of(() -> itemHandlerRejectionOutput);
+    protected LazyOptional<IItemHandler> itemHandlerRejectionOutputLazy = LazyOptional.of(() -> itemHandlerRejectionOutput);
 
     public ItemDescription selectedItem;
     private float progress;
@@ -53,11 +53,11 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
         super(BlockEntityReg.MECHANICAL_IMPORTER.get(), pos, state);
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
-        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, isItemRejected);
+        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
     }
 
     protected boolean isItemRejected(ItemStack itemStack) {
-        return ItemPriceManager.getImporterBuyPrice(ItemDescription.of(itemStack)) == -1;
+        return ItemPriceManager.getImporterBuyPrice(ItemDescription.ofItem(itemStack), 1) == -1;
     }
 
     @Override
@@ -140,7 +140,7 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
                     return itemHandlerOutputLazy.cast();
                 }
                 case REJECTION_OUTPUT -> {
-                    return itemHandlerRejectionOutput.cast();
+                    return itemHandlerRejectionOutputLazy.cast();
                 }
             }
         }

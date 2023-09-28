@@ -1,34 +1,27 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.khajiitos.jackseconomy.menu.AdminShopMenu;
-import me.khajiitos.jackseconomy.screen.AdminShopCategoryList;
 import me.khajiitos.jackseconomy.screen.AdminShopScreen;
-import me.khajiitos.jackseconomy.util.CurrencyHelper;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
 public class CategoryEntry extends AbstractWidget {
     private final String categoryName;
     private final Item icon;
-    private final Supplier<AdminShopScreen> onClickScreen;
+    private final Runnable onClick;
 
-    public CategoryEntry(int pX, int pY, int pWidth, int pHeight, Item icon, String categoryName, Supplier<AdminShopScreen> onClickScreen) {
+    public CategoryEntry(int pX, int pY, int pWidth, int pHeight, Item icon, String categoryName, Runnable onClick) {
         super(pX, pY, pWidth, pHeight, Component.empty());
         this.categoryName = categoryName;
         this.icon = icon;
-        this.onClickScreen = onClickScreen;
+        this.onClick = onClick;
     }
 
     @Override
@@ -62,9 +55,8 @@ public class CategoryEntry extends AbstractWidget {
 
     @Override
     public void onClick(double pMouseX, double pMouseY) {
-        Minecraft.getInstance().screen = onClickScreen.get();
-        Minecraft.getInstance().screen.init(Minecraft.getInstance(), this.width, this.height);
-    }
+        onClick.run();
+   }
 
     @Override
     public void updateNarration(NarrationElementOutput pNarrationElementOutput) {

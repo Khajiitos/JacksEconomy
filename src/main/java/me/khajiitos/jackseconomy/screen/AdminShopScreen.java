@@ -6,11 +6,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
-import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.menu.AdminShopMenu;
 import me.khajiitos.jackseconomy.price.ItemDescription;
-import me.khajiitos.jackseconomy.price.ItemPriceManager;
+import me.khajiitos.jackseconomy.screen.widget.BetterScrollPanel;
+import me.khajiitos.jackseconomy.screen.widget.CategoryEntry;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.ItemHelper;
 import net.minecraft.ChatFormatting;
@@ -38,7 +38,6 @@ import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     protected static final ResourceLocation BACKGROUND = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/admin_shop.png");
@@ -59,6 +58,8 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
     protected boolean shouldRenderBackground;
 
+    protected BetterScrollPanel categoryPanel;
+
     public AdminShopScreen(AdminShopMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
 
@@ -77,8 +78,8 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                 }
 
                 Category category = new Category(categoryName, item);
-                List<InnerCategory>> innerCategories = new ArrayList<>();
-                shopItems.put(categories, innerCategories);
+                LinkedHashMap<InnerCategory, List<ShopItem>> innerCategories = new LinkedHashMap<>();
+                shopItems.put(category, innerCategories);
                 ListTag categoriesInnerTag = compoundTag.getList("categories", Tag.TAG_COMPOUND);
 
                 categoriesInnerTag.forEach(innerTag -> {
@@ -86,12 +87,12 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                         String innerCategoryName = innerCompoundTag.getString("name");
                         Item innerItem = ItemHelper.getItem(innerCompoundTag.getString("item"));
 
-                        if (item == null) {
+                        if (innerItem == null) {
                             return;
                         }
 
                         InnerCategory innerCategory = new InnerCategory(innerCategoryName, item);
-                        shopItems.put(innerCategory, new ArrayList<>());
+                        innerCategories.put(innerCategory, new ArrayList<>());
 
                         if (selectedCategory == null) {
                             selectedCategory = innerCategory;
@@ -105,7 +106,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
             }
         });
 
-        protected LinkedHashMap<String, List<UnpreparedShopItem>> slotlessShopItems = new LinkedHashMap<>();
+        LinkedHashMap<String, List<UnpreparedShopItem>> slotlessShopItems = new LinkedHashMap<>();
 
         itemsTag.forEach(tag -> {
             if (tag instanceof CompoundTag compoundTag) {
@@ -123,9 +124,21 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                 if (slot < 0) {
                     slotlessShopItems.computeIfAbsent(category, categoryName -> new ArrayList<>()).add(new UnpreparedShopItem(itemDescription, buyPrice, customName));
                 } else {
-                    for (Map.Entry<InnerCategory, List<ShopItem>> entry : shopItems.entrySet()) {
-                        if (entry.getKey().name.equals(category)) {
-                            entry.getValue().add(new ShopItem(itemDescription, buyPrice, slot, customName));
+                    String[] categoryNamesInner = category.split(":", 2);
+                    if (categoryNamesInner.length < 2) {
+                        return;
+                    }
+
+                    String bigCategoryName = categoryNamesInner[0];
+
+                    for (Map.Entry<Category, LinkedHashMap<InnerCategory, List<ShopItem>>> categoryEntry : shopItems.entrySet()) {
+                        if (categoryEntry.getKey().name.equals(bigCategoryName)) {
+                            for (Map.Entry<InnerCategory, List<ShopItem>> entry : shopItems.get(categoryEntry.getKey()).entrySet()) {
+                                if (entry.getKey().name.equals(category)) {
+                                    entry.getValue().add(new ShopItem(itemDescription, buyPrice, slot, customName));
+                                    break;
+                                }
+                            }
                             break;
                         }
                     }
@@ -137,19 +150,22 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         slotlessShopItems.forEach((categoryName, list) -> {
             String[] categoriesNames = categoryName.split(":", 2);
 
-            if (categoryName.length < 2) {
+            if (categoriesNames.length < 2) {
                 return;
             }
 
-            String bigCategoryName = categoryNames[0];
-            String innerCategoryName = categoryNames[1];
-
-
+            String bigCategoryName = categoriesNames[0];
+            String innerCategoryName = categoriesNames[1];
             
-            for (Map.Entry<InnerCategory, List<ShopItem>> entry : shopItems.entrySet()) {
-                if (entry.getKey().name.equals(categoryName)) {
+            for (Map.Entry<Category, LinkedHashMap<InnerCategory, List<ShopItem>>> entry : shopItems.entrySet()) {
+                if (entry.getKey().name.equals(bigCategoryName)) {
                     for (UnpreparedShopItem item : list) {
-                        shopItems.get(entry.getKey()).add(new ShopItem(item.itemDescription, item.price, this.findFirstAvailableSlot(entry.getKey()), item.customName));
+                        for (Map.Entry<InnerCategory, List<ShopItem>> entry1 : entry.getValue().entrySet()) {
+                            if (entry1.getKey().name.equals(innerCategoryName)) {
+                                shopItems.get(entry.getKey()).get(entry1.getKey()).add(new ShopItem(item.itemDescription, item.price, this.findFirstAvailableSlot(entry.getKey()), item.customName));
+                                break;
+                            }
+                        }
                     }
                     break;
                 }
@@ -237,7 +253,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
             return 0;
         }
 
-        List<ShopItem> itemsList = this.shopItems.get(selectedCategory);
+        List<ShopItem> itemsList = this.shopItems.get(selectedBigCategory).get(selectedCategory);
 
         int pages = 1;
 
@@ -260,7 +276,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     }
 
     protected @Nullable InnerCategory getCategoryById(int id) {
-        List<InnerCategory> categories = this.shopItems.keySet().stream().toList();
+        List<InnerCategory> categories = this.shopItems.get(selectedBigCategory).keySet().stream().toList();
 
         if (id < 0 || id >= categories.size()) {
             return null;
@@ -274,11 +290,11 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         super.init();
         initButtons();
         
-        this.categoryPanel = this.addRenderableWidget(new BetterScrollPanel(this.leftPos - 80, this.topPos + 4, 75, this.imageHeight - 4));
+        this.categoryPanel = this.addRenderableWidget(new BetterScrollPanel(Minecraft.getInstance(), this.leftPos - 80, this.topPos + 4, 75, this.imageHeight - 4));
 
         for (Category category : shopItems.keySet()) {
-            // TODO: This will require fixing
-            this.categoryPanel.children.add(new CategoryEntry(0, 0, 75, 20, category.item, category.name));
+            // TODO: refresh the inner categories
+            this.categoryPanel.children.add(new CategoryEntry(0, 0, 75, 20, category.item, category.name, () -> this.selectedBigCategory = category));
         }
 
         if (!this.isEditMode()) {
@@ -344,7 +360,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
             GuiComponent.drawCenteredString(pPoseStack, this.font, this.selectedCategory.name, this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
         }
 
-        List<InnerCategory> categories = this.shopItems.keySet().stream().toList();
+        List<InnerCategory> categories = this.shopItems.get(selectedBigCategory).keySet().stream().toList();
         for (int i = 0; i < 8; i++) {
             int categoryId = this.categoryOffset + i;
             int categoryX = this.leftPos + 17 + i * 18, categoryY = this.topPos + 27;
@@ -457,7 +473,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
     protected boolean onCategorySlotClicked(int pButton, int categoryId) {
         if (pButton == 0) {
-            List<InnerCategory> categories = this.shopItems.keySet().stream().toList();
+            List<InnerCategory> categories = this.shopItems.get(selectedBigCategory).keySet().stream().toList();
 
             if (categoryId >= 0 && categoryId < categories.size()) {
                 this.selectedCategory = categories.get(categoryId);
@@ -496,7 +512,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     }
 
     protected @Nullable ShopItem getItemAtSlot(int slot, InnerCategory category) {
-        for (ShopItem shopItem : this.shopItems.getOrDefault(category, List.of())) {
+        for (ShopItem shopItem : this.shopItems.get(selectedBigCategory).getOrDefault(category, List.of())) {
             if (shopItem.slot == slot) {
                 return shopItem;
             }
@@ -510,11 +526,11 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         ShopItem existingItem = getItemAtSlot(slot, category);
 
         if (existingItem != null) {
-            this.shopItems.getOrDefault(category, List.of()).remove(existingItem);
+            this.shopItems.get(selectedBigCategory).getOrDefault(category, List.of()).remove(existingItem);
         }
 
         if (shopItem != null) {
-            this.shopItems.getOrDefault(category, List.of()).add(new ShopItem(shopItem.itemDescription, shopItem.price, slot, shopItem.customName));
+            this.shopItems.get(selectedBigCategory).getOrDefault(category, List.of()).add(new ShopItem(shopItem.itemDescription, shopItem.price, slot, shopItem.customName));
         }
 
         return existingItem;
@@ -568,8 +584,13 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     @Override
     public void onClose() {
         assert this.minecraft != null;
-        this.minecraft.screen = parent;
-        this.minecraft.screen.init(this.minecraft, this.minecraft.getWindow().getGuiScaledWidth(), this.minecraft.getWindow().getGuiScaledHeight());
+
+        if (!this.shoppingCart.isEmpty()) {
+            this.minecraft.screen = new AdminShopExitPromptScreen(this);
+            this.minecraft.screen.init(this.minecraft, this.minecraft.getWindow().getGuiScaledWidth(), this.minecraft.getWindow().getGuiScaledHeight());
+        } else {
+            super.onClose();
+        }
     }
 
     protected boolean isEditMode() {

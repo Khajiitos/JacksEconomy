@@ -49,7 +49,7 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
         super(BlockEntityReg.MECHANICAL_EXPORTER.get(), pos, state);
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
-        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, itemStack -> ItemPriceManager.getSellPrice(ItemDescription.of(itemStack)) == -1);
+        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, itemStack -> ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1);
     }
 
     protected Component getDefaultName() {
@@ -184,7 +184,7 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
                     return itemHandlerOutputLazy.cast();
                 }
                 case REJECTION_OUTPUT -> {
-                    return itemHandlerRejectionOutput.cast();
+                    return itemHandlerRejectionOutputLazy.cast();
                 }
             }
         }

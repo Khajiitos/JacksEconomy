@@ -7,29 +7,31 @@ import me.khajiitos.jackseconomy.packet.PricesInfoPacket;
 import me.khajiitos.jackseconomy.util.ItemHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ItemPriceManager {
     private static final LinkedHashMap<ItemDescription, ItemPriceInfo> itemPriceInfos = new LinkedHashMap<>();
-    private static final LinkedHashMap<String, Item> categories = new LinkedHashMap<>();
+    private static final LinkedHashMap<Category, List<Category>> categories = new LinkedHashMap<>();
     private static final File file = new File("config/jackseconomy_prices.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     static {
         itemPriceInfos.put(new ItemDescription(Items.DIAMOND, null), new ItemPriceInfo(50.0, 100.0, 150.0, "Gems", 0, null));
 
-        categories.put("Gems", Items.DIAMOND);
+        ArrayList<Category> categoriesInnerDefault = new ArrayList<>();
+        categoriesInnerDefault.add(new Category("Gems", Items.DIAMOND));
+        categories.put(new Category("General", Items.DIRT), categoriesInnerDefault);
     }
 
     public static ItemPriceInfo getInfo(ItemDescription itemDescription) {
@@ -44,7 +46,7 @@ public class ItemPriceManager {
         return itemPriceInfos;
     }
 
-    public static LinkedHashMap<String, Item> getCategories() {
+    public static LinkedHashMap<Category, List<Category>> getCategories() {
         return categories;
     }
 
@@ -81,6 +83,7 @@ public class ItemPriceManager {
 
                 categoriesArray.forEach(jsonElement -> {
                     JsonObject object = jsonElement.getAsJsonObject();
+                    String categoryName = object.get("name").getAsString();
                     String itemName = object.get("item").getAsString();
 
                     if (itemName == null) {
@@ -93,7 +96,32 @@ public class ItemPriceManager {
                         return;
                     }
 
-                    categories.put(object.get("name").getAsString(), item);
+                    JsonArray categoriesList = object.getAsJsonArray("categories");
+
+                    if (categoriesList != null) {
+                        Category category = new Category(categoryName, item);
+                        ArrayList<Category> innerCategories = new ArrayList<>();
+                        categories.put(category, innerCategories);
+
+                        categoriesList.forEach(jsonElementInner -> {
+                            if (jsonElementInner instanceof JsonObject categoryObject) {
+                                String categoryNameInner = categoryObject.get("name").getAsString();
+                                String itemNameInner = categoryObject.get("item").getAsString();
+
+                                if (itemNameInner == null) {
+                                    return;
+                                }
+
+                                Item itemInner = ItemHelper.getItem(itemName);
+
+                                if (itemInner == null) {
+                                    return;
+                                }
+
+                                innerCategories.add(new Category(categoryNameInner, itemInner));
+                            }
+                        });
+                    }
                 });
 
                 itemsArray.forEach(jsonElement -> {
@@ -126,12 +154,29 @@ public class ItemPriceManager {
                 itemsArray.add(merge(itemDescription.toJson(), itemPriceInfo.toJson()));
             });
 
-            categories.forEach((name, item) -> {
-                ResourceLocation resourceLocation = ForgeRegistries.ITEMS.getKey(item);
-                if (resourceLocation != null) {
+            categories.forEach((category, categories) -> {
+                String itemName = ItemHelper.getItemName(category.icon);
+
+                if (itemName != null) {
                     JsonObject categoryObj = new JsonObject();
-                    categoryObj.addProperty("item", resourceLocation.toString());
-                    categoryObj.addProperty("name", name);
+                    categoryObj.addProperty("item", itemName);
+                    categoryObj.addProperty("name", category.name);
+
+                    JsonArray innerCategories = new JsonArray();
+
+                    categories.forEach(categoryInner -> {
+                        JsonObject categoryInnerObj = new JsonObject();
+
+                        String itemNameInner = ItemHelper.getItemName(categoryInner.icon);
+
+                        if (itemNameInner != null) {
+                            categoryInnerObj.addProperty("item", itemNameInner);
+                            categoryInnerObj.addProperty("name", categoryInner.name);
+                            innerCategories.add(categoryInnerObj);
+                        }
+                    });
+
+                    categoryObj.add("categories", innerCategories);
                     categoriesArray.add(categoryObj);
                 }
             });
@@ -187,14 +232,37 @@ public class ItemPriceManager {
             atomicItemId.set(atomicItemId.get() + 1);
         });
 
-        categories.forEach((name, item) -> {
+        categories.forEach((category, categories) -> {
             CompoundTag compoundTag = new CompoundTag();
-            String itemName = ItemHelper.getItemName(item);
-            if (itemName != null) {
-                compoundTag.putString("name", name);
-                compoundTag.putString("item", itemName);
-                categoriesTag.add(compoundTag);
+
+            String itemName = ItemHelper.getItemName(category.icon);
+
+            if (itemName == null) {
+                return;
             }
+
+            compoundTag.putString("name", category.name);
+            compoundTag.putString("item", itemName);
+
+            ListTag innerCategories = new ListTag();
+
+            categories.forEach(categoryInner -> {
+                CompoundTag compoundTagInner = new CompoundTag();
+
+                String itemNameInner = ItemHelper.getItemName(categoryInner.icon);
+
+                if (itemNameInner == null) {
+                    return;
+                }
+
+                compoundTag.putString("name", categoryInner.name);
+                compoundTag.putString("item", itemNameInner);
+
+                innerCategories.add(compoundTagInner);
+            });
+
+            compoundTag.put("categories", innerCategories);
+            categoriesTag.add(compoundTag);
         });
 
         tag.put("items", itemsTag);
@@ -221,4 +289,6 @@ public class ItemPriceManager {
         object2.keySet().forEach(name -> object.add(name, object2.get(name)));
         return object;
     }
+
+    private record Category(String name, Item icon) {}
 }

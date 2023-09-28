@@ -51,7 +51,7 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
         super(BlockEntityReg.IMPORTER.get(), pos, state);
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false, itemStack -> itemStack.getItem() instanceof CurrencyItem);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
-        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, itemStack -> !(itemStack instanceof CurrencyItem));
+        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, itemStack -> !(itemStack.getItem() instanceof CurrencyItem));
     }
 
     @Override
@@ -207,7 +207,7 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
 
         if (ticketItemStack.isEmpty() || !importer.canAddItem(itemStackToAdd, slotsOutput) || price < 0 || importer.currency.compareTo(new BigDecimal(price)) < 0) {
             if (importer.progress >= 0.f) {
-                importer.progress = Math.max(0.f, importer.progress - 0.01f);0
+                importer.progress = Math.max(0.f, importer.progress - 0.01f);
             }
         } else {
             double progressPerTick = importer.getProgressPerTick();
