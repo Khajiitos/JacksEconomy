@@ -11,6 +11,7 @@ import me.khajiitos.jackseconomy.menu.AdminShopMenu;
 import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.screen.widget.BetterScrollPanel;
 import me.khajiitos.jackseconomy.screen.widget.CategoryEntry;
+import me.khajiitos.jackseconomy.screen.widget.EditCategoryEntry;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.ItemHelper;
 import net.minecraft.ChatFormatting;
@@ -130,11 +131,12 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                     }
 
                     String bigCategoryName = categoryNamesInner[0];
+                    String innerCategoryName = categoryNamesInner[1];
 
                     for (Map.Entry<Category, LinkedHashMap<InnerCategory, List<ShopItem>>> categoryEntry : shopItems.entrySet()) {
                         if (categoryEntry.getKey().name.equals(bigCategoryName)) {
                             for (Map.Entry<InnerCategory, List<ShopItem>> entry : shopItems.get(categoryEntry.getKey()).entrySet()) {
-                                if (entry.getKey().name.equals(category)) {
+                                if (entry.getKey().name.equals(innerCategoryName)) {
                                     entry.getValue().add(new ShopItem(itemDescription, buyPrice, slot, customName));
                                     break;
                                 }
@@ -285,17 +287,35 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         return categories.get(id);
     }
 
+    protected void selectBigCategory(Category bigCategory) {
+        // TODO: make sure this is actually a big category, otherwise we will crash lol
+        this.selectedBigCategory = bigCategory;
+    }
+
+    protected void initCategoryPanel() {
+        this.categoryPanel = this.addRenderableWidget(new BetterScrollPanel(Minecraft.getInstance(), this.leftPos - 80, this.topPos + 20, 75, this.imageHeight - 40));
+
+        for (Category category : shopItems.keySet()) {
+            // TODO: refresh the inner categories
+
+            if (this.isEditMode()) {
+                this.categoryPanel.children.add(new EditCategoryEntry(0, 0, 75, 25, category.item, category.name, (button) -> {
+                    if (button == 0) {
+                        this.selectBigCategory(category);
+                    } else if (button == 1) {
+
+                    }
+                }, () -> tooltip = List.of(Component.translatable("jackseconomy.right_click_to_rename").withStyle(ChatFormatting.AQUA), Component.translatable("jackseconomy.middle_click_to_remove_category").withStyle(ChatFormatting.RED))));
+            }
+            this.categoryPanel.children.add(new CategoryEntry(0, 0, 75, 25, category.item, category.name, button -> selectBigCategory(category)));
+        }
+    }
+
     @Override
     protected void init() {
         super.init();
         initButtons();
-        
-        this.categoryPanel = this.addRenderableWidget(new BetterScrollPanel(Minecraft.getInstance(), this.leftPos - 80, this.topPos + 4, 75, this.imageHeight - 4));
-
-        for (Category category : shopItems.keySet()) {
-            // TODO: refresh the inner categories
-            this.categoryPanel.children.add(new CategoryEntry(0, 0, 75, 20, category.item, category.name, () -> this.selectedBigCategory = category));
-        }
+        initCategoryPanel();
 
         if (!this.isEditMode()) {
             this.addRenderableWidget(new ImageButton(this.leftPos + 139, this.topPos + 121, 30, 26, 176, 0, 26, BACKGROUND, 256, 256, (b) -> {

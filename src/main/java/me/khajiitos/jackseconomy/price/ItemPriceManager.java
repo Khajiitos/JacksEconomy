@@ -112,7 +112,7 @@ public class ItemPriceManager {
                                     return;
                                 }
 
-                                Item itemInner = ItemHelper.getItem(itemName);
+                                Item itemInner = ItemHelper.getItem(itemNameInner);
 
                                 if (itemInner == null) {
                                     return;
@@ -255,8 +255,8 @@ public class ItemPriceManager {
                     return;
                 }
 
-                compoundTag.putString("name", categoryInner.name);
-                compoundTag.putString("item", itemNameInner);
+                compoundTagInner.putString("name", categoryInner.name);
+                compoundTagInner.putString("item", itemNameInner);
 
                 innerCategories.add(compoundTagInner);
             });

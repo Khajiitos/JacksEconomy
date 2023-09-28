@@ -7,8 +7,12 @@ import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.menu.AdminShopMenu;
 import me.khajiitos.jackseconomy.packet.UpdateAdminShopPacket;
 import me.khajiitos.jackseconomy.price.ItemDescription;
+import me.khajiitos.jackseconomy.screen.widget.BetterScrollPanel;
+import me.khajiitos.jackseconomy.screen.widget.CategoryEntry;
+import me.khajiitos.jackseconomy.screen.widget.EditCategoryEntry;
 import me.khajiitos.jackseconomy.screen.widget.FloatingEditBoxWidget;
 import me.khajiitos.jackseconomy.util.ItemHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.nbt.CompoundTag;
@@ -38,6 +42,44 @@ public class EditAdminShopScreen extends AdminShopScreen {
     @Override
     protected boolean isHoverObstructed(int mouseX, int mouseY) {
         return this.floatingEditBox != null && mouseX >= this.floatingEditBox.x && mouseX <= this.floatingEditBox.x + this.floatingEditBox.getWidth() && mouseY >= this.floatingEditBox.y && mouseY <= this.floatingEditBox.y + this.floatingEditBox.getWidth();
+    }
+
+    @Override
+    protected void initCategoryPanel() {
+        this.categoryPanel = this.addRenderableWidget(new BetterScrollPanel(Minecraft.getInstance(), this.leftPos - 80, this.topPos + 20, 75, this.imageHeight - 40));
+
+        for (Category category : shopItems.keySet()) {
+            // TODO: refresh the inner categories
+
+            this.categoryPanel.children.add(new EditCategoryEntry(0, 0, 75, 25, category.item, category.name, (button) -> {
+                if (button == 0) {
+                    this.selectBigCategory(category);
+                } else if (button == 1) {
+                    this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, categoryX + 8, categoryY + 18, 50, 15, (value) -> {
+                        for (InnerCategory otherCategory : this.shopItems.keySet()) {
+                            if (otherCategory == category) {
+                                continue;
+                            }
+
+                            // Category names have to be unique
+                            if (otherCategory.name.equals(value)) {
+                                return;
+                            }
+
+                            category.name = value;
+
+                            if (this.floatingEditBox != null) {
+                                this.removeWidget(this.floatingEditBox);
+                                this.floatingEditBox = null;
+                            }
+
+                            return;
+                        }
+                    }));
+                    this.setFocused(this.floatingEditBox);
+                }
+            }, () -> tooltip = List.of(Component.translatable("jackseconomy.right_click_to_rename").withStyle(ChatFormatting.AQUA), Component.translatable("jackseconomy.middle_click_to_remove_category").withStyle(ChatFormatting.RED))));
+        }
     }
 
     protected String getUnnamedCategoryName() {
