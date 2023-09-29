@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:block/orientable",
   "textures": {
-    "down": "jackseconomy:block/output",
-    "up": "jackseconomy:block/input",
+    "down": "jackseconomy:block/machine",
+    "up": "jackseconomy:block/machine",
     "front": "jackseconomy:block/importer",
-    "east": "jackseconomy:block/output",
+    "east": "jackseconomy:block/machine",
     "south": "jackseconomy:block/machine",
-    "west": "jackseconomy:block/input"
+    "west": "jackseconomy:block/machine"
   }
 }

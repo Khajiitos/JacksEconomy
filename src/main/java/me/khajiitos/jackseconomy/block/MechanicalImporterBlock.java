@@ -49,7 +49,7 @@ public class MechanicalImporterBlock extends KineticTransactionMachineBlock<Mech
 
     @Override
     public <S extends BlockEntity> BlockEntityTicker<S> getTicker(Level p_153212_, BlockState p_153213_, BlockEntityType<S> blockEntityType) {
-        return createTickerHelper(blockEntityType, BlockEntityReg.MECHANICAL_EXPORTER.get(), MechanicalExporterBlockEntity::tick);
+        return createTickerHelper(blockEntityType, BlockEntityReg.MECHANICAL_IMPORTER.get(), MechanicalImporterBlockEntity::tick);
     }
 
     @Override

@@ -2,7 +2,9 @@ package me.khajiitos.jackseconomy.renderer;
 
 import com.jozufozu.flywheel.backend.Backend;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.kinetics.base.HorizontalKineticBlock;
@@ -16,6 +18,7 @@ import com.simibubi.create.foundation.utility.AnimationTickHolder;
 import com.simibubi.create.foundation.utility.Iterate;
 import me.khajiitos.jackseconomy.block.KineticTransactionMachineBlock;
 import me.khajiitos.jackseconomy.block.TransactionMachineBlock;
+import me.khajiitos.jackseconomy.blockentity.MechanicalImporterBlockEntity;
 import me.khajiitos.jackseconomy.blockentity.TransactionKineticMachineBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -41,6 +44,7 @@ public class MechanicalTransactionMachineRenderer<T extends TransactionKineticMa
         //if (Backend.canUseInstancing(be.getLevel())) return;
 
         //final Direction.Axis boxAxis = be.getBlockState().getValue(BlockStateProperties.AXIS);
+
         final BlockPos pos = be.getBlockPos();
         float time = AnimationTickHolder.getRenderTime(be.getLevel());
 
@@ -49,6 +53,7 @@ public class MechanicalTransactionMachineRenderer<T extends TransactionKineticMa
 
             SuperByteBuffer shaft = CachedBufferer.partialFacing(AllPartialModels.SHAFT_HALF, be.getBlockState(), direction);
             float offset = getRotationOffsetForPosition(be, pos, axis);
+            shaft.forEntityRender();
             float angle = (time * be.getSpeed() * 3f / 10) % 360;
 
             if (be.getSpeed() != 0 && be.hasSource()) {

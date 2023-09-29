@@ -4,8 +4,8 @@
   "textures": {
     "face": "jackseconomy:block/exporter",
     "back": "jackseconomy:block/machine_gearbox",
-    "output": "jackseconomy:block/output",
-    "input": "jackseconomy:block/input",
+    "output": "jackseconomy:block/machine",
+    "input": "jackseconomy:block/machine",
     "particle": "jackseconomy:block/machine"
   },
   "elements": [

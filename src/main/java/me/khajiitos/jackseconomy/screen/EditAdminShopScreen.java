@@ -52,12 +52,15 @@ public class EditAdminShopScreen extends AdminShopScreen {
         this.categoryPanel = this.addRenderableWidget(new BetterScrollPanel(Minecraft.getInstance(), this.leftPos - 80, this.topPos + 20, 75, this.imageHeight - 40));
 
         for (Category category : shopItems.keySet()) {
-            // TODO: refresh the inner categories
             this.categoryPanel.children.add(new EditCategoryEntry(0, 0, 75, 25, category, (categoryEntry, button) -> {
                 if (button == 0) {
-                    this.selectBigCategory(category);
+                    if (this.itemOnCursor != null) {
+                        category.item = this.itemOnCursor.itemDescription().item();
+                        this.itemOnCursor = null;
+                    } else {
+                        this.selectBigCategory(category);
+                    }
                 } else if (button == 1) {
-
                     if (this.floatingEditBox != null) {
                         this.removeWidget(this.floatingEditBox);
                         this.floatingEditBox = null;
@@ -112,7 +115,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
                 this.initCategoryPanel();
                 this.itemOnCursor = null;
             }
-        }, () -> tooltip = List.of(Component.translatable("jackseconomy.drop_item_to_create_category"))));
+        }, () -> false, () -> tooltip = List.of(Component.translatable("jackseconomy.drop_item_to_create_category"))));
     }
 
     protected String getUnnamedInnerCategoryName() {
@@ -166,6 +169,11 @@ public class EditAdminShopScreen extends AdminShopScreen {
 
             if (categoryId == categories.size() && this.itemOnCursor != null && this.floatingEditBox == null) {
                 InnerCategory category = new InnerCategory(this.getUnnamedInnerCategoryName(), this.itemOnCursor.itemDescription().item());
+
+                if (this.selectedCategory == null) {
+                    this.selectedCategory = category;
+                }
+
                 this.shopItems.get(selectedBigCategory).put(category, new ArrayList<>());
 
                 int categoryRenderId = categoryId - this.categoryOffset;

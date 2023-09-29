@@ -34,9 +34,9 @@ public class CategoryEntry extends AbstractWidget {
 
         // TODO: Change colors if selected
         if (hovered) {
-            this.fillGradient(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, 0x88FFFFFF, 0x66FFFFFF);
+            this.fillGradient(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, selected ? 0x8800FF00 : 0x88FFFFFF, selected ? 0x6600FF00 : 0x66FFFFFF);
         } else {
-            this.fillGradient(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, 0x44FFFFFF, 0x22FFFFFF);
+            this.fillGradient(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, selected ? 0x4400FF00 : 0x44FFFFFF, selected ? 0x2200FF00 : 0x22FFFFFF);
         }
 
         if (category != null) {
