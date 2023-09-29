@@ -310,7 +310,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         this.categoryPanel = this.addRenderableWidget(new BetterScrollPanel(Minecraft.getInstance(), this.leftPos - 80, this.topPos + 20, 75, this.imageHeight - 40));
 
         for (Category category : shopItems.keySet()) {
-            this.categoryPanel.children.add(new CategoryEntry(0, 0, 75, 25, category, (entry, button) -> selectBigCategory(category)));
+            this.categoryPanel.children.add(new CategoryEntry(0, 0, 75, 25, category, (entry, button) -> selectBigCategory(category), () -> this.selectedBigCategory == category));
         }
     }
 
