@@ -44,7 +44,12 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     protected static final ResourceLocation BACKGROUND = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/admin_shop.png");
     protected static final ResourceLocation NO_WALLET = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/no_wallet.png");
     protected static final ResourceLocation BALANCE_PROGRESS = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/balance_progress.png");
-    protected final LinkedHashMap<Category, LinkedHashMap<InnerCategory, List<ShopItem>>> shopItems = new LinkedHashMap<>();
+    protected final LinkedHashMap<Category, LinkedHashMap<InnerCategory, List<ShopItem>>> shopItems = new LinkedHashMap<>() {
+        @Override
+        public LinkedHashMap<InnerCategory, List<ShopItem>> get(Object key) {
+            return this.getOrDefault(key, new LinkedHashMap<>());
+        }
+    };
     public LinkedHashMap<ShopItem, Integer> shoppingCart = new LinkedHashMap<>();
     protected InnerCategory selectedCategory = null;
     protected Category selectedBigCategory = null;
@@ -290,24 +295,22 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     protected void selectBigCategory(Category bigCategory) {
         // TODO: make sure this is actually a big category, otherwise we will crash lol
         this.selectedBigCategory = bigCategory;
+        this.selectedCategory = null;
+
+        for (InnerCategory innerCategory : this.shopItems.get(bigCategory).keySet()) {
+            this.selectedCategory = innerCategory;
+            break;
+        }
+
+        this.page = 0;
+        this.initButtons();
     }
 
     protected void initCategoryPanel() {
         this.categoryPanel = this.addRenderableWidget(new BetterScrollPanel(Minecraft.getInstance(), this.leftPos - 80, this.topPos + 20, 75, this.imageHeight - 40));
 
         for (Category category : shopItems.keySet()) {
-            // TODO: refresh the inner categories
-
-            if (this.isEditMode()) {
-                this.categoryPanel.children.add(new EditCategoryEntry(0, 0, 75, 25, category.item, category.name, (button) -> {
-                    if (button == 0) {
-                        this.selectBigCategory(category);
-                    } else if (button == 1) {
-
-                    }
-                }, () -> tooltip = List.of(Component.translatable("jackseconomy.right_click_to_rename").withStyle(ChatFormatting.AQUA), Component.translatable("jackseconomy.middle_click_to_remove_category").withStyle(ChatFormatting.RED))));
-            }
-            this.categoryPanel.children.add(new CategoryEntry(0, 0, 75, 25, category.item, category.name, button -> selectBigCategory(category)));
+            this.categoryPanel.children.add(new CategoryEntry(0, 0, 75, 25, category, (entry, button) -> selectBigCategory(category)));
         }
     }
 
@@ -625,11 +628,17 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
             this.name = name;
             this.item = item;
         }
+
+        public String getName() {
+            return name;
+        }
+
+        public Item getItem() {
+            return item;
+        }
     }
 
     public static class Category extends InnerCategory {
-        protected List<InnerCategory> categories = new ArrayList<>();
-
         public Category(String name, Item item) {
             super(name, item);
         }

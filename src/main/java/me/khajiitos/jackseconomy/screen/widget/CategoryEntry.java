@@ -10,18 +10,18 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nullable;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class CategoryEntry extends AbstractWidget {
-    private final String categoryName;
-    private final Item icon;
-    private final Consumer<Integer> onClick;
+    private final AdminShopScreen.Category category;
+    private final BiConsumer<CategoryEntry, Integer> onClick;
 
-    public CategoryEntry(int pX, int pY, int pWidth, int pHeight, Item icon, String categoryName, Consumer<Integer> onClick) {
+    public CategoryEntry(int pX, int pY, int pWidth, int pHeight, @Nullable AdminShopScreen.Category category, BiConsumer<CategoryEntry, Integer> onClick) {
         super(pX, pY, pWidth, pHeight, Component.empty());
-        this.categoryName = categoryName;
-        this.icon = icon;
+        this.category = category;
         this.onClick = onClick;
     }
 
@@ -35,9 +35,11 @@ public class CategoryEntry extends AbstractWidget {
             this.fillGradient(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, 0x44FFFFFF, 0x22FFFFFF);
         }
 
-        Minecraft.getInstance().getItemRenderer().renderGuiItem(new ItemStack(icon), this.x + 2, this.y + 4);
+        if (category != null) {
+            Minecraft.getInstance().getItemRenderer().renderGuiItem(new ItemStack(category.getItem()), this.x + 2, this.y + 4);
+        }
 
-        MutableComponent name = Component.literal(categoryName);
+        MutableComponent name = Component.literal(category == null ? "..." : category.getName());
 
         int width = Minecraft.getInstance().font.width(name);
 
@@ -58,11 +60,16 @@ public class CategoryEntry extends AbstractWidget {
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        if (pButton == 0) {
-            this.playDownSound(Minecraft.getInstance().getSoundManager());
+        boolean hovered = pMouseX >= this.x && pMouseX <= this.x + this.width && pMouseY >= this.y && pMouseY <= this.y + this.height;
+
+        if (hovered) {
+            if (pButton == 0) {
+                this.playDownSound(Minecraft.getInstance().getSoundManager());
+            }
+            onClick.accept(this, pButton);
+            return true;
         }
-        onClick.accept(pButton);
-        return true;
+        return false;
     }
 
     @Override

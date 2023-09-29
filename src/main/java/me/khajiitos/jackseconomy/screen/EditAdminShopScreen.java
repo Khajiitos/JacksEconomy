@@ -8,7 +8,6 @@ import me.khajiitos.jackseconomy.menu.AdminShopMenu;
 import me.khajiitos.jackseconomy.packet.UpdateAdminShopPacket;
 import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.screen.widget.BetterScrollPanel;
-import me.khajiitos.jackseconomy.screen.widget.CategoryEntry;
 import me.khajiitos.jackseconomy.screen.widget.EditCategoryEntry;
 import me.khajiitos.jackseconomy.screen.widget.FloatingEditBoxWidget;
 import me.khajiitos.jackseconomy.util.ItemHelper;
@@ -26,6 +25,7 @@ import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -46,18 +46,28 @@ public class EditAdminShopScreen extends AdminShopScreen {
 
     @Override
     protected void initCategoryPanel() {
+
+        if (this.categoryPanel != null) {
+            this.removeWidget(this.categoryPanel);
+        }
+
         this.categoryPanel = this.addRenderableWidget(new BetterScrollPanel(Minecraft.getInstance(), this.leftPos - 80, this.topPos + 20, 75, this.imageHeight - 40));
 
         for (Category category : shopItems.keySet()) {
             // TODO: refresh the inner categories
-
-            this.categoryPanel.children.add(new EditCategoryEntry(0, 0, 75, 25, category.item, category.name, (button) -> {
+            this.categoryPanel.children.add(new EditCategoryEntry(0, 0, 75, 25, category, (categoryEntry, button) -> {
                 if (button == 0) {
                     this.selectBigCategory(category);
                 } else if (button == 1) {
-                    this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, categoryX + 8, categoryY + 18, 50, 15, (value) -> {
-                        for (InnerCategory otherCategory : this.shopItems.keySet()) {
-                            if (otherCategory == category) {
+
+                    if (this.floatingEditBox != null) {
+                        this.removeWidget(this.floatingEditBox);
+                        this.floatingEditBox = null;
+                    }
+
+                    this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, categoryEntry.x + 37, categoryEntry.y + 20, 75, 15, (value) -> {
+                        for (Category otherCategory : this.shopItems.keySet()) {
+                            if (this.shopItems.size() > 1 && otherCategory == category) {
                                 continue;
                             }
 
@@ -77,13 +87,60 @@ public class EditAdminShopScreen extends AdminShopScreen {
                         }
                     }));
                     this.setFocused(this.floatingEditBox);
+                } else if (button == 2) {
+                    this.shopItems.remove(category);
+
+                    if (this.selectedCategory == category) {
+                        this.selectedCategory = null;
+                        for (Category category1 : this.shopItems.keySet()) {
+                            this.selectBigCategory(category1);
+                            break;
+                        }
+
+                        if (this.selectedCategory == null) {
+                            this.selectBigCategory(null);
+                        }
+                    }
+
+                    this.initCategoryPanel();
                 }
             }, () -> tooltip = List.of(Component.translatable("jackseconomy.right_click_to_rename").withStyle(ChatFormatting.AQUA), Component.translatable("jackseconomy.middle_click_to_remove_category").withStyle(ChatFormatting.RED))));
+        }
+
+        this.categoryPanel.children.add(new EditCategoryEntry(0, 0, 75, 25, null, (categoryEntry, button) -> {
+            if (button == 0 && this.itemOnCursor != null) {
+                Category category = new Category(getUnnamedCategoryName(), this.itemOnCursor.itemDescription().item());
+                this.shopItems.put(category, new LinkedHashMap<>());
+                this.initCategoryPanel();
+                this.itemOnCursor = null;
+            }
+        }, () -> tooltip = List.of(Component.translatable("jackseconomy.drop_item_to_create_category"))));
+    }
+
+    protected String getUnnamedInnerCategoryName() {
+        List<InnerCategory> categories = this.shopItems.get(selectedBigCategory).keySet().stream().toList();
+        int i = -1;
+        while (true) {
+            String name = "Unnamed" + (i == -1 ? "" : " " + i);
+            boolean exists = false;
+
+            for (InnerCategory category : categories) {
+                if (category.name.equals(name)) {
+                    exists = true;
+                    break;
+                }
+            }
+
+            if (!exists) {
+                return name;
+            }
+
+            i++;
         }
     }
 
     protected String getUnnamedCategoryName() {
-        List<InnerCategory> categories = this.shopItems.get(selectedBigCategory).keySet().stream().toList();
+        List<Category> categories = this.shopItems.keySet().stream().toList();
         int i = -1;
         while (true) {
             String name = "Unnamed" + (i == -1 ? "" : " " + i);
@@ -110,7 +167,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
             List<InnerCategory> categories = this.shopItems.get(selectedBigCategory).keySet().stream().toList();
 
             if (categoryId == categories.size() && this.itemOnCursor != null && this.floatingEditBox == null) {
-                InnerCategory category = new InnerCategory(this.getUnnamedCategoryName(), this.itemOnCursor.itemDescription().item());
+                InnerCategory category = new InnerCategory(this.getUnnamedInnerCategoryName(), this.itemOnCursor.itemDescription().item());
                 this.shopItems.get(selectedBigCategory).put(category, new ArrayList<>());
 
                 int categoryRenderId = categoryId - this.categoryOffset;
