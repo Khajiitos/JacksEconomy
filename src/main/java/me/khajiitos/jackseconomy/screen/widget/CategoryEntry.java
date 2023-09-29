@@ -18,17 +18,21 @@ import java.util.function.Supplier;
 public class CategoryEntry extends AbstractWidget {
     private final AdminShopScreen.Category category;
     private final BiConsumer<CategoryEntry, Integer> onClick;
+    private final Supplier<Boolean> isSelectedSupplier;
 
-    public CategoryEntry(int pX, int pY, int pWidth, int pHeight, @Nullable AdminShopScreen.Category category, BiConsumer<CategoryEntry, Integer> onClick) {
+    public CategoryEntry(int pX, int pY, int pWidth, int pHeight, @Nullable AdminShopScreen.Category category, BiConsumer<CategoryEntry, Integer> onClick, Supplier<Boolean> isSelectedSupplier) {
         super(pX, pY, pWidth, pHeight, Component.empty());
         this.category = category;
         this.onClick = onClick;
+        this.isSelectedSupplier = isSelectedSupplier;
     }
 
     @Override
     public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         boolean hovered = pMouseX >= this.x && pMouseX <= this.x + this.width && pMouseY >= this.y && pMouseY <= this.y + this.height;
+        boolean selected = isSelectedSupplier.get();
 
+        // TODO: Change colors if selected
         if (hovered) {
             this.fillGradient(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, 0x88FFFFFF, 0x66FFFFFF);
         } else {

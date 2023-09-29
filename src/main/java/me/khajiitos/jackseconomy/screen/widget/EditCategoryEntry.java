@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 public class EditCategoryEntry extends CategoryEntry {
     private final Runnable onHovered;
 
-    public EditCategoryEntry(int pX, int pY, int pWidth, int pHeight, AdminShopScreen.Category category, BiConsumer<CategoryEntry, Integer> onClick, Runnable onHovered) {
+    public EditCategoryEntry(int pX, int pY, int pWidth, int pHeight, AdminShopScreen.Category category, BiConsumer<CategoryEntry, Integer> onClick, SupplierRunnable onHovered) {
         super(pX, pY, pWidth, pHeight, category, onClick);
         this.onHovered = onHovered;
     }
