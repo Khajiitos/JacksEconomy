@@ -1,5 +1,6 @@
 package me.khajiitos.jackseconomy.screen;
 
+import com.google.gson.JsonArray;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
@@ -24,10 +25,7 @@ import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class EditAdminShopScreen extends AdminShopScreen {
     protected ShopItem itemOnCursor;
@@ -309,7 +307,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
         ListTag itemsTag = new ListTag();
         ListTag categoriesTag = new ListTag();
 
-        this.shopItems.get(selectedBigCategory).forEach((category, itemList) -> {
+        this.shopItems.forEach((category, innerCategories) -> {
             String itemName = ItemHelper.getItemName(category.item);
 
             if (itemName == null) {
@@ -320,20 +318,37 @@ public class EditAdminShopScreen extends AdminShopScreen {
             categoryTag.putString("name", category.name);
             categoryTag.putString("item", itemName);
 
-            categoriesTag.add(categoryTag);
+            ListTag innerCategoriesTag = new ListTag();
 
-            for (ShopItem shopItem : itemList) {
-                CompoundTag itemTag = shopItem.itemDescription().toNbt();
-                itemTag.putDouble("adminShopBuyPrice", shopItem.price());
-                itemTag.putString("category", category.name);
-                itemTag.putInt("slot", shopItem.slot());
+            for (Map.Entry<InnerCategory, List<ShopItem>> entry : innerCategories.entrySet()) {
+                String innerItemName = ItemHelper.getItemName(entry.getKey().item);
 
-                if (shopItem.customName() != null) {
-                    itemTag.putString("customAdminShopName", shopItem.customName());
+                if (innerItemName == null) {
+                    return;
                 }
 
-                itemsTag.add(itemTag);
+                CompoundTag innerCategoryTag = new CompoundTag();
+                innerCategoryTag.putString("name", entry.getKey().name);
+                innerCategoryTag.putString("item", innerItemName);
+
+                for (ShopItem shopItem : entry.getValue()) {
+                    CompoundTag itemTag = shopItem.itemDescription().toNbt();
+                    itemTag.putDouble("adminShopBuyPrice", shopItem.price());
+                    itemTag.putString("category", category.name + ":" + entry.getKey().name);
+                    itemTag.putInt("slot", shopItem.slot());
+
+                    if (shopItem.customName() != null) {
+                        itemTag.putString("customAdminShopName", shopItem.customName());
+                    }
+
+                    itemsTag.add(itemTag);
+                }
+
+                innerCategoriesTag.add(innerCategoryTag);
             }
+
+            categoryTag.put("categories", innerCategoriesTag);
+            categoriesTag.add(categoryTag);
         });
 
         tag.put("items", itemsTag);

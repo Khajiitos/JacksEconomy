@@ -2,10 +2,8 @@ package me.khajiitos.jackseconomy.screen.widget;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.screen.AdminShopScreen;
-import net.minecraft.world.item.Item;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class EditCategoryEntry extends CategoryEntry {
     private final Runnable onHovered;

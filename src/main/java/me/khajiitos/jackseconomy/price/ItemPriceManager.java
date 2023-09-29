@@ -27,7 +27,7 @@ public class ItemPriceManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     static {
-        itemPriceInfos.put(new ItemDescription(Items.DIAMOND, null), new ItemPriceInfo(50.0, 100.0, 150.0, "Gems", 0, null));
+        itemPriceInfos.put(new ItemDescription(Items.DIAMOND, null), new ItemPriceInfo(50.0, 100.0, 150.0, "General:Gems", 0, null));
 
         ArrayList<Category> categoriesInnerDefault = new ArrayList<>();
         categoriesInnerDefault.add(new Category("Gems", Items.DIAMOND));

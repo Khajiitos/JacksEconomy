@@ -97,7 +97,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                             return;
                         }
 
-                        InnerCategory innerCategory = new InnerCategory(innerCategoryName, item);
+                        InnerCategory innerCategory = new InnerCategory(innerCategoryName, innerItem);
                         innerCategories.put(innerCategory, new ArrayList<>());
 
                         if (selectedCategory == null) {
@@ -379,8 +379,16 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         shouldRenderBackground = true;
         this.renderBg(pPoseStack, pPartialTick, pMouseX, pMouseY);
 
-        if (this.selectedCategory != null) {
-            GuiComponent.drawCenteredString(pPoseStack, this.font, this.selectedCategory.name, this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
+        if (!isEditMode()) {
+            if (this.selectedCategory != null) {
+                GuiComponent.drawCenteredString(pPoseStack, this.font, this.selectedCategory.name, this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
+            }
+        } else {
+            if (this.selectedCategory != null) {
+                GuiComponent.drawCenteredString(pPoseStack, this.font, this.selectedCategory.name, this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
+            } else {
+                GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.add_category").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
+            }
         }
 
         List<InnerCategory> categories = this.shopItems.get(selectedBigCategory).keySet().stream().toList();

@@ -112,5 +112,6 @@
   "jackseconomy.max_storage": "Max storage: %s (%s used)",
   "jackseconomy.speed": "Speed: %s RPM",
   "jackseconomy.category_list": "Shop Categories",
-  "jackseconomy.drop_item_to_create_category": "Drop an item to create a category!"
+  "jackseconomy.drop_item_to_create_category": "Drop an item to create a category!",
+  "jackseconomy.add_category": "Add category!"
 }
