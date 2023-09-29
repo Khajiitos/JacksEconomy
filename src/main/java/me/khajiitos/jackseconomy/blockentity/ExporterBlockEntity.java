@@ -50,7 +50,11 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
         super(BlockEntityReg.EXPORTER.get(), pos, state);
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true, itemStack -> itemStack.getItem() instanceof CurrencyItem);
-        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, itemStack -> ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1);
+        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
+    }
+
+    protected boolean isItemRejected(ItemStack itemStack) {
+        return ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
     }
 
     @Override
@@ -165,6 +169,8 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
                 return slotsInput;
             } case OUTPUT -> {
                 return slotsOutput;
+            } case REJECTION_OUTPUT -> {
+                return Arrays.stream(slotsInput).filter(slot -> isItemRejected(this.items.get(slot))).toArray(new int[0]);
             }
         }
         return new int[]{};
