@@ -546,14 +546,19 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
     // Returns old item
     protected ShopItem setItemAtSlot(ShopItem shopItem, int slot, InnerCategory category) {
+
+        if (!this.shopItems.get(selectedBigCategory).containsKey(category)) {
+            return shopItem;
+        }
+
         ShopItem existingItem = getItemAtSlot(slot, category);
 
         if (existingItem != null) {
-            this.shopItems.get(selectedBigCategory).getOrDefault(category, List.of()).remove(existingItem);
+            this.shopItems.get(selectedBigCategory).get(category).remove(existingItem);
         }
 
         if (shopItem != null) {
-            this.shopItems.get(selectedBigCategory).getOrDefault(category, List.of()).add(new ShopItem(shopItem.itemDescription, shopItem.price, slot, shopItem.customName));
+            this.shopItems.get(selectedBigCategory).get(category).add(new ShopItem(shopItem.itemDescription, shopItem.price, slot, shopItem.customName));
         }
 
         return existingItem;

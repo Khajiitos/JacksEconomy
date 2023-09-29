@@ -8,6 +8,11 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 public class CurrencyHelper {
+    private static final BigDecimal TRILLION = new BigDecimal("1000000000000");
+    private static final BigDecimal BILLION = new BigDecimal("1000000000");
+    private static final BigDecimal MILLION = new BigDecimal("1000000");
+    private static final BigDecimal THOUSAND = new BigDecimal("1000");
+
     public static List<ItemStack> getCurrencyItems(BigDecimal value) {
         List<ItemStack> items = new ArrayList<>();
         List<CurrencyType> sortedCurrencies = Arrays.stream(CurrencyType.values()).sorted(Comparator.comparing(CurrencyType::getWorth).reversed()).toList();
@@ -34,6 +39,19 @@ public class CurrencyHelper {
     // 1.0 -> $1.00
     public static String format(double value) {
         return DecimalFormat.getCurrencyInstance(Locale.US).format(value);
+    }
+
+    public static String formatShortened(BigDecimal bigDecimal) {
+        if (bigDecimal.compareTo(TRILLION) >= 0) {
+            return "$" + bigDecimal.divide(TRILLION, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN) + "T";
+        } else if (bigDecimal.compareTo(BILLION) >= 0) {
+            return "$" + bigDecimal.divide(BILLION, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN) + "B";
+        } else if (bigDecimal.compareTo(MILLION) >= 0) {
+            return "$" + bigDecimal.divide(MILLION, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN) + "M";
+        } else if (bigDecimal.compareTo(THOUSAND) >= 0) {
+            return "$" + bigDecimal.divide(THOUSAND, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN) + "K";
+        }
+        return format(bigDecimal);
     }
 
     public static String format(BigDecimal bigDecimal) {

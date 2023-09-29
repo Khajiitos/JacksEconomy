@@ -290,5 +290,5 @@ public class ItemPriceManager {
         return object;
     }
 
-    private record Category(String name, Item icon) {}
+    public record Category(String name, Item icon) {}
 }

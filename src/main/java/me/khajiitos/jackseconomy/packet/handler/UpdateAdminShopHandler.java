@@ -12,11 +12,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class UpdateAdminShopHandler {
-    public static void handle(UpdateAdminShopPacket msg, Supplier<NetworkEvent.Context> ctx) {/*
+    public static void handle(UpdateAdminShopPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ServerPlayer sender = ctx.get().getSender();
 
         if (sender == null) {
@@ -33,7 +35,7 @@ public class UpdateAdminShopHandler {
         ListTag itemsTag = data.getList("items", Tag.TAG_COMPOUND);
 
         LinkedHashMap<ItemDescription, ItemPriceInfo> itemPriceInfos = ItemPriceManager.getItemPriceInfos();
-        LinkedHashMap<String, Item> categories = ItemPriceManager.getCategories();
+        LinkedHashMap<ItemPriceManager.Category, List<ItemPriceManager.Category>> categories = ItemPriceManager.getCategories();
 
         categories.clear();
 
@@ -50,9 +52,22 @@ public class UpdateAdminShopHandler {
                 String name = compoundTag.getString("name");
                 Item item = ItemHelper.getItem(compoundTag.getString("item"));
 
-                if (item != null) {
-                    categories.put(name, item);
-                }
+                ItemPriceManager.Category category = new ItemPriceManager.Category(name, item);
+                ArrayList<ItemPriceManager.Category> innerCategories = new ArrayList<>();
+
+                ListTag innerCategoriesTag = compoundTag.getList("categories", Tag.TAG_COMPOUND);
+
+                innerCategoriesTag.forEach(tag1 -> {
+                    if (tag1 instanceof CompoundTag innerCategoryTag) {
+                        String innerName = innerCategoryTag.getString("name");
+                        Item innerItem = ItemHelper.getItem(innerCategoryTag.getString("item"));
+
+                        ItemPriceManager.Category innerCategory = new ItemPriceManager.Category(innerName, innerItem);
+                        innerCategories.add(innerCategory);
+                    }
+                });
+
+                categories.put(category, innerCategories);
             }
         });
 
@@ -81,7 +96,8 @@ public class UpdateAdminShopHandler {
             }
         });
 
-        ItemPriceManager.save();*/
-        // TODO: UNCOMMENT!!!
+        ItemPriceManager.save();
+        // TODO: Make sure it works!
+        // Update: it doesn't
     }
 }

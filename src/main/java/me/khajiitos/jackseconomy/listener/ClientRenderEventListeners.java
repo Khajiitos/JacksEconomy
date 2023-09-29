@@ -35,7 +35,7 @@ public class ClientRenderEventListeners {
             BigDecimal balance = WalletItem.getBalance(wallet);
 
             Minecraft.getInstance().getItemRenderer().renderGuiItem(wallet, 1, 1);
-            Minecraft.getInstance().font.draw(e.getPoseStack(), Component.translatable("jackseconomy.wallet_balance", Component.literal(CurrencyHelper.format(balance))), 19, 7, 0xFFFFFFFF);
+            Minecraft.getInstance().font.draw(e.getPoseStack(), Component.literal(CurrencyHelper.formatShortened(balance)), 19, 7, 0xFFFFFFFF);
 
             BigDecimal capacity = BigDecimal.valueOf(walletItem.getCapacity());
             double progress = balance.divide(capacity, RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
