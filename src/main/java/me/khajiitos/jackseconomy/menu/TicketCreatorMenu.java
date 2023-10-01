@@ -1,6 +1,5 @@
 package me.khajiitos.jackseconomy.menu;
 
-import me.khajiitos.jackseconomy.init.ContainerReg;
 import me.khajiitos.jackseconomy.item.EmptyTicketItem;
 import me.khajiitos.jackseconomy.item.TicketItem;
 import me.khajiitos.jackseconomy.price.ItemDescription;

@@ -1,7 +1,6 @@
 package me.khajiitos.jackseconomy.packet.handler;
 
 import me.khajiitos.jackseconomy.blockentity.ImporterBlockEntity;
-import me.khajiitos.jackseconomy.menu.CurrencyConverterMenu;
 import me.khajiitos.jackseconomy.menu.ImporterMenu;
 import me.khajiitos.jackseconomy.packet.ChangeSelectedItemPacket;
 import net.minecraft.server.level.ServerPlayer;

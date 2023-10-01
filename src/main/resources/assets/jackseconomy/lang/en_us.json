@@ -99,8 +99,8 @@
   "jackseconomy.configuration": "Configuration",
   "jackseconomy.direction.north": "North (Face)",
   "jackseconomy.direction.south": "South (Back)",
-  "jackseconomy.direction.east": "East (Right)",
-  "jackseconomy.direction.west": "West (Left)",
+  "jackseconomy.direction.east": "East (Left)",
+  "jackseconomy.direction.west": "West (Right)",
   "jackseconomy.direction.up": "Up",
   "jackseconomy.direction.down": "Down",
   "jackseconomy.sidevalue.input": "Input",
@@ -113,5 +113,6 @@
   "jackseconomy.speed": "Speed: %s RPM",
   "jackseconomy.category_list": "Shop Categories",
   "jackseconomy.drop_item_to_create_category": "Drop an item to create a category!",
-  "jackseconomy.add_category": "Add category!"
+  "jackseconomy.add_category": "Add category!",
+  "jackseconomy.max_capacity_reached": "Maximum capacity reached"
 }

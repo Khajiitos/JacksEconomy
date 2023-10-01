@@ -1,6 +1,5 @@
 package me.khajiitos.jackseconomy.item;
 
-import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
 import me.khajiitos.jackseconomy.init.Sounds;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;

@@ -10,8 +10,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
 

@@ -2,10 +2,6 @@ package me.khajiitos.jackseconomy;
 
 import com.mojang.logging.LogUtils;
 import com.simibubi.create.content.kinetics.BlockStressValues;
-import com.simibubi.create.content.kinetics.chainDrive.ChainDriveBlock;
-import com.simibubi.create.content.kinetics.clock.CuckooClockBlock;
-import com.simibubi.create.content.kinetics.clock.CuckooClockBlockEntity;
-import com.simibubi.create.content.kinetics.clock.CuckooClockRenderer;
 import com.simibubi.create.foundation.utility.Couple;
 import me.khajiitos.jackseconomy.config.ClientConfig;
 import me.khajiitos.jackseconomy.config.Config;
@@ -15,7 +11,6 @@ import me.khajiitos.jackseconomy.init.*;
 import me.khajiitos.jackseconomy.listener.ConfigEventListeners;
 import me.khajiitos.jackseconomy.listener.OtherEventListeners;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;

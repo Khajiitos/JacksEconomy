@@ -1,20 +1,15 @@
 package me.khajiitos.jackseconomy.block;
 
-import me.khajiitos.jackseconomy.item.CurrencyStackItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,10 +21,8 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
 
 public class CurrencyStackBlock extends Block {
     public static final IntegerProperty LAYERS = BlockStateProperties.LAYERS;

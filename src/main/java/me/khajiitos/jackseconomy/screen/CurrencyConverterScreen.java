@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.blockentity.CurrencyConverterBlockEntity;
-import me.khajiitos.jackseconomy.blockentity.IExporterBlockEntity;
+import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.menu.CurrencyConverterMenu;
 import me.khajiitos.jackseconomy.packet.ChangeCurrencyTypePacket;
@@ -13,8 +13,8 @@ import me.khajiitos.jackseconomy.screen.widget.SideConfigWidget;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.CurrencyType;
 import me.khajiitos.jackseconomy.util.SideConfig;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.SubtitleOverlay;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Direction;
@@ -23,9 +23,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static me.khajiitos.jackseconomy.screen.WalletScreen.BALANCE_PROGRESS;
 
 public class CurrencyConverterScreen extends AbstractContainerScreen<CurrencyConverterMenu> {
     private static final ResourceLocation BACKGROUND = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/currency_converter.png");
@@ -103,9 +107,26 @@ public class CurrencyConverterScreen extends AbstractContainerScreen<CurrencyCon
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
         this.renderTooltip(pPoseStack, pMouseX, pMouseY);
 
-        Component text = Component.literal(CurrencyHelper.format(this.blockEntity.getCurrency()));
-        int textWidth = Minecraft.getInstance().font.width(text);
-        Minecraft.getInstance().font.draw(pPoseStack, text, (this.width - textWidth) / 2.f, this.height / 2.f - 82, 4210752);
+        BigDecimal currency = blockEntity == null ? BigDecimal.ZERO : blockEntity.getTotalBalance();
+
+        BigDecimal capacity = BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get());
+        double progress = currency.divide(capacity, RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
+
+        RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
+
+        int startX = (this.width - 51) / 2;
+        int startY = this.height / 2 - 81;
+
+        blit(pPoseStack, startX, startY, this.getBlitOffset(), 0, 0, 51, 5, 256, 256);
+        blit(pPoseStack, startX, startY, this.getBlitOffset(), 0, 5, ((int)(51 * progress)), 5, 256, 256);
+
+        if (currency.compareTo(capacity) >= 0) {
+            GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
+        }
+
+        if (pMouseX >= startX && pMouseX <= startX + 51 && pMouseY >= startY && pMouseY <= startY + 5) {
+            tooltip = List.of(Component.translatable("jackseconomy.balance", Component.literal(CurrencyHelper.format(currency)).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW), Component.translatable("jackseconomy.max_storage", Component.literal(CurrencyHelper.format(capacity)).withStyle(ChatFormatting.GOLD), Component.literal((int)(progress * 100) + "%").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW));
+        }
 
         if (tooltip != null) {
             this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX, pMouseY);

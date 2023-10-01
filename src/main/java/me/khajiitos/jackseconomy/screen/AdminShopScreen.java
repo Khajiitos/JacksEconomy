@@ -11,7 +11,6 @@ import me.khajiitos.jackseconomy.menu.AdminShopMenu;
 import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.screen.widget.BetterScrollPanel;
 import me.khajiitos.jackseconomy.screen.widget.CategoryEntry;
-import me.khajiitos.jackseconomy.screen.widget.EditCategoryEntry;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.ItemHelper;
 import net.minecraft.ChatFormatting;
@@ -294,6 +293,8 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
     protected void selectBigCategory(Category bigCategory) {
         // TODO: make sure this is actually a big category, otherwise we will crash lol
+        // Update: whatever it works
+
         this.selectedBigCategory = bigCategory;
         this.selectedCategory = null;
 
@@ -465,7 +466,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
             if (wallet != null && wallet.getItem() instanceof WalletItem walletItem) {
                 BigDecimal balance = WalletItem.getBalance(wallet);
 
-                Component component = Component.literal(CurrencyHelper.format(balance));
+                Component component = Component.literal(CurrencyHelper.formatShortened(balance));
                 int textWidth = this.font.width(component);
                 int totalWidth = 29 + textWidth;
                 GuiComponent.fill(pPoseStack, this.leftPos + 181, this.topPos + 5, this.leftPos + 181 + totalWidth, this.topPos + 35, 0xFF4c4c4c);
@@ -475,9 +476,15 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
                 RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
 
+                int barStartX = this.leftPos + 181 + ((totalWidth - 51) / 2);
+                int barStartY = this.topPos + 26;
                 double progress = balance.divide(BigDecimal.valueOf(walletItem.getCapacity()), RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
-                blit(pPoseStack, this.leftPos + 181 + ((totalWidth - 51) / 2), this.topPos + 26, this.getBlitOffset(), 0, 0, 51, 5, 256, 256);
-                blit(pPoseStack, this.leftPos + 181 + ((totalWidth - 51) / 2), this.topPos + 26, this.getBlitOffset(), 0, 5, ((int)(51 * progress)), 5, 256, 256);
+                blit(pPoseStack, barStartX, barStartY, this.getBlitOffset(), 0, 0, 51, 5, 256, 256);
+                blit(pPoseStack, barStartX, barStartY, this.getBlitOffset(), 0, 5, ((int)(51 * progress)), 5, 256, 256);
+
+                if (pMouseX >= barStartX && pMouseX <= barStartX + 51 && pMouseY >= barStartY && pMouseY <= barStartY + 5) {
+                    tooltip = List.of(Component.translatable("jackseconomy.balance_out_of", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(walletItem.getCapacity()))).withStyle(ChatFormatting.GOLD));
+                }
             } else {
                 Component component = Component.translatable("jackseconomy.no_wallet").withStyle(ChatFormatting.DARK_RED);
                 int width = this.font.width(component);

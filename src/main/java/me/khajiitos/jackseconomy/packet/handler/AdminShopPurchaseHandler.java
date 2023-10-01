@@ -7,7 +7,6 @@ import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.price.ItemPriceManager;
 import me.khajiitos.jackseconomy.util.ItemHelper;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 

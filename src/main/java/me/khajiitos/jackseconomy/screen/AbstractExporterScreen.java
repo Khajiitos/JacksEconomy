@@ -5,26 +5,24 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.blockentity.IExporterBlockEntity;
 import me.khajiitos.jackseconomy.config.Config;
-import me.khajiitos.jackseconomy.init.Packets;
-import me.khajiitos.jackseconomy.item.*;
+import me.khajiitos.jackseconomy.item.CurrencyItem;
+import me.khajiitos.jackseconomy.item.ExporterTicketItem;
+import me.khajiitos.jackseconomy.item.GoldenExporterTicketItem;
+import me.khajiitos.jackseconomy.item.TicketItem;
 import me.khajiitos.jackseconomy.menu.IBlockEntityContainer;
-import me.khajiitos.jackseconomy.packet.ChangeRedstoneTogglePacket;
 import me.khajiitos.jackseconomy.price.ItemDescription;
+import me.khajiitos.jackseconomy.screen.widget.RedstoneControlWidget;
 import me.khajiitos.jackseconomy.screen.widget.SideConfigWidget;
 import me.khajiitos.jackseconomy.screen.widget.TicketPreviewWidget;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
-import me.khajiitos.jackseconomy.util.RedstoneToggle;
 import me.khajiitos.jackseconomy.util.SideConfig;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
@@ -66,6 +64,12 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
 
         this.refreshTicketPreview();
         this.refreshSideConfig();
+
+        IExporterBlockEntity blockEntity = this.getBlockEntity();
+
+        if (blockEntity != null) {
+            this.addRenderableWidget(new RedstoneControlWidget(this.leftPos - 24, this.topPos + 1, blockEntity, tooltip -> this.tooltip = tooltip));
+        }
     }
 
     @Override
@@ -76,10 +80,6 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
         int i = this.leftPos;
         int j = (this.height - this.imageHeight) / 2;
         this.blit(pPoseStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
-
-        int startXRedstone = this.leftPos - 53;
-        RenderSystem.setShaderTexture(0, REDSTONE_SELECTION);
-        this.blit(pPoseStack, startXRedstone, j, 0, 0, 38, 38);
     }
 
     public BigDecimal getCurrencyInOutputSlots() {
@@ -154,42 +154,20 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
 
         IExporterBlockEntity blockEntity = this.getBlockEntity();
 
-        RedstoneToggle redstoneToggle = blockEntity == null ? RedstoneToggle.IGNORED : blockEntity.getRedstoneToggle();
         BigDecimal currency = (blockEntity == null ? BigDecimal.ZERO : blockEntity.getBalance()).add(getCurrencyInOutputSlots());
 
         if (blockEntity != null) {
             RenderSystem.setShaderTexture(0, BACKGROUND);
 
+            pPoseStack.pushPose();
+            pPoseStack.scale(0.5f, 0.5f, 0.5f);
+
             int topPos = (this.height - this.imageHeight) / 2;
             int pixels = (int)Math.ceil(blockEntity.getProgress() * 48);
-            this.blit(pPoseStack, leftPos + 74, topPos + 23 + (48 - pixels), 176, (48 - pixels), 28, pixels);
+            this.blit(pPoseStack, (leftPos + 74) * 2, (topPos + 23 + (48 - pixels)) * 2, 176, (48 - pixels), 28, pixels);
+
+            pPoseStack.popPose();
         }
-
-        int j = (this.height - this.imageHeight) / 2;
-        int startXRedstone = this.leftPos - 53;
-
-        RenderSystem.setShaderTexture(0, REDSTONE_SELECTION);
-
-        switch (redstoneToggle) {
-            case IGNORED -> this.blit(pPoseStack, startXRedstone + 11, j + 11, 70, 0, 16, 16);
-            case SIGNAL_ON -> this.blit(pPoseStack, startXRedstone + 11, j + 11, 54, 0, 16, 16);
-            case SIGNAL_OFF -> this.blit(pPoseStack, startXRedstone + 11, j + 11, 38, 0, 16, 16);
-        }
-
-        if (pMouseX >= startXRedstone + 11 && pMouseX <= startXRedstone + 11 + 16 && pMouseY >= j + 11 && pMouseY <= j + 11 + 16) {
-            AbstractExporterScreen.renderSlotHighlight(pPoseStack, startXRedstone + 11, j + 11, this.getBlitOffset());
-
-            List<Component> tooltip = List.of(
-                    Component.translatable(switch (redstoneToggle) {
-                        case IGNORED -> "jackseconomy.redstone_ignored";
-                        case SIGNAL_ON -> "jackseconomy.redstone_signal_on";
-                        case SIGNAL_OFF -> "jackseconomy.redstone_signal_off";
-                    })
-            );
-
-            this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX, pMouseY);
-        }
-
 
         BigDecimal capacity = BigDecimal.valueOf(Config.maxExporterBalance.get());
         double progress = currency.divide(capacity, RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
@@ -208,6 +186,8 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
 
         if (!(this.menu.slots.get(6).getItem().getItem() instanceof ExporterTicketItem)) {
             GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.manifest_required").withStyle(ChatFormatting.YELLOW), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
+        } else if (currency.compareTo(capacity) >= 0) {
+            GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
         }
 
         renderTooltipsOrSomething(pPoseStack, pMouseX, pMouseY);
@@ -221,35 +201,6 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
 
     protected void renderTooltipsOrSomething(PoseStack poseStack, int mouseX, int mouseY) {
 
-    }
-
-    @Override
-    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        IExporterBlockEntity blockEntity = this.getBlockEntity();
-
-        RedstoneToggle redstoneToggle = blockEntity == null ? RedstoneToggle.IGNORED : blockEntity.getRedstoneToggle();
-
-        int j = (this.height - this.imageHeight) / 2;
-        int startXRedstone = this.leftPos - 53;
-
-        if (pMouseX >= startXRedstone + 11 && pMouseX <= startXRedstone + 11 + 16 && pMouseY >= j + 11 && pMouseY <= j + 11 + 16) {
-
-            RedstoneToggle newToggle = switch (redstoneToggle) {
-                case IGNORED -> RedstoneToggle.SIGNAL_ON;
-                case SIGNAL_ON -> RedstoneToggle.SIGNAL_OFF;
-                case SIGNAL_OFF -> RedstoneToggle.IGNORED;
-            };
-
-            Packets.sendToServer(new ChangeRedstoneTogglePacket(newToggle));
-
-            if (blockEntity != null) {
-                blockEntity.setRedstoneToggle(newToggle);
-            }
-
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-        }
-
-        return super.mouseClicked(pMouseX, pMouseY, pButton);
     }
 
     @Override

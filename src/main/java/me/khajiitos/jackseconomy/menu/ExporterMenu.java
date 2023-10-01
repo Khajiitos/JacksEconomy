@@ -5,14 +5,12 @@ import me.khajiitos.jackseconomy.blockentity.ExporterBlockEntity;
 import me.khajiitos.jackseconomy.blockentity.TransactionMachineBlockEntity;
 import me.khajiitos.jackseconomy.init.ContainerReg;
 import me.khajiitos.jackseconomy.item.ExporterTicketItem;
-import me.khajiitos.jackseconomy.item.TicketItem;
 import me.khajiitos.jackseconomy.util.FilteredSlot;
 import me.khajiitos.jackseconomy.util.OutputSlot;
 import me.khajiitos.jackseconomy.util.RedstoneToggle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.Slot;
 
 public class ExporterMenu extends TransactionMachineMenu {
     public final float machineSpeed;

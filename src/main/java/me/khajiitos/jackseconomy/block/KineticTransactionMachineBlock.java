@@ -1,14 +1,8 @@
 package me.khajiitos.jackseconomy.block;
 
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.content.kinetics.base.HorizontalKineticBlock;
-import com.simibubi.create.content.kinetics.base.KineticBlock;
-import com.simibubi.create.content.kinetics.clock.CuckooClockBlock;
-import com.simibubi.create.content.kinetics.transmission.SplitShaftBlockEntity;
 import com.simibubi.create.foundation.block.IBE;
-import me.khajiitos.jackseconomy.blockentity.TransactionMachineBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

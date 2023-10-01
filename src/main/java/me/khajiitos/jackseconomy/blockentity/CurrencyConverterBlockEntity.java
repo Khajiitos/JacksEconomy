@@ -1,8 +1,5 @@
 package me.khajiitos.jackseconomy.blockentity;
 
-import me.khajiitos.jackseconomy.JacksEconomy;
-import me.khajiitos.jackseconomy.block.CurrencyConverterBlock;
-import me.khajiitos.jackseconomy.block.ExporterBlock;
 import me.khajiitos.jackseconomy.block.TransactionMachineBlock;
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.init.BlockEntityReg;
@@ -61,6 +58,20 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false, itemStack -> itemStack.getItem() instanceof CurrencyItem);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
+    }
+
+    public BigDecimal getTotalBalance() {
+        BigDecimal balance = this.getCurrency();
+
+        for (int slot : slotsOutput) {
+            ItemStack itemStack = this.items.get(slot);
+
+            if (itemStack.getItem() instanceof CurrencyItem currencyItem) {
+                balance = balance.add(currencyItem.value.multiply(BigDecimal.valueOf(itemStack.getCount())));
+            }
+        }
+
+        return balance;
     }
 
     public BigDecimal getCurrency() {
@@ -138,7 +149,7 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
 
         boolean updated = false;
 
-        if (blockEntity.currency.compareTo(BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get())) < 0) {
+        if (blockEntity.getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get())) < 0) {
             for (int slotInput : slotsInput) {
                 ItemStack itemStack = blockEntity.items.get(slotInput);
 

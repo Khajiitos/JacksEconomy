@@ -1,9 +1,9 @@
 package me.khajiitos.jackseconomy.menu;
 
 import me.khajiitos.jackseconomy.JacksEconomy;
-import me.khajiitos.jackseconomy.blockentity.*;
+import me.khajiitos.jackseconomy.blockentity.MechanicalImporterBlockEntity;
+import me.khajiitos.jackseconomy.blockentity.TransactionKineticMachineBlockEntity;
 import me.khajiitos.jackseconomy.init.ContainerReg;
-import me.khajiitos.jackseconomy.item.ExporterTicketItem;
 import me.khajiitos.jackseconomy.item.ImporterTicketItem;
 import me.khajiitos.jackseconomy.util.CoinInputSlot;
 import me.khajiitos.jackseconomy.util.FilteredSlot;

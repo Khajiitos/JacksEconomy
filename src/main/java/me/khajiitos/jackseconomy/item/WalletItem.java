@@ -1,21 +1,14 @@
 package me.khajiitos.jackseconomy.item;
 
 import me.khajiitos.jackseconomy.init.ItemBlockReg;
-import me.khajiitos.jackseconomy.menu.WalletMenu;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;

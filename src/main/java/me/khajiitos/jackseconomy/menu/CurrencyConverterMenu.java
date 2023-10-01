@@ -1,7 +1,6 @@
 package me.khajiitos.jackseconomy.menu;
 
 import me.khajiitos.jackseconomy.blockentity.CurrencyConverterBlockEntity;
-import me.khajiitos.jackseconomy.blockentity.TransactionMachineBlockEntity;
 import me.khajiitos.jackseconomy.init.ContainerReg;
 import me.khajiitos.jackseconomy.util.CoinInputSlot;
 import me.khajiitos.jackseconomy.util.OutputSlot;

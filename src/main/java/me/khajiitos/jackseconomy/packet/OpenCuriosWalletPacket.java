@@ -1,7 +1,6 @@
 package me.khajiitos.jackseconomy.packet;
 
 import me.khajiitos.jackseconomy.packet.handler.OpenCuriosWalletHandler;
-import me.khajiitos.jackseconomy.packet.handler.PricesInfoHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 

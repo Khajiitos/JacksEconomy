@@ -1,8 +1,6 @@
 package me.khajiitos.jackseconomy.packet.handler;
 
-import me.khajiitos.jackseconomy.init.ItemBlockReg;
 import me.khajiitos.jackseconomy.init.Packets;
-import me.khajiitos.jackseconomy.item.CheckItem;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.menu.WalletMenu;
 import me.khajiitos.jackseconomy.packet.UpdateWalletBalancePacket;

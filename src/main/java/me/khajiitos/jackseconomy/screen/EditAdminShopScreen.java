@@ -1,6 +1,5 @@
 package me.khajiitos.jackseconomy.screen;
 
-import com.google.gson.JsonArray;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;

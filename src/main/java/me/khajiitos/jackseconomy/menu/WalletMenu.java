@@ -7,14 +7,11 @@ import me.khajiitos.jackseconomy.item.CheckItem;
 import me.khajiitos.jackseconomy.item.CurrencyItem;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.packet.UpdateWalletBalancePacket;
-import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.Container;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 

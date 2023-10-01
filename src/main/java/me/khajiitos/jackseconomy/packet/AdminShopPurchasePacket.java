@@ -1,17 +1,11 @@
 package me.khajiitos.jackseconomy.packet;
 
-import com.google.common.collect.Maps;
 import me.khajiitos.jackseconomy.packet.handler.AdminShopPurchaseHandler;
-import me.khajiitos.jackseconomy.packet.handler.ChangeRedstoneToggleHandler;
 import me.khajiitos.jackseconomy.price.ItemDescription;
-import me.khajiitos.jackseconomy.screen.AdminShopScreen;
-import me.khajiitos.jackseconomy.util.ItemHelper;
-import me.khajiitos.jackseconomy.util.RedstoneToggle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.Item;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.HashMap;

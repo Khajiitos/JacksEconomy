@@ -3,8 +3,6 @@ package me.khajiitos.jackseconomy.item;
 import me.khajiitos.jackseconomy.init.ItemBlockReg;
 import me.khajiitos.jackseconomy.menu.ExporterTicketCreatorMenu;
 import me.khajiitos.jackseconomy.menu.ImporterTicketCreatorMenu;
-import me.khajiitos.jackseconomy.menu.TicketCreatorMenu;
-import me.khajiitos.jackseconomy.menu.WalletMenu;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;

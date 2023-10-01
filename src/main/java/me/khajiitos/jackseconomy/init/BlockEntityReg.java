@@ -2,7 +2,6 @@ package me.khajiitos.jackseconomy.init;
 
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.blockentity.*;
-import me.khajiitos.jackseconomy.curios.CuriosWallet;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;

@@ -1,15 +1,12 @@
 package me.khajiitos.jackseconomy.util;
 
-import me.khajiitos.jackseconomy.JacksEconomy;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 public class FilteredSlot extends Slot {

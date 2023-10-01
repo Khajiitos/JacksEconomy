@@ -7,12 +7,10 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class CategoryEntry extends AbstractWidget {

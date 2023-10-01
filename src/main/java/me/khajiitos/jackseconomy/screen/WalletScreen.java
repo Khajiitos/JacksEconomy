@@ -29,9 +29,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 public class WalletScreen extends AbstractContainerScreen<WalletMenu> {

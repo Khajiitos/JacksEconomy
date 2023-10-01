@@ -5,10 +5,7 @@ import me.khajiitos.jackseconomy.packet.PricesInfoPacket;
 import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.price.ItemPriceInfo;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.Supplier;
 

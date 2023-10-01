@@ -1,6 +1,5 @@
 package me.khajiitos.jackseconomy.blockentity;
 
-import me.khajiitos.jackseconomy.block.ImporterBlock;
 import me.khajiitos.jackseconomy.block.TransactionMachineBlock;
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.init.BlockEntityReg;
@@ -14,9 +13,12 @@ import me.khajiitos.jackseconomy.util.SideConfig;
 import me.khajiitos.jackseconomy.util.SlottedItemStackHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -31,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 public class ImporterBlockEntity extends TransactionMachineBlockEntity implements IImporterBlockEntity {
@@ -49,10 +52,20 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
 
     public ImporterBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityReg.IMPORTER.get(), pos, state);
-        itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false, itemStack -> itemStack.getItem() instanceof CurrencyItem);
+        itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
-        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, itemStack -> !(itemStack.getItem() instanceof CurrencyItem));
+        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
     }
+
+    @Override
+    public BigDecimal getTotalBalance() {
+        return getBalance();
+    }
+
+    protected boolean isItemRejected(ItemStack itemStack) {
+        return !(itemStack.getItem() instanceof CurrencyItem);
+    }
+
 
     @Override
     protected Component getDefaultName() {
@@ -118,8 +131,12 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
         switch (this.sideConfig.getValue(SideConfig.directionRelative(facing, pSide))) {
             case INPUT -> {
                 return slotsInput;
-            } case OUTPUT -> {
+            }
+            case OUTPUT -> {
                 return slotsOutput;
+            }
+            case REJECTION_OUTPUT -> {
+                return Arrays.stream(slotsInput).filter(slot -> isItemRejected(this.items.get(slot))).toArray();
             }
         }
         return new int[]{};
@@ -173,7 +190,7 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
             return;
         }
 
-        if (importer.currency.compareTo(BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get())) < 0) {
+        if (importer.getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get())) < 0) {
             for (int i = 0; i < 3; i++) {
                 ItemStack inputItem = importer.getItem(i);
 
@@ -225,6 +242,9 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
                     importer.currency = importer.currency.subtract(new BigDecimal(price));
                     importer.addItem(itemStackToAdd, slotsOutput);
                     importer.progress = 0.f;
+
+                    level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.5f, 1.5f);
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, pos.getX() + 0.5, pos.getY() + 1.25, pos.getZ() + 0.5, 3, 0.2, 0.15, 0.2, 0.25);
                 }
             }
         }

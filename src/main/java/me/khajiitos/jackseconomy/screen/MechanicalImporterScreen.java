@@ -1,11 +1,8 @@
 package me.khajiitos.jackseconomy.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import me.khajiitos.jackseconomy.blockentity.MechanicalExporterBlockEntity;
 import me.khajiitos.jackseconomy.blockentity.MechanicalImporterBlockEntity;
 import me.khajiitos.jackseconomy.menu.MechanicalImporterMenu;
 import me.khajiitos.jackseconomy.screen.widget.SpeedStatusWidget;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -40,16 +37,5 @@ public class MechanicalImporterScreen extends AbstractImporterScreen<MechanicalI
     @Override
     protected Set<Direction> getAllowedDirections() {
         return Set.of(Direction.DOWN, Direction.WEST, Direction.EAST, Direction.UP);
-    }
-
-    @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
-
-        MechanicalImporterBlockEntity blockEntity = this.getBlockEntity();
-
-        if (blockEntity != null) {
-            GuiComponent.drawCenteredString(pPoseStack, this.font, String.valueOf(blockEntity.getSpeed()), this.leftPos + this.imageWidth / 2, this.topPos + this.imageHeight + 3, 0xFFFFFFFF);
-        }
     }
 }

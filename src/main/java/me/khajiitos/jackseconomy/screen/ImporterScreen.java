@@ -1,39 +1,19 @@
 package me.khajiitos.jackseconomy.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.blockentity.ImporterBlockEntity;
 import me.khajiitos.jackseconomy.init.Packets;
-import me.khajiitos.jackseconomy.item.ExporterTicketItem;
-import me.khajiitos.jackseconomy.item.ImporterTicketItem;
-import me.khajiitos.jackseconomy.item.TicketItem;
 import me.khajiitos.jackseconomy.menu.ImporterMenu;
-import me.khajiitos.jackseconomy.packet.ChangeRedstoneTogglePacket;
-import me.khajiitos.jackseconomy.packet.ChangeSelectedItemPacket;
 import me.khajiitos.jackseconomy.packet.ChangeSpeedPacket;
-import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.screen.widget.EnergyStatusWidget;
 import me.khajiitos.jackseconomy.screen.widget.SpeedVerticalSlider;
-import me.khajiitos.jackseconomy.screen.widget.TicketPreviewWidget;
-import me.khajiitos.jackseconomy.util.CurrencyHelper;
-import me.khajiitos.jackseconomy.util.RedstoneToggle;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerListener;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.IEnergyStorage;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 

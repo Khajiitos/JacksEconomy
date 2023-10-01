@@ -1,7 +1,6 @@
 package me.khajiitos.jackseconomy.menu;
 
 import me.khajiitos.jackseconomy.blockentity.TransactionKineticMachineBlockEntity;
-import me.khajiitos.jackseconomy.blockentity.TransactionMachineBlockEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;

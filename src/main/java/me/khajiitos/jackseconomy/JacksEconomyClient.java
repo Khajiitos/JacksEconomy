@@ -1,6 +1,10 @@
 package me.khajiitos.jackseconomy;
 
+import com.jozufozu.flywheel.backend.instancing.InstancedRenderRegistry;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.simibubi.create.content.kinetics.base.HorizontalHalfShaftInstance;
+import com.simibubi.create.content.kinetics.motor.CreativeMotorBlock;
+import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
 import me.khajiitos.jackseconomy.init.BlockEntityReg;
 import me.khajiitos.jackseconomy.init.ContainerReg;
 import me.khajiitos.jackseconomy.listener.ClientEventListeners;
@@ -9,6 +13,7 @@ import me.khajiitos.jackseconomy.listener.TextureEventListeners;
 import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.price.ItemPriceInfo;
 import me.khajiitos.jackseconomy.renderer.MechanicalTransactionMachineRenderer;
+import me.khajiitos.jackseconomy.renderer.TransactionMachineShaftInstance;
 import me.khajiitos.jackseconomy.screen.*;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -50,6 +55,16 @@ public class JacksEconomyClient {
         MenuScreens.register(ContainerReg.CURRENCY_CONVERTER_MENU.get(), CurrencyConverterScreen::new);
         MenuScreens.register(ContainerReg.IMPORTER_TICKET_CREATOR_MENU.get(), TicketCreatorScreen::new);
         MenuScreens.register(ContainerReg.EXPORTER_TICKET_CREATOR_MENU.get(), TicketCreatorScreen::new);
+
+        InstancedRenderRegistry.configure(BlockEntityReg.MECHANICAL_IMPORTER.get())
+                .factory(TransactionMachineShaftInstance::new)
+                .alwaysSkipRender()
+                .apply();
+
+        InstancedRenderRegistry.configure(BlockEntityReg.MECHANICAL_EXPORTER.get())
+                .factory(TransactionMachineShaftInstance::new)
+                .skipRender((a) -> false)
+                .apply();
     }
 
     public static void onKeybindRegister(RegisterKeyMappingsEvent e) {

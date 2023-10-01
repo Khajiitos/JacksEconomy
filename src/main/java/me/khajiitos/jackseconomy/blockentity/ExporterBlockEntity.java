@@ -13,9 +13,12 @@ import me.khajiitos.jackseconomy.price.ItemPriceManager;
 import me.khajiitos.jackseconomy.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -30,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 public class ExporterBlockEntity extends TransactionMachineBlockEntity implements IExporterBlockEntity {
@@ -51,6 +55,21 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true, itemStack -> itemStack.getItem() instanceof CurrencyItem);
         itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
+    }
+
+    @Override
+    public BigDecimal getTotalBalance() {
+        BigDecimal balance = this.getBalance();
+
+        for (int slot : slotsOutput) {
+            ItemStack itemStack = this.items.get(slot);
+
+            if (itemStack.getItem() instanceof CurrencyItem currencyItem) {
+                balance = balance.add(currencyItem.value.multiply(BigDecimal.valueOf(itemStack.getCount())));
+            }
+        }
+
+        return balance;
     }
 
     protected boolean isItemRejected(ItemStack itemStack) {
@@ -92,7 +111,7 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
 
         ItemStack ticketItem = exporter.items.get(slotTicket);
 
-        if (ticketItem.getItem() instanceof ExporterTicketItem && exporter.currency.compareTo(BigDecimal.valueOf(Config.maxExporterBalance.get())) < 0) {
+        if (ticketItem.getItem() instanceof ExporterTicketItem && exporter.getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxExporterBalance.get())) < 0) {
             if ((exporter.redstoneToggle == RedstoneToggle.SIGNAL_ON && level.hasNeighborSignal(pos)) || (exporter.redstoneToggle == RedstoneToggle.SIGNAL_OFF && !level.hasNeighborSignal(pos)) || exporter.redstoneToggle == RedstoneToggle.IGNORED) {
                 for (int i = 0; i < 3; i++) {
                     ItemStack item = exporter.items.get(i);
@@ -123,6 +142,9 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
                         ItemHelper.dropItem(progressItem.copy(), level, pos);
                         progressItem.setCount(0);
                     }
+
+                    level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.5f, 1.5f);
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, pos.getX() + 0.5, pos.getY() + 1.25, pos.getZ() + 0.5, 3, 0.2, 0.15, 0.2, 0.25);
                 }
             }
         }
@@ -167,10 +189,12 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
         switch (this.sideConfig.getValue(SideConfig.directionRelative(facing, pSide))) {
             case INPUT -> {
                 return slotsInput;
-            } case OUTPUT -> {
+            }
+            case OUTPUT -> {
                 return slotsOutput;
-            } case REJECTION_OUTPUT -> {
-                return Arrays.stream(slotsInput).filter(slot -> isItemRejected(this.items.get(slot))).toArray(new int[0]);
+            }
+            case REJECTION_OUTPUT -> {
+                return Arrays.stream(slotsInput).filter(slot -> isItemRejected(this.items.get(slot))).toArray();
             }
         }
         return new int[]{};

@@ -1,8 +1,6 @@
 package me.khajiitos.jackseconomy.block;
 
 import me.khajiitos.jackseconomy.blockentity.CurrencyConverterBlockEntity;
-import me.khajiitos.jackseconomy.blockentity.ExporterBlockEntity;
-import me.khajiitos.jackseconomy.blockentity.TransactionMachineBlockEntity;
 import me.khajiitos.jackseconomy.init.BlockEntityReg;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.ItemHelper;

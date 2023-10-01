@@ -5,7 +5,6 @@ import me.khajiitos.jackseconomy.menu.WalletMenu;
 import me.khajiitos.jackseconomy.packet.PricesInfoPacket;
 import me.khajiitos.jackseconomy.price.ItemPriceManager;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

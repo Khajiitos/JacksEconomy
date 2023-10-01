@@ -3,8 +3,6 @@ package me.khajiitos.jackseconomy.util;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.IntArrayTag;
 
-import java.util.Arrays;
-
 public class SideConfig {
 
     public SideConfig() {

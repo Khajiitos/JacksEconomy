@@ -1,10 +1,7 @@
 package me.khajiitos.jackseconomy.packet;
 
-import me.khajiitos.jackseconomy.packet.handler.PricesInfoHandler;
 import me.khajiitos.jackseconomy.packet.handler.UpdateAdminShopHandler;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 

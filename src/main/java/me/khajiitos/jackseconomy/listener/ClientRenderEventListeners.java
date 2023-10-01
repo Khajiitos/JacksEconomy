@@ -2,26 +2,19 @@ package me.khajiitos.jackseconomy.listener;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.khajiitos.jackseconomy.JacksEconomy;
-import me.khajiitos.jackseconomy.JacksEconomyClient;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
-import me.khajiitos.jackseconomy.item.CurrencyItem;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
 
 public class ClientRenderEventListeners {
 

@@ -1,12 +1,10 @@
 package me.khajiitos.jackseconomy.blockentity;
 
-import me.khajiitos.jackseconomy.block.ImporterBlock;
 import me.khajiitos.jackseconomy.block.TransactionMachineBlock;
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.init.BlockEntityReg;
 import me.khajiitos.jackseconomy.item.CurrencyItem;
 import me.khajiitos.jackseconomy.item.TicketItem;
-import me.khajiitos.jackseconomy.menu.ImporterMenu;
 import me.khajiitos.jackseconomy.menu.MechanicalImporterMenu;
 import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.price.ItemPriceManager;
@@ -15,15 +13,17 @@ import me.khajiitos.jackseconomy.util.SideConfig;
 import me.khajiitos.jackseconomy.util.SlottedItemStackHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 public class MechanicalImporterBlockEntity extends TransactionKineticMachineBlockEntity implements IImporterBlockEntity {
@@ -56,8 +57,13 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
         itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
     }
 
+    @Override
+    public BigDecimal getTotalBalance() {
+        return getBalance();
+    }
+
     protected boolean isItemRejected(ItemStack itemStack) {
-        return ItemPriceManager.getImporterBuyPrice(ItemDescription.ofItem(itemStack), 1) == -1;
+        return !(itemStack.getItem() instanceof CurrencyItem);
     }
 
     @Override
@@ -120,8 +126,12 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
         switch (this.sideConfig.getValue(SideConfig.directionRelative(facing, pSide))) {
             case INPUT -> {
                 return slotsInput;
-            } case OUTPUT -> {
+            }
+            case OUTPUT -> {
                 return slotsOutput;
+            }
+            case REJECTION_OUTPUT -> {
+                return Arrays.stream(slotsInput).filter(slot -> isItemRejected(this.items.get(slot))).toArray();
             }
         }
         return new int[]{};
@@ -171,7 +181,7 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
             return;
         }
 
-        if (importer.currency.compareTo(BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get())) < 0) {
+        if (importer.getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get())) < 0) {
             for (int i = 0; i < 3; i++) {
                 ItemStack inputItem = importer.getItem(i);
 
@@ -220,6 +230,9 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
                     importer.currency = importer.currency.subtract(new BigDecimal(price));
                     importer.addItem(itemStackToAdd, slotsOutput);
                     importer.progress = 0.f;
+
+                    level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.5f, 1.5f);
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, pos.getX() + 0.5, pos.getY() + 1.25, pos.getZ() + 0.5, 3, 0.2, 0.15, 0.2, 0.25);
                 }
             }
         }

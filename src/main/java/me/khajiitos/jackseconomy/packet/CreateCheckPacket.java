@@ -1,6 +1,5 @@
 package me.khajiitos.jackseconomy.packet;
 
-import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.packet.handler.CreateCheckHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;

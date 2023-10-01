@@ -2,9 +2,6 @@ package me.khajiitos.jackseconomy.init;
 
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.packet.*;
-import me.khajiitos.jackseconomy.packet.handler.ChangeSelectedItemHandler;
-import me.khajiitos.jackseconomy.packet.handler.UpdateAdminShopHandler;
-import me.khajiitos.jackseconomy.packet.handler.UpdateSideConfigHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;

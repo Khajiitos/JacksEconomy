@@ -10,8 +10,8 @@ import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.menu.AdminShopMenu;
 import me.khajiitos.jackseconomy.packet.AdminShopPurchasePacket;
 import me.khajiitos.jackseconomy.price.ItemDescription;
-import me.khajiitos.jackseconomy.screen.widget.ShoppingCartEntry;
 import me.khajiitos.jackseconomy.screen.widget.BetterScrollPanel;
+import me.khajiitos.jackseconomy.screen.widget.ShoppingCartEntry;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -25,11 +25,13 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
     private static final ResourceLocation BACKGROUND = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/shopping_cart.png");
     private static final ResourceLocation NO_WALLET = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/no_wallet.png");
+    protected static final ResourceLocation BALANCE_PROGRESS = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/balance_progress.png");
 
     public final AdminShopScreen parent;
     private BetterScrollPanel shoppingCartPanel;
@@ -123,16 +125,28 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
 
         ItemStack wallet = CuriosWallet.get(Minecraft.getInstance().player);
 
-        if (wallet != null && wallet.getItem() instanceof WalletItem) {
+        if (wallet != null && wallet.getItem() instanceof WalletItem walletItem) {
             BigDecimal balance = WalletItem.getBalance(wallet);
 
-            Component component = Component.literal(CurrencyHelper.format(balance));
-            int width = this.font.width(component);
-            GuiComponent.fill(pPoseStack, this.leftPos + 181, this.topPos + 5, this.leftPos + 209 + width, this.topPos + 25, 0xFF4c4c4c);
-            GuiComponent.fill(pPoseStack, this.leftPos + 182, this.topPos + 6, this.leftPos + 208 + width, this.topPos + 24, 0xFFc6c6c6);
+            Component component = Component.literal(CurrencyHelper.formatShortened(balance));
+            int textWidth = this.font.width(component);
+            int totalWidth = 29 + textWidth;
+            GuiComponent.fill(pPoseStack, this.leftPos + 181, this.topPos + 5, this.leftPos + 181 + totalWidth, this.topPos + 35, 0xFF4c4c4c);
+            GuiComponent.fill(pPoseStack, this.leftPos + 182, this.topPos + 6, this.leftPos + 182 + totalWidth, this.topPos + 34, 0xFFc6c6c6);
             Minecraft.getInstance().getItemRenderer().renderGuiItem(wallet, this.leftPos + 183, this.topPos + 8);
             this.font.draw(pPoseStack, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
-        } else {
+
+            RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
+
+            int barStartX = this.leftPos + 181 + ((totalWidth - 51) / 2);
+            int barStartY = this.topPos + 26;
+            double progress = balance.divide(BigDecimal.valueOf(walletItem.getCapacity()), RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
+            blit(pPoseStack, barStartX, barStartY, this.getBlitOffset(), 0, 0, 51, 5, 256, 256);
+            blit(pPoseStack, barStartX, barStartY, this.getBlitOffset(), 0, 5, ((int)(51 * progress)), 5, 256, 256);
+
+            if (pMouseX >= barStartX && pMouseX <= barStartX + 51 && pMouseY >= barStartY && pMouseY <= barStartY + 5) {
+                tooltip = List.of(Component.translatable("jackseconomy.balance_out_of", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(walletItem.getCapacity()))).withStyle(ChatFormatting.GOLD));
+            }        } else {
             Component component = Component.translatable("jackseconomy.no_wallet").withStyle(ChatFormatting.DARK_RED);
             int width = this.font.width(component);
             GuiComponent.fill(pPoseStack, this.leftPos + 181, this.topPos + 5, this.leftPos + 209 + width, this.topPos + 25, 0xFF4c4c4c);

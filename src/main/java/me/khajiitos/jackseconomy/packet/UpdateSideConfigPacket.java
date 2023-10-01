@@ -1,8 +1,6 @@
 package me.khajiitos.jackseconomy.packet;
 
-import me.khajiitos.jackseconomy.packet.handler.ChangeSpeedHandler;
 import me.khajiitos.jackseconomy.packet.handler.UpdateSideConfigHandler;
-import me.khajiitos.jackseconomy.util.SideConfig;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 

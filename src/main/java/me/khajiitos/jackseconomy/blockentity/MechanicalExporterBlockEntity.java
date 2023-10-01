@@ -1,6 +1,5 @@
 package me.khajiitos.jackseconomy.blockentity;
 
-import me.khajiitos.jackseconomy.block.ExporterBlock;
 import me.khajiitos.jackseconomy.block.TransactionMachineBlock;
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.init.BlockEntityReg;
@@ -14,9 +13,12 @@ import me.khajiitos.jackseconomy.price.ItemPriceManager;
 import me.khajiitos.jackseconomy.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -31,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 public class MechanicalExporterBlockEntity extends TransactionKineticMachineBlockEntity implements IExporterBlockEntity {
@@ -49,7 +52,11 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
         super(BlockEntityReg.MECHANICAL_EXPORTER.get(), pos, state);
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
-        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, itemStack -> ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1);
+        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
+    }
+
+    protected boolean isItemRejected(ItemStack itemStack) {
+        return ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
     }
 
     protected Component getDefaultName() {
@@ -75,6 +82,21 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
         return progress;
     }
 
+    @Override
+    public BigDecimal getTotalBalance() {
+        BigDecimal balance = this.getBalance();
+
+        for (int slot : slotsOutput) {
+            ItemStack itemStack = this.items.get(slot);
+
+            if (itemStack.getItem() instanceof CurrencyItem currencyItem) {
+                balance = balance.add(currencyItem.value.multiply(BigDecimal.valueOf(itemStack.getCount())));
+            }
+        }
+
+        return balance;
+    }
+
     public static void tick(Level level, BlockPos pos, BlockState state, MechanicalExporterBlockEntity exporter) {
         exporter.tick();
         if (!(level instanceof ServerLevel serverLevel)) {
@@ -88,7 +110,7 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
 
         ItemStack ticketItem = exporter.items.get(slotTicket);
 
-        if (ticketItem.getItem() instanceof ExporterTicketItem && exporter.currency.compareTo(BigDecimal.valueOf(Config.maxExporterBalance.get())) < 0) {
+        if (ticketItem.getItem() instanceof ExporterTicketItem && exporter.getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxExporterBalance.get())) < 0) {
             if ((exporter.redstoneToggle == RedstoneToggle.SIGNAL_ON && level.hasNeighborSignal(pos)) || (exporter.redstoneToggle == RedstoneToggle.SIGNAL_OFF && !level.hasNeighborSignal(pos)) || exporter.redstoneToggle == RedstoneToggle.IGNORED) {
                 for (int i = 0; i < 3; i++) {
                     ItemStack item = exporter.items.get(i);
@@ -116,6 +138,9 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
                     ItemHelper.dropItem(progressItem.copy(), level, pos);
                     progressItem.setCount(0);
                 }
+
+                level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.5f, 1.5f);
+                serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, pos.getX() + 0.5, pos.getY() + 1.25, pos.getZ() + 0.5, 3, 0.2, 0.15, 0.2, 0.25);
             }
         }
 
@@ -166,6 +191,9 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
             } 
             case OUTPUT -> {
                 return slotsOutput;
+            }
+            case REJECTION_OUTPUT -> {
+                return Arrays.stream(slotsInput).filter(slot -> isItemRejected(this.items.get(slot))).toArray();
             }
         }
         return new int[]{};

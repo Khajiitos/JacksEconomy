@@ -68,8 +68,8 @@ public class SideConfigWidget extends AbstractWidget {
             case DOWN -> Pair.of(40, 60);
             case UP -> Pair.of(40, 20);
             case SOUTH -> Pair.of(60, 60);
-            case WEST -> Pair.of(20, 40);
             case EAST -> Pair.of(60, 40);
+            case WEST -> Pair.of(20, 40);
             case NORTH -> Pair.of(40, 40);
         };
     }
@@ -84,7 +84,7 @@ public class SideConfigWidget extends AbstractWidget {
             this.height = 16;
         }
 
-        boolean buttonHovered = pMouseX >= this.x && pMouseX <= this.x + this.width && pMouseY >= this.y && pMouseY <= this.y + 16;
+        boolean buttonHovered = pMouseX >= this.x && pMouseX <= this.x + 16 && pMouseY >= this.y && pMouseY <= this.y + 16;
 
         GuiComponent.fill(pPoseStack, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, 0xFF666666);
         GuiComponent.fill(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, 0xFF333333);

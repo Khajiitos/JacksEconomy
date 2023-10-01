@@ -3,7 +3,6 @@ package me.khajiitos.jackseconomy.listener;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.config.ClientConfig;
 import me.khajiitos.jackseconomy.config.Config;
-import me.khajiitos.jackseconomy.init.ItemBlockReg;
 import me.khajiitos.jackseconomy.price.ItemPriceManager;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;

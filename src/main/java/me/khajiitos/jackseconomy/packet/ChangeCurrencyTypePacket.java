@@ -1,9 +1,7 @@
 package me.khajiitos.jackseconomy.packet;
 
 import me.khajiitos.jackseconomy.packet.handler.ChangeCurrencyTypeHandler;
-import me.khajiitos.jackseconomy.packet.handler.ChangeRedstoneToggleHandler;
 import me.khajiitos.jackseconomy.util.CurrencyType;
-import me.khajiitos.jackseconomy.util.RedstoneToggle;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
