@@ -38,8 +38,8 @@ import java.util.List;
 
 public class ImporterBlockEntity extends TransactionMachineBlockEntity implements IImporterBlockEntity {
     private static final int[] slotsInput = new int[]{0, 1, 2};
-    private static final int[] slotsOutput = new int[]{3, 4, 5};
-    private static final int slotTicket = 6;
+    private static final int[] slotsOutput = new int[]{3, 4, 5, 6, 7, 8};
+    private static final int slotTicket = 9;
     protected SlottedItemStackHandler itemHandlerInput;
     protected SlottedItemStackHandler itemHandlerOutput;
     protected SlottedItemStackHandler itemHandlerRejectionOutput;
@@ -84,7 +84,7 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
 
     @Override
     public int getContainerSize() {
-        return 7;
+        return 10;
     }
 
     public float getProgress() {

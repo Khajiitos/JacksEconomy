@@ -25,14 +25,14 @@ public class MechanicalExporterMenu extends KineticTransactionMachineMenu {
         }
 
         for (int row = 0; row < 3; row++) {
-            this.addSlot(new FilteredSlot(blockEntity, row, 44, 21 + row * 18, null, (itemStack) -> (!(itemStack.getItem() instanceof ExporterTicketItem))));
+            this.addSlot(new FilteredSlot(blockEntity, row, 8, 21 + row * 18, null, (itemStack) -> (!(itemStack.getItem() instanceof ExporterTicketItem))));
         }
 
-        for (int row = 0; row < 3; row++) {
-            this.addSlot(new OutputSlot(blockEntity, 3 + row, 116, 21 + row * 18));
+        for (int i = 0; i < 6; i++) {
+            this.addSlot(new OutputSlot(blockEntity, 3 + i, 71 + (i % 2) * 18, 21 + (i / 2) * 18));
         }
 
-        this.addSlot(new FilteredSlot(blockEntity, 6, 8, 21, new ResourceLocation(JacksEconomy.MOD_ID, "gui/ticket_slot"), itemStack -> itemStack.getItem() instanceof ExporterTicketItem));
+        this.addSlot(new FilteredSlot(blockEntity, 9, 40, 48, new ResourceLocation(JacksEconomy.MOD_ID, "gui/ticket_slot"), itemStack -> itemStack.getItem() instanceof ExporterTicketItem));
 
         this.addPlayerInventory(playerInv, 95);
     }
@@ -43,6 +43,6 @@ public class MechanicalExporterMenu extends KineticTransactionMachineMenu {
 
     @Override
     public int getContainerSize() {
-        return 7;
+        return 10;
     }
 }

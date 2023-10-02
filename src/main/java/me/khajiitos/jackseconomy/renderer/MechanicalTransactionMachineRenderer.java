@@ -23,10 +23,9 @@ public class MechanicalTransactionMachineRenderer<T extends TransactionKineticMa
 
     @Override
     protected SuperByteBuffer getRotatedModel(TransactionKineticMachineBlockEntity be, BlockState state) {
-        return super.getRotatedModel((T)be, state);
-        //return CachedBufferer.partialFacing(AllPartialModels.SHAFT_HALF, state, state
-        //        .getValue(KineticTransactionMachineBlock.HORIZONTAL_FACING)
-        //        .getOpposite());
+        return CachedBufferer.partialFacing(AllPartialModels.SHAFT_HALF, state, state
+                .getValue(KineticTransactionMachineBlock.HORIZONTAL_FACING)
+                .getOpposite());
     }
 
 }

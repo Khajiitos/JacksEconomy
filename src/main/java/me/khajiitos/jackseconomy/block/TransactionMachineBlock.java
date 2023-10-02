@@ -67,11 +67,6 @@ public abstract class TransactionMachineBlock extends BaseEntityBlock {
             if (blockentity instanceof TransactionMachineBlockEntity blockEntity) {
                 CurrencyHelper.getCurrencyItems(blockEntity.getBalance()).forEach(itemStack -> ItemHelper.dropItem(itemStack, level, blockEntity.getBlockPos()));
                 for (int i = 0; i < blockEntity.items.size(); i++) {
-                    // Dirty hack to not drop the ticket item
-                    // Probably a bad way to do this!!!
-                    if (this instanceof ImporterBlock && i == 6) {
-                        continue;
-                    }
                     ItemStack stack = blockEntity.getItem(i);
                     ItemHelper.dropItem(stack, level, blockEntity.getBlockPos());
                 }

@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 public class MechanicalImporterBlock extends KineticTransactionMachineBlock<MechanicalImporterBlockEntity> {
 
     public MechanicalImporterBlock() {
-        super(BlockBehaviour.Properties.of(Material.METAL).strength(1.5F, 6.0F));
+        super(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().strength(1.5F, 6.0F));
         this.registerDefaultState(this.stateDefinition.any().setValue(HORIZONTAL_FACING, Direction.NORTH));
     }
 

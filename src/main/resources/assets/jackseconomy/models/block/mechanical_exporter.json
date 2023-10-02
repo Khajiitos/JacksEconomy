@@ -1,6 +1,5 @@
 {
   "credit": "Made with Blockbench",
-  "parent": "block",
   "textures": {
     "face": "jackseconomy:block/exporter",
     "back": "jackseconomy:block/machine_gearbox",

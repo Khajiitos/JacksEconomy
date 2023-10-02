@@ -28,6 +28,7 @@ public class Packets {
         INSTANCE.registerMessage(packetCount++, PricesInfoPacket.class, PricesInfoPacket::encode, PricesInfoPacket::decode, PricesInfoPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         INSTANCE.registerMessage(packetCount++, CreateCheckPacket.class, CreateCheckPacket::encode, CreateCheckPacket::decode, CreateCheckPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         INSTANCE.registerMessage(packetCount++, UpdateWalletBalancePacket.class, UpdateWalletBalancePacket::encode, UpdateWalletBalancePacket::decode, UpdateWalletBalancePacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        INSTANCE.registerMessage(packetCount++, WalletBalanceDifPacket.class, WalletBalanceDifPacket::encode, WalletBalanceDifPacket::decode, WalletBalanceDifPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         INSTANCE.registerMessage(packetCount++, WithdrawBalanceSpecificPacket.class, WithdrawBalanceSpecificPacket::encode, WithdrawBalanceSpecificPacket::decode, WithdrawBalanceSpecificPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         INSTANCE.registerMessage(packetCount++, OpenCuriosWalletPacket.class, OpenCuriosWalletPacket::encode, OpenCuriosWalletPacket::decode, OpenCuriosWalletPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         INSTANCE.registerMessage(packetCount++, ChangeCurrencyTypePacket.class, ChangeCurrencyTypePacket::encode, ChangeCurrencyTypePacket::decode, ChangeCurrencyTypePacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));

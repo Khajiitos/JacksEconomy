@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static me.khajiitos.jackseconomy.screen.WalletScreen.BALANCE_PROGRESS;
+import static me.khajiitos.jackseconomy.screen.ShoppingCartScreen.BALANCE_PROGRESS;
+
 
 public class CurrencyConverterScreen extends AbstractContainerScreen<CurrencyConverterMenu> {
     private static final ResourceLocation BACKGROUND = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/currency_converter.png");

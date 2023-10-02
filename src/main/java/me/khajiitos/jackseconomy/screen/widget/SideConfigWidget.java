@@ -68,8 +68,8 @@ public class SideConfigWidget extends AbstractWidget {
             case DOWN -> Pair.of(40, 60);
             case UP -> Pair.of(40, 20);
             case SOUTH -> Pair.of(60, 60);
-            case EAST -> Pair.of(60, 40);
-            case WEST -> Pair.of(20, 40);
+            case EAST -> Pair.of(20, 40);
+            case WEST -> Pair.of(60, 40);
             case NORTH -> Pair.of(40, 40);
         };
     }

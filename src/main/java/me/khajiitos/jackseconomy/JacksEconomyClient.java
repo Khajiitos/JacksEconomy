@@ -2,9 +2,8 @@ package me.khajiitos.jackseconomy;
 
 import com.jozufozu.flywheel.backend.instancing.InstancedRenderRegistry;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.content.kinetics.base.HorizontalHalfShaftInstance;
-import com.simibubi.create.content.kinetics.motor.CreativeMotorBlock;
-import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
 import me.khajiitos.jackseconomy.init.BlockEntityReg;
 import me.khajiitos.jackseconomy.init.ContainerReg;
 import me.khajiitos.jackseconomy.listener.ClientEventListeners;
@@ -13,7 +12,6 @@ import me.khajiitos.jackseconomy.listener.TextureEventListeners;
 import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.price.ItemPriceInfo;
 import me.khajiitos.jackseconomy.renderer.MechanicalTransactionMachineRenderer;
-import me.khajiitos.jackseconomy.renderer.TransactionMachineShaftInstance;
 import me.khajiitos.jackseconomy.screen.*;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -27,11 +25,14 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.lwjgl.glfw.GLFW;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 
 public class JacksEconomyClient {
     public static final KeyMapping OPEN_WALLET = new KeyMapping("key.jackseconomy.open_wallet", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_O, "key.categories.jackseconomy");
     public static HashMap<ItemDescription, ItemPriceInfo> priceInfos = new HashMap<>();
+    public static BigDecimal balanceDifPopup = null;
+    public static long balanceDifPopupStartMillis = -1;
 
     public static void init() {
         MinecraftForge.EVENT_BUS.register(new ClientEventListeners());
@@ -57,13 +58,13 @@ public class JacksEconomyClient {
         MenuScreens.register(ContainerReg.EXPORTER_TICKET_CREATOR_MENU.get(), TicketCreatorScreen::new);
 
         InstancedRenderRegistry.configure(BlockEntityReg.MECHANICAL_IMPORTER.get())
-                .factory(TransactionMachineShaftInstance::new)
-                .alwaysSkipRender()
+                .factory(HorizontalHalfShaftInstance::new)
+                .skipRender(be -> false)
                 .apply();
 
         InstancedRenderRegistry.configure(BlockEntityReg.MECHANICAL_EXPORTER.get())
-                .factory(TransactionMachineShaftInstance::new)
-                .skipRender((a) -> false)
+                .factory(HorizontalHalfShaftInstance::new)
+                .skipRender(be -> false)
                 .apply();
     }
 

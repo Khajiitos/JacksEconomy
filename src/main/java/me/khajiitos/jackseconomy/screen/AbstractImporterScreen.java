@@ -11,6 +11,7 @@ import me.khajiitos.jackseconomy.item.TicketItem;
 import me.khajiitos.jackseconomy.menu.IBlockEntityContainer;
 import me.khajiitos.jackseconomy.packet.ChangeSelectedItemPacket;
 import me.khajiitos.jackseconomy.price.ItemDescription;
+import me.khajiitos.jackseconomy.screen.widget.BalanceProgressWidget;
 import me.khajiitos.jackseconomy.screen.widget.RedstoneControlWidget;
 import me.khajiitos.jackseconomy.screen.widget.SideConfigWidget;
 import me.khajiitos.jackseconomy.screen.widget.TicketPreviewWidget;
@@ -33,8 +34,6 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static me.khajiitos.jackseconomy.screen.WalletScreen.BALANCE_PROGRESS;
 
 public abstract class AbstractImporterScreen<S extends IImporterBlockEntity, T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
     private static final ResourceLocation BACKGROUND = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/importer.png");
@@ -68,6 +67,7 @@ public abstract class AbstractImporterScreen<S extends IImporterBlockEntity, T e
         IImporterBlockEntity blockEntity = this.getBlockEntity();
 
         if (blockEntity != null) {
+            this.addRenderableWidget(new BalanceProgressWidget(this.leftPos + 128, this.topPos + 9, blockEntity::getBalance, () -> BigDecimal.valueOf(Config.maxImporterBalance.get()), tooltip -> this.tooltip = tooltip));
             this.addRenderableWidget(new RedstoneControlWidget(this.leftPos - 24, this.topPos + 1, blockEntity, tooltip -> this.tooltip = tooltip));
         }
     }
@@ -80,6 +80,7 @@ public abstract class AbstractImporterScreen<S extends IImporterBlockEntity, T e
         int i = this.leftPos;
         int j = (this.height - this.imageHeight) / 2;
         this.blit(pPoseStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        blit(pPoseStack, this.leftPos + 39, this.topPos + 26, 18, 13, 212, 0, 36, 26, 256, 256);
     }
 
     public void refreshTicketPreview() {
@@ -93,12 +94,12 @@ public abstract class AbstractImporterScreen<S extends IImporterBlockEntity, T e
             return;
         }
 
-        ItemStack ticketItem = blockEntity.getItem(6);
+        ItemStack ticketItem = blockEntity.getItem(9);
 
         if (ticketItem.getItem() instanceof ImporterTicketItem) {
             List<ItemDescription> items = TicketItem.getItems(ticketItem);
             if (!items.isEmpty()) {
-                this.ticketPreview = this.addRenderableWidget(new TicketPreviewWidget(this.leftPos + 7, this.topPos + 38, true, items, blockEntity.getSelectedItem(), (newItemDescription) -> {
+                this.ticketPreview = this.addRenderableWidget(new TicketPreviewWidget(this.leftPos + 39, this.topPos + 65, true, items, blockEntity.getSelectedItem(), (newItemDescription) -> {
                     blockEntity.selectItem(newItemDescription);
                     Packets.sendToServer(new ChangeSelectedItemPacket(newItemDescription));
                     this.refreshTicketPreview();
@@ -149,25 +150,14 @@ public abstract class AbstractImporterScreen<S extends IImporterBlockEntity, T e
 
         if (blockEntity != null) {
             RenderSystem.setShaderTexture(0, BACKGROUND);
-            this.blit(pPoseStack, (this.width - this.imageWidth) / 2 + 69, (this.height - this.imageHeight) / 2 + 34, 176, 0, (int)(blockEntity.getProgress() * 36), 26);
+
+            int pixels = (int)(blockEntity.getProgress() * 18);
+            blit(pPoseStack, this.leftPos + 39, this.topPos + 26, pixels, 13, 176, 0, pixels * 2, 26, 256, 256);
         }
 
         BigDecimal capacity = BigDecimal.valueOf(Config.maxImporterBalance.get());
-        double progress = currency.divide(capacity, RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
 
-        RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
-
-        int startX = (this.width - 51) / 2;
-        int startY = this.height / 2 - 81;
-
-        blit(pPoseStack, startX, startY, this.getBlitOffset(), 0, 0, 51, 5, 256, 256);
-        blit(pPoseStack, startX, startY, this.getBlitOffset(), 0, 5, ((int)(51 * progress)), 5, 256, 256);
-
-        if (pMouseX >= startX && pMouseX <= startX + 51 && pMouseY >= startY && pMouseY <= startY + 5) {
-            tooltip = List.of(Component.translatable("jackseconomy.balance", Component.literal(CurrencyHelper.format(currency)).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW), Component.translatable("jackseconomy.max_storage", Component.literal(CurrencyHelper.format(capacity)).withStyle(ChatFormatting.GOLD), Component.literal((int)(progress * 100) + "%").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW));
-        }
-
-        if (!(this.menu.slots.get(6).getItem().getItem() instanceof ImporterTicketItem)) {
+        if (!(this.menu.slots.get(9).getItem().getItem() instanceof ImporterTicketItem)) {
             GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.manifest_required").withStyle(ChatFormatting.YELLOW), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
         } else if (currency.compareTo(capacity) >= 0) {
             GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
@@ -205,7 +195,7 @@ public abstract class AbstractImporterScreen<S extends IImporterBlockEntity, T e
         IImporterBlockEntity blockEntity = this.getBlockEntity();
 
         if (blockEntity != null) {
-            ItemStack ticketItem = blockEntity.getItem(6);
+            ItemStack ticketItem = blockEntity.getItem(9);
 
             if (ticketItem == null && ticketItemLastTick != null || ticketItem != null && ticketItemLastTick == null || ticketItem != null && !ItemStack.isSameItemSameTags(ticketItem, ticketItemLastTick)) {
                 this.refreshTicketPreview();

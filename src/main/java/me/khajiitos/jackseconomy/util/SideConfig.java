@@ -77,14 +77,20 @@ public class SideConfig {
         return sideConfig;
     }
 
-    // For example, if "relative" is North, we will return "from"
-    // If "relative" is East, we will return "from" turned clockwise
     public static Direction directionRelative(Direction from, Direction relative) {
-        return switch (relative) {
-            case NORTH -> from;
-            case EAST -> from.getClockWise();
-            case WEST -> from.getCounterClockWise();
-            case SOUTH -> from.getOpposite();
+        // Alias for "from": "facing"
+
+        if (relative == Direction.UP || relative == Direction.DOWN) {
+            return relative;
+        }
+
+        return switch (from) {
+            case NORTH -> relative;
+            case SOUTH -> relative.getOpposite();
+            case EAST -> relative.getCounterClockWise();
+            case WEST -> relative.getClockWise();
+
+            // This function is only for horizontal facing machines!
             case UP -> Direction.UP;
             case DOWN -> Direction.DOWN;
         };

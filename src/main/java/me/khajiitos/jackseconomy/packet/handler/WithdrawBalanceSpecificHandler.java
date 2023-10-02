@@ -4,6 +4,7 @@ import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.menu.WalletMenu;
 import me.khajiitos.jackseconomy.packet.UpdateWalletBalancePacket;
+import me.khajiitos.jackseconomy.packet.WalletBalanceDifPacket;
 import me.khajiitos.jackseconomy.packet.WithdrawBalanceSpecificPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -51,5 +52,6 @@ public class WithdrawBalanceSpecificHandler {
 
         WalletItem.setBalance(walletStack, WalletItem.getBalance(walletStack).subtract(amount));
         Packets.sendToClient(sender, new UpdateWalletBalancePacket(WalletItem.getBalance(walletStack)));
+        Packets.sendToClient(sender, new WalletBalanceDifPacket(amount.negate()));
     }
 }

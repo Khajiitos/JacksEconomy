@@ -1,7 +1,10 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
+import com.jozufozu.flywheel.config.FlwConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.simibubi.create.Create;
+import com.simibubi.create.infrastructure.config.AllConfigs;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Gui;
@@ -21,7 +24,7 @@ public class SpeedStatusWidget extends AbstractWidget {
     private final Supplier<Double> progressPerTickSupplier;
 
     public SpeedStatusWidget(int pX, int pY, Supplier<Float> speedSupplier, Supplier<Double> progressPerTickSupplier, Consumer<List<Component>> onTooltip) {
-        super(pX, pY, 15, 65, Component.literal(""));
+        super(pX, pY, 32, 65, Component.literal(""));
         this.speedSupplier = speedSupplier;
         this.onTooltip = onTooltip;
         this.progressPerTickSupplier = progressPerTickSupplier;
@@ -38,12 +41,12 @@ public class SpeedStatusWidget extends AbstractWidget {
         this.blit(pPoseStack, this.x, this.y, 0, 0, this.width, this.height);
 
         double speed = Math.abs(speedSupplier.get());
-        double maxSpeed = 256.0; // TODO: grab that from the Create config
+        double maxSpeed = AllConfigs.server().kinetics.maxRotationSpeed.get();
 
         double progress = Math.min(speed / maxSpeed, 1.0);
 
         int progressHeight = (int)(progress * this.height);
-        Gui.blit(pPoseStack, this.x, this.y + this.height - progressHeight, 15, this.height - progressHeight, 15, progressHeight, 256, 256);
+        Gui.blit(pPoseStack, this.x, this.y + this.height - progressHeight, 32, this.height - progressHeight, 32, progressHeight, 256, 256);
 
         if (isHovered()) {
             onTooltip.accept(List.of(

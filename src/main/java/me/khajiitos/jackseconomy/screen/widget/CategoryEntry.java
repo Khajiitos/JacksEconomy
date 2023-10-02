@@ -30,7 +30,6 @@ public class CategoryEntry extends AbstractWidget {
         boolean hovered = pMouseX >= this.x && pMouseX <= this.x + this.width && pMouseY >= this.y && pMouseY <= this.y + this.height;
         boolean selected = isSelectedSupplier.get();
 
-        // TODO: Change colors if selected
         if (hovered) {
             this.fillGradient(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, selected ? 0x8800FF00 : 0x88FFFFFF, selected ? 0x6600FF00 : 0x66FFFFFF);
         } else {

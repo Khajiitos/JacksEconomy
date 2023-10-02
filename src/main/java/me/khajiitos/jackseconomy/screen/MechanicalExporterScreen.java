@@ -27,7 +27,7 @@ public class MechanicalExporterScreen extends AbstractExporterScreen<MechanicalE
         MechanicalExporterBlockEntity blockEntity = this.getBlockEntity();
 
         if (blockEntity != null) {
-            this.addRenderableWidget(new SpeedStatusWidget(this.width / 2 + 58, this.height / 2 - 79, blockEntity::getSpeed, blockEntity::getProgressPerTick, tooltip -> this.tooltip = tooltip));
+            this.addRenderableWidget(new SpeedStatusWidget(this.width / 2 + 50, this.height / 2 - 79, blockEntity::getSpeed, blockEntity::getProgressPerTick, tooltip -> this.tooltip = tooltip));
         }
     }
 

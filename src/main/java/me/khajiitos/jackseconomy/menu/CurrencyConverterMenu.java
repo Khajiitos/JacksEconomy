@@ -11,7 +11,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class CurrencyConverterMenu extends AbstractContainerMenu {
+public class CurrencyConverterMenu extends AbstractContainerMenu implements IBlockEntityContainer<CurrencyConverterBlockEntity> {
     public final CurrencyConverterBlockEntity blockEntity;
 
     public CurrencyConverterMenu(int pContainerId, Inventory inventory, CurrencyConverterBlockEntity blockEntity) {
@@ -81,5 +81,10 @@ public class CurrencyConverterMenu extends AbstractContainerMenu {
         for (int rowX = 0; rowX < 9; ++rowX) {
             this.addSlot(new Slot(playerInv, rowX, 8 + rowX * 18, yOffset + 58));
         }
+    }
+
+    @Override
+    public CurrencyConverterBlockEntity getBlockEntity() {
+        return this.blockEntity;
     }
 }

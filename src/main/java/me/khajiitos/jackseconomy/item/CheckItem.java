@@ -1,10 +1,13 @@
 package me.khajiitos.jackseconomy.item;
 
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
+import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.init.Sounds;
+import me.khajiitos.jackseconomy.packet.WalletBalanceDifPacket;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -23,8 +26,12 @@ public class CheckItem extends Item {
         super(new Properties().stacksTo(1));
     }
 
-    public static BigDecimal getBalance(ItemStack itemStack) {
-        return new BigDecimal(itemStack.getOrCreateTag().getString("Balance"));
+    public static @Nullable BigDecimal getBalance(ItemStack itemStack) {
+        try {
+            return new BigDecimal(itemStack.getOrCreateTag().getString("Balance"));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     public static void setBalance(ItemStack itemStack, double balance) {
@@ -38,7 +45,10 @@ public class CheckItem extends Item {
     @Override
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         BigDecimal balance = getBalance(pStack);
-        pTooltipComponents.add(Component.translatable("jackseconomy.value", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD));
+
+        if (balance != null) {
+            pTooltipComponents.add(Component.translatable("jackseconomy.value", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD));
+        }
     }
 
     @Override
@@ -65,6 +75,10 @@ public class CheckItem extends Item {
 
         WalletItem.setBalance(wallet, WalletItem.getBalance(wallet).add(checkValue));
         itemStack.shrink(1);
+
+        if (pPlayer instanceof ServerPlayer serverPlayer) {
+            Packets.sendToClient(serverPlayer, new WalletBalanceDifPacket(checkValue));
+        }
 
         pPlayer.level.playSound(null, pPlayer.blockPosition(), Sounds.CASH.get(), SoundSource.PLAYERS, 1.f, 1.f);
 

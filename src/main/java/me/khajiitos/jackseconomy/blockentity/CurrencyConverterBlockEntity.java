@@ -1,5 +1,6 @@
 package me.khajiitos.jackseconomy.blockentity;
 
+import me.khajiitos.jackseconomy.block.CurrencyConverterBlock;
 import me.khajiitos.jackseconomy.block.TransactionMachineBlock;
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.init.BlockEntityReg;
@@ -49,15 +50,22 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
 
     protected SlottedItemStackHandler itemHandlerInput;
     protected SlottedItemStackHandler itemHandlerOutput;
+    protected SlottedItemStackHandler itemHandlerRejectionOutput;
     protected LazyOptional<IItemHandler> itemHandlerInputLazy = LazyOptional.of(() -> itemHandlerInput);
     protected LazyOptional<IItemHandler> itemHandlerOutputLazy = LazyOptional.of(() -> itemHandlerOutput);
+    protected LazyOptional<IItemHandler> itemHandlerRejectionOutputLazy = LazyOptional.of(() -> itemHandlerRejectionOutput);
     protected SideConfig sideConfig = new SideConfig();
 
     public CurrencyConverterBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(BlockEntityReg.CURRENCY_CONVERTER.get(), pPos, pBlockState);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false, itemStack -> itemStack.getItem() instanceof CurrencyItem);
+        itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
+        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
+    }
+
+    protected boolean isItemRejected(ItemStack itemStack) {
+        return !(itemStack.getItem() instanceof CurrencyItem);
     }
 
     public BigDecimal getTotalBalance() {
@@ -178,10 +186,10 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
             ItemStack left = blockEntity.addItem(stack, slotsOutput);
 
             BigDecimal worth = blockEntity.selectedCurrencyType.worth;
-            if (left != null) {
+            blockEntity.currency = blockEntity.currency.subtract(worth.multiply(new BigDecimal(toAdd)));
+
+            if (left != null && !left.isEmpty()) {
                 blockEntity.currency = blockEntity.currency.add(blockEntity.selectedCurrencyType.worth.multiply(new BigDecimal(toAdd - left.getCount())));
-            } else {
-                blockEntity.currency = blockEntity.currency.subtract(worth.multiply(new BigDecimal(toAdd)));
             }
 
             updated = true;
@@ -296,15 +304,18 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction side) {
-        Direction facing = this.getBlockState().getValue(TransactionMachineBlock.FACING);
+        Direction facing = this.getBlockState().getValue(CurrencyConverterBlock.FACING);
 
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
             switch (sideConfig.getValue(SideConfig.directionRelative(facing, side))) {
                 case INPUT -> {
                     return itemHandlerInputLazy.cast();
                 }
-                case OUTPUT, REJECTION_OUTPUT -> {
+                case OUTPUT -> {
                     return itemHandlerOutputLazy.cast();
+                }
+                case REJECTION_OUTPUT -> {
+                    return itemHandlerRejectionOutputLazy.cast();
                 }
             }
         }
@@ -317,6 +328,7 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         super.invalidateCaps();
         itemHandlerInputLazy.invalidate();
         itemHandlerOutputLazy.invalidate();
+        itemHandlerRejectionOutputLazy.invalidate();
     }
 
     @Override

@@ -32,9 +32,9 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
-public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
-    protected static final ResourceLocation BALANCE_PROGRESS = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/balance_progress.png");
+import static me.khajiitos.jackseconomy.screen.ShoppingCartScreen.BALANCE_PROGRESS;
 
+public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
     private static final ResourceLocation BACKGROUND = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/wallet.png");
     private static final ResourceLocation CHECK_ICON = new ResourceLocation(JacksEconomy.MOD_ID, "textures/item/check.png");
     private static final ResourceLocation PLUS_ICON = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/plus_icon.png");

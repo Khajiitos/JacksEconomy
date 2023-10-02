@@ -7,6 +7,7 @@ import me.khajiitos.jackseconomy.item.CheckItem;
 import me.khajiitos.jackseconomy.item.CurrencyItem;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.packet.UpdateWalletBalancePacket;
+import me.khajiitos.jackseconomy.packet.WalletBalanceDifPacket;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -95,6 +96,7 @@ public class WalletMenu extends AbstractContainerMenu {
                 JacksEconomy.server.getPlayerList().getPlayers().forEach(serverPlayer -> {
                     if (serverPlayer.containerMenu == this) {
                         Packets.sendToClient(serverPlayer, new UpdateWalletBalancePacket(newBalance));
+                        Packets.sendToClient(serverPlayer, new WalletBalanceDifPacket(value));
                     }
                 });
                 input.setCount(0);

@@ -38,8 +38,8 @@ import java.util.List;
 
 public class MechanicalImporterBlockEntity extends TransactionKineticMachineBlockEntity implements IImporterBlockEntity {
     protected static final int[] slotsInput = new int[]{0, 1, 2};
-    protected static final int[] slotsOutput = new int[]{3, 4, 5};
-    protected static final int slotTicket = 6;
+    protected static final int[] slotsOutput = new int[]{3, 4, 5, 6, 7, 8};
+    protected static final int slotTicket = 9;
     protected SlottedItemStackHandler itemHandlerInput;
     protected SlottedItemStackHandler itemHandlerOutput;
     protected SlottedItemStackHandler itemHandlerRejectionOutput;
@@ -78,7 +78,7 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
 
     @Override
     public int getContainerSize() {
-        return 7;
+        return 10;
     }
 
     public float getProgress() {

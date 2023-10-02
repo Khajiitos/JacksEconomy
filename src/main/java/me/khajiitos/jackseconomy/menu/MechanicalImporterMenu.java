@@ -4,6 +4,7 @@ import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.blockentity.MechanicalImporterBlockEntity;
 import me.khajiitos.jackseconomy.blockentity.TransactionKineticMachineBlockEntity;
 import me.khajiitos.jackseconomy.init.ContainerReg;
+import me.khajiitos.jackseconomy.item.ExporterTicketItem;
 import me.khajiitos.jackseconomy.item.ImporterTicketItem;
 import me.khajiitos.jackseconomy.util.CoinInputSlot;
 import me.khajiitos.jackseconomy.util.FilteredSlot;
@@ -25,14 +26,14 @@ public class MechanicalImporterMenu extends KineticTransactionMachineMenu {
         }
 
         for (int row = 0; row < 3; row++) {
-            this.addSlot(new CoinInputSlot(blockEntity, row, 44, 21 + row * 18));
+            this.addSlot(new CoinInputSlot(blockEntity, row, 8, 21 + row * 18));
         }
 
-        for (int row = 0; row < 3; row++) {
-            this.addSlot(new OutputSlot(blockEntity, 3 + row, 116, 21 + row * 18));
+        for (int i = 0; i < 6; i++) {
+            this.addSlot(new OutputSlot(blockEntity, 3 + i, 71 + (i % 2) * 18, 21 + (i / 2) * 18));
         }
 
-        this.addSlot(new FilteredSlot(blockEntity, 6, 8, 21, new ResourceLocation(JacksEconomy.MOD_ID, "gui/ticket_slot"), itemStack -> itemStack.getItem() instanceof ImporterTicketItem));
+        this.addSlot(new FilteredSlot(blockEntity, 9, 40, 48, new ResourceLocation(JacksEconomy.MOD_ID, "gui/ticket_slot"), itemStack -> itemStack.getItem() instanceof ImporterTicketItem));
 
         this.addPlayerInventory(playerInv, 95);
     }
@@ -43,6 +44,6 @@ public class MechanicalImporterMenu extends KineticTransactionMachineMenu {
 
     @Override
     public int getContainerSize() {
-        return 7;
+        return 10;
     }
 }
