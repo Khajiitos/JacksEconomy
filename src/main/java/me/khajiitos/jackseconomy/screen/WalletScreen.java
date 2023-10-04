@@ -164,16 +164,22 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
         this.renderTooltip(pPoseStack, pMouseX, pMouseY);
 
         for (ClickableCurrencyItem item : this.clickableCurrencyItems) {
-            pPoseStack.pushPose();
-            //double twopi = Math.PI * 2;
-            pPoseStack.mulPose(new Quaternion(0.f, 0.f, 0.f, (float)Math.PI * 0.5f));
+            RenderSystem.setShaderTexture(0, item.getTexture());
 
-            String itemName = ItemHelper.getItemName(item.currencyType.item);
+            boolean hovered = pMouseX > item.x && pMouseX <= item.x + item.width && pMouseY > item.y && pMouseY <= item.y + item.height;
 
-            RenderSystem.setShaderTexture(0, new ResourceLocation(JacksEconomy.MOD_ID, "textures/item/" + itemName + ".png"));
-            this.blit(pPoseStack, item.x, item.y, 0, 0, 16, 16);
+            if (hovered) {
+                pPoseStack.pushPose();
+                pPoseStack.scale(1.25, 1.25, 1.25);
+                RenderSystem.setShaderColor(1.25f, 1.25f, 1.25f, 1.f);
+            }
 
-            pPoseStack.popPose();
+            this.blit(pPoseStack, (int)(item.x * (hovered ? 1.25f : 1.f)), (int)(item.y * (hovered ? 1.25f : 1.f)), 0, 0, item.width, item.height);
+
+            if (hovered) {
+                pPoseStack.popPose();
+                RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);
+            }
         }
 
         if (tooltip != null) {
@@ -182,5 +188,23 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
     }
 
 
-    private record ClickableCurrencyItem(int x, int y, int width, int height, int rotation, CurrencyType currencyType) { }
+    private record ClickableCurrencyItem(int x, int y, int width, int height, CurrencyType currencyType) { 
+        private static final ResourceLocation PENNY_TEXTURE = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/wallet_items/penny.png");
+
+        public ResourceLocation getTexture() {
+            return switch (this.currencyType) {
+                case PENNY -> PENNY_TEXTURE;
+                case NICKEL -> NICKEL_TEXTURE;
+                case DIME -> DIME_TEXTURE;
+                case QUARTER -> QUARTER_TEXTURE;
+                case DOLLAR_BILL -> DOLLAR_BILL_TEXTURE;
+                case FIVE_DOLLAR_BILL -> FIVE_DOLLAR_BILL_TEXTURE;
+                case TEN_DOLLAR_BILL -> TEN_DOLLAR_BILL_TEXTURE;
+                case TWENTY_DOLLAR_BILL -> TWENTY_DOLLAR_BILL_TEXTURE;
+                case FIFTY_DOLLAR_BILL -> FIFTY_DOLLAR_BILL_TEXTURE;
+                case HUNDRED_DOLLAR_BILL -> HUNDRED_DOLLAR_BILL_TEXTURE;
+                case THOUSAND_DOLLAR_BILL -> THOUSAND_DOLLAR_BILL_TEXTURE;
+            }
+        }
+    }
 }
