@@ -57,13 +57,17 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
         itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
     }
 
+    protected boolean hitCapacityLimit() {
+        return getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxImporterBalance.get())) >= 0;
+    }
+
     @Override
     public BigDecimal getTotalBalance() {
         return getBalance();
     }
 
     protected boolean isItemRejected(ItemStack itemStack) {
-        return !(itemStack.getItem() instanceof CurrencyItem);
+        return !(itemStack.getItem() instanceof CurrencyItem) || hitCapacityLimit();
     }
 
     @Override

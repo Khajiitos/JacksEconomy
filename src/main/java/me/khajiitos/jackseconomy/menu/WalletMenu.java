@@ -80,27 +80,37 @@ public class WalletMenu extends AbstractContainerMenu {
 
         if (!input.isEmpty() && this.itemStack.getItem() instanceof WalletItem walletItem) {
             BigDecimal value;
+
             if (input.getItem() instanceof CurrencyItem currencyItem) {
-                value = currencyItem.value.multiply(new BigDecimal(input.getCount()));
+                value = currencyItem.value;
             } else if (input.getItem() instanceof CheckItem) {
                 value = CheckItem.getBalance(input);
             } else {
                 return;
             }
 
-            BigDecimal oldBalance = WalletItem.getBalance(itemStack);
-            BigDecimal newBalance = oldBalance.add(value);
+            int count = input.getCount();
 
-            if (BigDecimal.valueOf(walletItem.getCapacity()).compareTo(newBalance) >= 0) {
-                WalletItem.setBalance(itemStack, newBalance);
-                JacksEconomy.server.getPlayerList().getPlayers().forEach(serverPlayer -> {
-                    if (serverPlayer.containerMenu == this) {
-                        Packets.sendToClient(serverPlayer, new UpdateWalletBalancePacket(newBalance));
-                        Packets.sendToClient(serverPlayer, new WalletBalanceDifPacket(value));
-                    }
-                });
-                input.setCount(0);
+            BigDecimal oldBalance = WalletItem.getBalance(itemStack);
+            BigDecimal freeBalance = BigDecimal.valueOf(walletItem.getCapacity()).subtract(oldBalance);
+
+            int toConsume = value.compareTo(BigDecimal.ZERO) == 0 ? count : Math.min(freeBalance.divideToIntegralValue(value).intValue(), count);
+
+            if (toConsume <= 0) {
+                return;
             }
+
+            BigDecimal dif = value.multiply(BigDecimal.valueOf(toConsume));
+            BigDecimal newBalance = oldBalance.add(dif);
+            WalletItem.setBalance(itemStack, newBalance);
+
+            JacksEconomy.server.getPlayerList().getPlayers().forEach(serverPlayer -> {
+                if (serverPlayer.containerMenu == this) {
+                    Packets.sendToClient(serverPlayer, new UpdateWalletBalancePacket(newBalance));
+                    Packets.sendToClient(serverPlayer, new WalletBalanceDifPacket(dif));
+                }
+            });
+            input.setCount(count - toConsume);
         }
     }
 

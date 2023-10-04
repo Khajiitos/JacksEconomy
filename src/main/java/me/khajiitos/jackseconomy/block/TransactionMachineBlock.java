@@ -75,8 +75,6 @@ public abstract class TransactionMachineBlock extends BaseEntityBlock {
             if (state.hasBlockEntity() && (!state.is(newState.getBlock()) || !newState.hasBlockEntity())) {
                 level.removeBlockEntity(pos);
             }
-
-            //super.onRemove(state, level, pos, newState, isMoving);
         }
     }
 }

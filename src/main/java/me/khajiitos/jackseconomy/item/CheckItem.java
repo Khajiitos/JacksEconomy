@@ -26,11 +26,11 @@ public class CheckItem extends Item {
         super(new Properties().stacksTo(1));
     }
 
-    public static @Nullable BigDecimal getBalance(ItemStack itemStack) {
+    public static BigDecimal getBalance(ItemStack itemStack) {
         try {
             return new BigDecimal(itemStack.getOrCreateTag().getString("Balance"));
         } catch (NumberFormatException e) {
-            return null;
+            return BigDecimal.ZERO;
         }
     }
 

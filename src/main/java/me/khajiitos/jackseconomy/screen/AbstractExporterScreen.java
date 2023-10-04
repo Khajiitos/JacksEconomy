@@ -19,6 +19,7 @@ import me.khajiitos.jackseconomy.util.SideConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -182,9 +183,7 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
         }
     }
 
-    protected void renderTooltipsOrSomething(PoseStack poseStack, int mouseX, int mouseY) {
-
-    }
+    protected void renderTooltipsOrSomething(PoseStack poseStack, int mouseX, int mouseY) {}
 
     @Override
     protected void containerTick() {

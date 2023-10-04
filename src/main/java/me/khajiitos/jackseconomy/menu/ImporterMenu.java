@@ -12,6 +12,7 @@ import me.khajiitos.jackseconomy.util.RedstoneToggle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 
 public class ImporterMenu extends TransactionMachineMenu {
     public final float machineSpeed;
@@ -31,7 +32,7 @@ public class ImporterMenu extends TransactionMachineMenu {
         }
 
         for (int row = 0; row < 3; row++) {
-            this.addSlot(new CoinInputSlot(blockEntity, row, 8, 21 + row * 18));
+            this.addSlot(new Slot(blockEntity, row, 8, 21 + row * 18));
         }
 
         for (int i = 0; i < 6; i++) {

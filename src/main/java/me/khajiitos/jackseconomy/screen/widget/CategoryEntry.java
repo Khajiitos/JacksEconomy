@@ -45,7 +45,7 @@ public class CategoryEntry extends AbstractWidget {
         int width = Minecraft.getInstance().font.width(name);
 
         float scale = 1.f;
-        int space = this.width - 24;
+        int space = this.width - 29;
         if (width > space) {
             scale = (float) space / width;
             pPoseStack.pushPose();

@@ -64,8 +64,12 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
     }
 
+    protected boolean hitCapacityLimit() {
+        return getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get())) >= 0;
+    }
+
     protected boolean isItemRejected(ItemStack itemStack) {
-        return !(itemStack.getItem() instanceof CurrencyItem);
+        return !(itemStack.getItem() instanceof CurrencyItem) || hitCapacityLimit();
     }
 
     public BigDecimal getTotalBalance() {
@@ -186,10 +190,12 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
             ItemStack left = blockEntity.addItem(stack, slotsOutput);
 
             BigDecimal worth = blockEntity.selectedCurrencyType.worth;
-            blockEntity.currency = blockEntity.currency.subtract(worth.multiply(new BigDecimal(toAdd)));
 
             if (left != null && !left.isEmpty()) {
-                blockEntity.currency = blockEntity.currency.add(blockEntity.selectedCurrencyType.worth.multiply(new BigDecimal(toAdd - left.getCount())));
+                blockEntity.currency = blockEntity.currency.subtract(worth.multiply(new BigDecimal(toAdd - left.getCount())));
+                //blockEntity.currency = blockEntity.currency.add(blockEntity.selectedCurrencyType.worth.multiply(new BigDecimal(toAdd - left.getCount())));
+            } else {
+                blockEntity.currency = blockEntity.currency.subtract(worth.multiply(new BigDecimal(toAdd)));
             }
 
             updated = true;

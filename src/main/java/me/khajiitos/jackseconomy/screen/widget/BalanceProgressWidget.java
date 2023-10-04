@@ -39,9 +39,9 @@ public class BalanceProgressWidget extends AbstractWidget {
 
     @Override
     public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-
+        BigDecimal balance = balanceSupplier.get();
         BigDecimal capacity = maxBalanceSupplier.get();
-        double progress = balanceSupplier.get().divide(capacity, RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
+        double progress = balance.divide(capacity, RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
 
         RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
 
@@ -53,7 +53,10 @@ public class BalanceProgressWidget extends AbstractWidget {
         blit(pPoseStack, startX, startY + (65 - pixels), this.getBlitOffset(), 51, 65 - pixels, 5, pixels, 256, 256);
 
         if (isHovered()) {
-            onTooltip.accept(List.of(Component.translatable("jackseconomy.max_storage", Component.literal(CurrencyHelper.format(capacity)).withStyle(ChatFormatting.GOLD), Component.literal((int)(progress * 100) + "%").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW)));
+            onTooltip.accept(List.of(
+                    Component.translatable("jackseconomy.balance", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW),
+                    Component.translatable("jackseconomy.max_storage", Component.literal(CurrencyHelper.format(capacity)).withStyle(ChatFormatting.GOLD), Component.literal((int)(progress * 100) + "%").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW)
+            ));
         }
     }
 

@@ -3,19 +3,20 @@ package me.khajiitos.jackseconomy.screen;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
+import me.khajiitos.jackseconomy.init.ItemBlockReg;
 import me.khajiitos.jackseconomy.init.Packets;
+import me.khajiitos.jackseconomy.item.CurrencyItem;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.menu.WalletMenu;
 import me.khajiitos.jackseconomy.packet.CreateCheckPacket;
 import me.khajiitos.jackseconomy.packet.WithdrawBalanceSpecificPacket;
-import me.khajiitos.jackseconomy.screen.widget.CurrencyToggleButton;
-import me.khajiitos.jackseconomy.screen.widget.SimpleButton;
-import me.khajiitos.jackseconomy.screen.widget.SimpleImageButton;
-import me.khajiitos.jackseconomy.screen.widget.TextBox;
+import me.khajiitos.jackseconomy.screen.widget.*;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.CurrencyType;
+import me.khajiitos.jackseconomy.util.ItemHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -39,13 +40,15 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
     private static final ResourceLocation CHECK_ICON = new ResourceLocation(JacksEconomy.MOD_ID, "textures/item/check.png");
     private static final ResourceLocation PLUS_ICON = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/plus_icon.png");
     private static final ResourceLocation ADMIN_SHOP_ICON = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/admin_shop_icon.png");
-    private TextBox keypadTextbox;
-    private TextBox balanceTextbox;
 
     private List<Component> tooltip;
+    private List<ClickableCurrencyItem> clickableCurrencyItems;
     private final ItemStack itemStack;
     private CurrencyType currencyType = CurrencyType.PENNY;
     private final boolean showAdminShopIcon;
+
+    private TextBox balanceTextbox;
+
 
     public WalletScreen(WalletMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
@@ -67,45 +70,20 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
     @Override
     protected void init() {
         super.init();
-        String keypadText = keypadTextbox == null ? "" : keypadTextbox.getText();
-        keypadTextbox = this.addRenderableWidget(new TextBox(this.leftPos + 10, this.topPos + 10, 55, 15, keypadText));
 
-        for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 3; x++) {
-                this.addRenderableWidget(new SimpleButton(this.leftPos + 10 + x * 20, this.topPos + 30 + y * 20, 15, 15, Component.literal(String.valueOf(1 + y * 3 + x)), (b) -> {
-                    if (this.keypadTextbox.getText().length() < 8) {
-                        int dotIndex = this.keypadTextbox.getText().indexOf('.');
-                        if (dotIndex == -1 || dotIndex > this.keypadTextbox.getText().length() - 3) {
-                            keypadTextbox.setText(keypadTextbox.getText() + b.getMessage().getString());
-                        }
-                    }
-                }));
+        this.addClickableCurrencyItems();
+
+        this.addRenderableWidget(new CheckCreatorWidget(this.leftPos - 21, this.topPos + 1, value -> {
+            if (value.compareTo(BigDecimal.ZERO) > 0 && value.compareTo(WalletItem.getBalance(itemStack)) <= 0) {
+                Packets.sendToServer(new CreateCheckPacket(value));
             }
-        }
-
-        balanceTextbox = this.addRenderableWidget(new TextBox(this.leftPos + 75, this.topPos + 10, 95, 15, "", 0xFFBBBBBB));
-
-        this.addRenderableWidget(new SimpleButton(this.leftPos + 10, this.topPos + 90, 15, 15, Component.literal("0"), (b) -> {
-            if (this.keypadTextbox.getText().length() < 8) {
-                keypadTextbox.setText(keypadTextbox.getText() + b.getMessage().getString());
-            }
-        }));
-
-        this.addRenderableWidget(new SimpleButton(this.leftPos + 30, this.topPos + 90, 15, 15, Component.literal("."), (b) -> {
-            if (this.keypadTextbox.getText().length() > 0 && !this.keypadTextbox.getText().contains(".") &&  this.keypadTextbox.getText().length() < 8) {
-                keypadTextbox.setText(keypadTextbox.getText() + b.getMessage().getString());
-            }
-        }));
-
-        this.addRenderableWidget(new SimpleButton(this.leftPos + 50, this.topPos + 90, 15, 15, Component.literal("C"), (b) -> {
-            if (this.keypadTextbox.getText().length() > 0) {
-                this.keypadTextbox.setText(this.keypadTextbox.getText().substring(0, this.keypadTextbox.getText().length() - 1));
-            }
-        }));
+        }, tooltip -> this.tooltip = tooltip));
 
         this.addRenderableWidget(new CurrencyToggleButton(this.leftPos + 132, this.topPos + 88, 18, 18, (currencyType) -> this.currencyType = currencyType, (button, poseStack, mouseX, mouseY) -> {
             this.tooltip = List.of(this.currencyType.item.getDescription());
         }, this.currencyType));
+
+        balanceTextbox = this.addRenderableWidget(new TextBox(this.leftPos + 75, this.topPos + 10, 95, 15, "", 0xFFBBBBBB));
 
         this.addRenderableWidget(new SimpleImageButton(this.leftPos + 152, this.topPos + 88, 18, 18, PLUS_ICON, (b) -> {
             int count;
@@ -131,20 +109,6 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
                 Component.translatable("jackseconomy.normal_coins").withStyle(ChatFormatting.GRAY)
         ))));
 
-
-        this.addRenderableWidget(new SimpleImageButton(this.leftPos + 70, this.topPos + 90, 15, 15, CHECK_ICON, (b) -> {
-            BigDecimal value;
-            try {
-                value = new BigDecimal(this.keypadTextbox.getText());
-            } catch (NumberFormatException e) {
-                return;
-            }
-
-            if (value.compareTo(BigDecimal.ZERO) > 0 && value.compareTo(WalletItem.getBalance(itemStack)) <= 0) {
-                Packets.sendToServer(new CreateCheckPacket(value));
-            }
-        }, ((pButton, pPoseStack, pMouseX, pMouseY) -> this.tooltip = List.of(Component.translatable("jackseconomy.turn_into_check").withStyle(ChatFormatting.GRAY)))));
-
         if (this.showAdminShopIcon) {
             this.addRenderableWidget(new SimpleImageButton(this.leftPos + 153, this.topPos + 30, 17, 17, 15, 15, ADMIN_SHOP_ICON, (b) -> {
                 LocalPlayer player = Minecraft.getInstance().player;
@@ -154,6 +118,12 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
                 }
             }, ((pButton, pPoseStack, pMouseX, pMouseY) -> this.tooltip = List.of(Component.translatable("jackseconomy.click_to_open_admin_shop").withStyle(ChatFormatting.GRAY)))));
         }
+    }
+
+    private void addClickableCurrencyItems() {
+        this.clickableCurrencyItems.clear();
+
+        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 5, this.topPos, 5, 16, 90, CurrencyType.THOUSAND_DOLLAR_BILL));
     }
 
     @Override
@@ -193,8 +163,24 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 
         this.renderTooltip(pPoseStack, pMouseX, pMouseY);
 
+        for (ClickableCurrencyItem item : this.clickableCurrencyItems) {
+            pPoseStack.pushPose();
+            //double twopi = Math.PI * 2;
+            pPoseStack.mulPose(new Quaternion(0.f, 0.f, 0.f, (float)Math.PI * 0.5f));
+
+            String itemName = ItemHelper.getItemName(item.currencyType.item);
+
+            RenderSystem.setShaderTexture(0, new ResourceLocation(JacksEconomy.MOD_ID, "textures/item/" + itemName + ".png"));
+            this.blit(pPoseStack, item.x, item.y, 0, 0, 16, 16);
+
+            pPoseStack.popPose();
+        }
+
         if (tooltip != null) {
             this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX, pMouseY);
         }
     }
+
+
+    private record ClickableCurrencyItem(int x, int y, int width, int height, int rotation, CurrencyType currencyType) { }
 }

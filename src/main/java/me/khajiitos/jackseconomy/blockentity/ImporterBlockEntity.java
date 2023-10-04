@@ -62,8 +62,12 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
         return getBalance();
     }
 
+    protected boolean hitCapacityLimit() {
+        return getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxImporterBalance.get())) >= 0;
+    }
+
     protected boolean isItemRejected(ItemStack itemStack) {
-        return !(itemStack.getItem() instanceof CurrencyItem);
+        return !(itemStack.getItem() instanceof CurrencyItem) || hitCapacityLimit();
     }
 
 

@@ -55,8 +55,12 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
         itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
     }
 
+    protected boolean hitCapacityLimit() {
+        return getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxExporterBalance.get())) >= 0;
+    }
+
     protected boolean isItemRejected(ItemStack itemStack) {
-        return ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
+        return ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1 || hitCapacityLimit();
     }
 
     protected Component getDefaultName() {
@@ -112,7 +116,7 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
 
         if (ticketItem.getItem() instanceof ExporterTicketItem && exporter.getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxExporterBalance.get())) < 0) {
             if ((exporter.redstoneToggle == RedstoneToggle.SIGNAL_ON && level.hasNeighborSignal(pos)) || (exporter.redstoneToggle == RedstoneToggle.SIGNAL_OFF && !level.hasNeighborSignal(pos)) || exporter.redstoneToggle == RedstoneToggle.IGNORED) {
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 6; i++) {
                     ItemStack item = exporter.items.get(i);
                     ItemDescription itemDescription = ItemDescription.ofItem(item);
                     if (!item.isEmpty() && ItemPriceManager.getSellPrice(itemDescription, 1) != -1) {
