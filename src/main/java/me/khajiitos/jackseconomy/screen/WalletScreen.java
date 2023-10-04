@@ -118,6 +118,10 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
                 }
             }, ((pButton, pPoseStack, pMouseX, pMouseY) -> this.tooltip = List.of(Component.translatable("jackseconomy.click_to_open_admin_shop").withStyle(ChatFormatting.GRAY)))));
         }
+
+        this.addRenderableWidget(new SimpleButton(this.leftPos + 10, this.topPos + 120, 54, 15, Component.translatable("jackseconomy.deposit_all"), b -> {
+            Packets.sendToServer(new DepositAllPacket());
+        }));
     }
 
     private void addClickableCurrencyItems() {
