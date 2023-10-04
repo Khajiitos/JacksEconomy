@@ -1,4 +1,4 @@
-package me.khajiitos.packet.handler;
+package me.khajiitos.jackseconomy.packet.handler;
 
 //TODO: imports and stuff
 
