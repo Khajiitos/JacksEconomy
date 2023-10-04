@@ -116,5 +116,9 @@
   "jackseconomy.add_category": "Add category!",
   "jackseconomy.max_capacity_reached": "Maximum capacity reached",
   "jackseconomy.write_check": "Write Check",
-  "jackseconomy.write": "Write"
+  "jackseconomy.write": "Write",
+  "jackseconomy.deposit_all": "Deposit All",
+  "jackseconomy.shop": "Shop",
+  "jackseconomy.item_owner": "%s's %s",
+  "jackseconomy.thanks_for_using": "Thank you for using Jack's Economy!"
 }

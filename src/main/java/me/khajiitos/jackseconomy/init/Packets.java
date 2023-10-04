@@ -37,6 +37,7 @@ public class Packets {
         INSTANCE.registerMessage(packetCount++, UpdateAdminShopPacket.class, UpdateAdminShopPacket::encode, UpdateAdminShopPacket::decode, UpdateAdminShopPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         INSTANCE.registerMessage(packetCount++, UpdateSideConfigPacket.class, UpdateSideConfigPacket::encode, UpdateSideConfigPacket::decode, UpdateSideConfigPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         INSTANCE.registerMessage(packetCount++, InsertToWalletPacket.class, InsertToWalletPacket::encode, InsertToWalletPacket::decode, InsertToWalletPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        INSTANCE.registerMessage(packetCount++, DepositAllPacket.class, DepositAllPacket::encode, DepositAllPacket::decode, DepositAllPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
 
     public static <MSG> void sendToServer(MSG packet) {
