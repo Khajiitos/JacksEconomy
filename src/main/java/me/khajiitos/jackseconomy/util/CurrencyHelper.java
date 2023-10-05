@@ -42,14 +42,17 @@ public class CurrencyHelper {
     }
 
     public static String formatShortened(BigDecimal bigDecimal) {
-        if (bigDecimal.compareTo(TRILLION) >= 0) {
-            return "$" + bigDecimal.divide(TRILLION, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN) + "T";
-        } else if (bigDecimal.compareTo(BILLION) >= 0) {
-            return "$" + bigDecimal.divide(BILLION, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN) + "B";
-        } else if (bigDecimal.compareTo(MILLION) >= 0) {
-            return "$" + bigDecimal.divide(MILLION, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN) + "M";
-        } else if (bigDecimal.compareTo(THOUSAND) >= 0) {
-            return "$" + bigDecimal.divide(THOUSAND, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN) + "K";
+        String sign = (bigDecimal.compareTo(BigDecimal.ZERO) < 0) ? "-" : "";
+        BigDecimal bigDecimalAbs = bigDecimal.abs();
+
+        if (bigDecimalAbs.compareTo(TRILLION) >= 0) {
+            return "$" + sign + bigDecimalAbs.divide(TRILLION, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN) + "T";
+        } else if (bigDecimalAbs.compareTo(BILLION) >= 0) {
+            return "$" + sign + bigDecimalAbs.divide(BILLION, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN) + "B";
+        } else if (bigDecimalAbs.compareTo(MILLION) >= 0) {
+            return "$" + sign + bigDecimalAbs.divide(MILLION, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN) + "M";
+        } else if (bigDecimalAbs.compareTo(THOUSAND) >= 0) {
+            return "$" + sign + bigDecimalAbs.divide(THOUSAND, RoundingMode.DOWN).setScale(2, RoundingMode.DOWN) + "K";
         }
         return format(bigDecimal);
     }

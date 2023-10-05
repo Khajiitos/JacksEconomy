@@ -1,4 +1,5 @@
 {
+  "render_type": "solid",
   "credit": "Made with Blockbench",
   "textures": {
     "face": "jackseconomy:block/exporter",

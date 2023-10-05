@@ -53,8 +53,9 @@ public class CurrencyItem extends Item {
         }
 
         BigDecimal left = BigDecimal.valueOf(walletItem.getCapacity()).subtract(WalletItem.getBalance(wallet));
+        BigDecimal fraction = left.divide(value, RoundingMode.UP).setScale(0, RoundingMode.UP);
 
-        long insertCount = Math.min(left.divide(this.value, RoundingMode.DOWN).longValue(), itemStack.getCount());
+        long insertCount = Math.min(fraction.longValue(), itemStack.getCount());
 
         if (insertCount <= 0) {
             return super.use(pLevel, pPlayer, pUsedHand);

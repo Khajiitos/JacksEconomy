@@ -1,5 +1,6 @@
 package me.khajiitos.jackseconomy;
 
+import com.jozufozu.flywheel.backend.instancing.InstancedRenderDispatcher;
 import com.jozufozu.flywheel.backend.instancing.InstancedRenderRegistry;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.simibubi.create.AllBlockEntityTypes;
@@ -59,12 +60,12 @@ public class JacksEconomyClient {
 
         InstancedRenderRegistry.configure(BlockEntityReg.MECHANICAL_IMPORTER.get())
                 .factory(HorizontalHalfShaftInstance::new)
-                .skipRender(be -> false)
+                //.skipRender(be -> false)
                 .apply();
 
         InstancedRenderRegistry.configure(BlockEntityReg.MECHANICAL_EXPORTER.get())
                 .factory(HorizontalHalfShaftInstance::new)
-                .skipRender(be -> false)
+                //.skipRender(be -> false)
                 .apply();
     }
 

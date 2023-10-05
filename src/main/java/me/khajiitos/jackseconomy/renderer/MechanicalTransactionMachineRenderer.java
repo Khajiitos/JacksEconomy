@@ -1,5 +1,6 @@
 package me.khajiitos.jackseconomy.renderer;
 
+import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import com.simibubi.create.foundation.render.CachedBufferer;

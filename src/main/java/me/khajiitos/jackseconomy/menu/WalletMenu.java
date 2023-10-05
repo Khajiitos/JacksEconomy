@@ -17,6 +17,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class WalletMenu extends AbstractContainerMenu {
     public final Container container;
@@ -102,7 +103,8 @@ public class WalletMenu extends AbstractContainerMenu {
                 BigDecimal oldBalance = WalletItem.getBalance(itemStack);
                 BigDecimal freeBalance = BigDecimal.valueOf(walletItem.getCapacity()).subtract(oldBalance);
 
-                int toConsume = value.compareTo(BigDecimal.ZERO) == 0 ? count : Math.min(freeBalance.divide(value, RoundingMode.UP).intValue(), count);
+                BigDecimal fraction = freeBalance.divide(value, RoundingMode.UP).setScale(0, RoundingMode.UP);
+                int toConsume = value.compareTo(BigDecimal.ZERO) == 0 ? count : Math.min(fraction.intValue(), count);
 
                 if (toConsume <= 0) {
                     return;

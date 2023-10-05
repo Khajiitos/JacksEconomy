@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.function.Supplier;
 
 public class InsertToWalletHandler {
@@ -47,7 +48,9 @@ public class InsertToWalletHandler {
             BigDecimal oldBalance = WalletItem.getBalance(walletItemStack);
             BigDecimal freeBalance = BigDecimal.valueOf(walletItem.getCapacity()).subtract(oldBalance);
 
-            int toConsume = value.compareTo(BigDecimal.ZERO) == 0 ? count : Math.min(freeBalance.divideToIntegralValue(value).intValue(), count);
+            BigDecimal fraction = freeBalance.divide(value, RoundingMode.UP).setScale(0, RoundingMode.UP);
+
+            int toConsume = value.compareTo(BigDecimal.ZERO) == 0 ? count : Math.min(fraction.intValue(), count);
 
             if (toConsume <= 0) {
                 return;

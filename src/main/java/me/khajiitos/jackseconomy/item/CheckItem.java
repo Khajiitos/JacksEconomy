@@ -69,7 +69,7 @@ public class CheckItem extends Item {
 
         BigDecimal checkValue = CheckItem.getBalance(itemStack);
 
-        if (checkValue.compareTo(left) > 0) {
+        if (left.compareTo(BigDecimal.ZERO) <= 0) {
             return super.use(pLevel, pPlayer, pUsedHand);
         }
 

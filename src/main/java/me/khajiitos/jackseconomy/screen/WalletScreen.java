@@ -4,6 +4,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
+import me.khajiitos.jackseconomy.JacksEconomyClient;
+import me.khajiitos.jackseconomy.config.ClientConfig;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.item.WalletItem;
@@ -19,6 +21,8 @@ import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.CurrencyType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
@@ -26,6 +30,8 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
@@ -46,6 +52,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
     private static final ResourceLocation ID_CARD = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/id_card.png");
 
     private List<Component> tooltip;
+    private boolean tooltipShiftLeft = false;
     private final List<ClickableCurrencyItem> clickableCurrencyItems = new ArrayList<>();
     private final ItemStack itemStack;
     private final boolean showAdminShopIcon;
@@ -119,6 +126,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
     @Override
     protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
         tooltip = null;
+        tooltipShiftLeft = false;
         this.renderBackground(pPoseStack);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -133,27 +141,32 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
         this.balanceTextbox.setText(CurrencyHelper.format(balance));
     }
 
+    private static void drawCenteredStringNoShadow(PoseStack pPoseStack, Font pFont, Component pText, int pX, int pY, int pColor) {
+        FormattedCharSequence formattedcharsequence = pText.getVisualOrderText();
+        pFont.draw(pPoseStack, formattedcharsequence, (float)(pX - pFont.width(formattedcharsequence) / 2), (float)pY, pColor);
+    }
+
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
 
         RenderSystem.setShaderTexture(0, ID_CARD);
 
-        blit(pPoseStack, this.leftPos + 85, this.topPos + 40, this.getBlitOffset(), 0, 0, 70, 44, 70, 44);
+        blit(pPoseStack, this.leftPos + 75, this.topPos + 40, this.getBlitOffset(), 0, 0, 91, 44, 91, 44);
 
         if (Minecraft.getInstance().player != null) {
             RenderSystem.setShaderTexture(0, Minecraft.getInstance().player.getSkinTextureLocation());
-            PlayerFaceRenderer.draw(pPoseStack, this.leftPos + 85 + 4, this.topPos + 40 + 15, 25);
+            PlayerFaceRenderer.draw(pPoseStack, this.leftPos + 75 + 4, this.topPos + 40 + 15, 25);
         }
 
-        if (this.itemStack.getItem() instanceof WalletItem walletItem && WalletItem.getBalance(itemStack).compareTo(walletItem.getCapacity()) >= 0) {
-            GuiComponent.drawCenteredString(pPoseStack, this.width / 2, this.topPos - 10, Component.translatable("jackseconomy.capacity_overflow_reached").withStyle(ChatFormatting.RED), 0xFFFFFFFF);
+        if (this.itemStack.getItem() instanceof WalletItem walletItem && WalletItem.getBalance(itemStack).compareTo(BigDecimal.valueOf(walletItem.getCapacity())) >= 0) {
+            GuiComponent.drawCenteredString(pPoseStack, Minecraft.getInstance().font, Component.translatable("jackseconomy.capacity_overflow_reached").withStyle(ChatFormatting.RED), this.width / 2, this.topPos - 12, 0xFFFFFFFF);
         }
 
         Component header = Component.translatable("jackseconomy.item_owner", Component.literal(Minecraft.getInstance().player.getScoreboardName()), this.itemStack.getItem().getDescription());
 
         int headerWidth = Minecraft.getInstance().font.width(header);
-        int space = 64;
+        int space = 82;
 
         float scale;
         if (headerWidth > space) {
@@ -167,7 +180,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
             pPoseStack.scale(scale, scale, scale);
         }
 
-        Minecraft.getInstance().font.draw(pPoseStack, header, (this.leftPos + 88) / scale, (this.topPos + 43) / scale, 0xFF000000);
+        Minecraft.getInstance().font.draw(pPoseStack, header, (this.leftPos + 78) / scale, (this.topPos + 43) / scale, 0xFF000000);
 
         if (scale != 1.f) {
             pPoseStack.popPose();
@@ -181,9 +194,9 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
         pPoseStack.pushPose();
         pPoseStack.scale(contentScale, contentScale, contentScale);
 
-        Minecraft.getInstance().font.getSplitter().splitLines(Component.translatable("jackseconomy.thanks_for_using"), (int)(36 * contentScaleInv), Style.EMPTY, (line, idk) -> {
+        Minecraft.getInstance().font.getSplitter().splitLines(Component.translatable("jackseconomy.thanks_for_using"), (int)(57 * contentScaleInv), Style.EMPTY, (line, idk) -> {
             int count = lineCount.getAndAdd(1);
-            Minecraft.getInstance().font.draw(pPoseStack, line.getString(), (this.leftPos + 118) * contentScaleInv, (this.topPos + 56 + count * 6) * contentScaleInv, 0xFF000000);
+            Minecraft.getInstance().font.draw(pPoseStack, line.getString(), (this.leftPos + 108) * contentScaleInv, (this.topPos + 59 + count * 6) * contentScaleInv, 0xFF000000);
         });
 
         pPoseStack.popPose();
@@ -225,6 +238,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
                         Component.translatable("jackseconomy.ctrl_coins").withStyle(ctrlHeld ? ChatFormatting.AQUA : ChatFormatting.GRAY),
                         Component.translatable("jackseconomy.normal_coins").withStyle(nothingHeld ? ChatFormatting.AQUA : ChatFormatting.GRAY)
                 );
+                this.tooltipShiftLeft = true;
             }
 
             blit(pPoseStack, (int)(item.x * (hovered ? (1.f / 1.25f) : 1.f)), (int)(item.y * (hovered ? (1.f / 1.25f) : 1.f)), 0, 0, item.width, item.height, item.width, item.height);
@@ -235,8 +249,41 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
             }
         }
 
+        if (JacksEconomyClient.balanceDifPopup != null) {
+            long timeDelta = System.currentTimeMillis() - JacksEconomyClient.balanceDifPopupStartMillis;
+            long maxTimeDelta = (long)(ClientConfig.balanceChangePopupTime.get() * 1000);
+
+            int alpha;
+
+            if (timeDelta > maxTimeDelta) {
+                JacksEconomyClient.balanceDifPopup = null;
+                JacksEconomyClient.balanceDifPopupStartMillis = -1;
+                return;
+            }
+
+            if (timeDelta < 500) {
+                alpha = (int)(255 * Mth.lerp(timeDelta / 500.0, 0.0, 1.0));
+            } else if (timeDelta >= maxTimeDelta - 500) {
+                alpha = (int)(255 * Mth.lerp((maxTimeDelta - timeDelta) / 500.0, 0.0, 1.0));
+            } else {
+                alpha = 255;
+            }
+
+            String balanceDif = CurrencyHelper.formatShortened(JacksEconomyClient.balanceDifPopup);
+            boolean positive = JacksEconomyClient.balanceDifPopup.compareTo(BigDecimal.ZERO) > 0;
+
+            Component balanceDifComponent = Component.literal((positive ? "(+" : "(") + balanceDif + ")").withStyle(positive ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED);
+
+            drawCenteredStringNoShadow(pPoseStack, Minecraft.getInstance().font, balanceDifComponent, this.leftPos + 120, this.topPos + 2, 0x00FFFFFF | (alpha << 24));
+        }
+
         if (tooltip != null) {
-            this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX, pMouseY);
+            if (tooltipShiftLeft) {
+                int maxWidth = tooltip.stream().map(a -> Minecraft.getInstance().font.width(a)).max(Comparator.naturalOrder()).orElse(0);
+                this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX - maxWidth - 20, pMouseY);
+            } else {
+                this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX, pMouseY);
+            }
         }
     }
 
