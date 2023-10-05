@@ -146,6 +146,10 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
             PlayerFaceRenderer.draw(pPoseStack, this.leftPos + 85 + 4, this.topPos + 40 + 15, 25);
         }
 
+        if (this.itemStack.getItem() instanceof WalletItem walletItem && WalletItem.getBalance(itemStack).compareTo(walletItem.getCapacity()) >= 0) {
+            GuiComponent.drawCenteredString(pPoseStack, this.width / 2, this.topPos - 10, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), 0xFFFFFFFF);
+        }
+
         Component header = Component.translatable("jackseconomy.item_owner", Component.literal(Minecraft.getInstance().player.getScoreboardName()), this.itemStack.getItem().getDescription());
 
         int headerWidth = Minecraft.getInstance().font.width(header);

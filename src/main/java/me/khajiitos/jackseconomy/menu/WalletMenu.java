@@ -102,7 +102,7 @@ public class WalletMenu extends AbstractContainerMenu {
                 BigDecimal oldBalance = WalletItem.getBalance(itemStack);
                 BigDecimal freeBalance = BigDecimal.valueOf(walletItem.getCapacity()).subtract(oldBalance);
 
-                int toConsume = value.compareTo(BigDecimal.ZERO) == 0 ? count : Math.min(freeBalance.divideToIntegralValue(value).intValue(), count);
+                int toConsume = value.compareTo(BigDecimal.ZERO) == 0 ? count : Math.min(freeBalance.divide(value, RoundingMode.UP).intValue(), count);
 
                 if (toConsume <= 0) {
                     return;
