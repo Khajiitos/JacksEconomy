@@ -120,5 +120,6 @@
   "jackseconomy.deposit_all": "Deposit All",
   "jackseconomy.shop": "Shop",
   "jackseconomy.item_owner": "%s's %s",
-  "jackseconomy.thanks_for_using": "Thank you for using Jack's Economy!"
+  "jackseconomy.thanks_for_using": "Thank you for using Jack's Economy!",
+  "jackseconomy.capacity_overflow_reached": "Capacity Overflow Reached"
 }
