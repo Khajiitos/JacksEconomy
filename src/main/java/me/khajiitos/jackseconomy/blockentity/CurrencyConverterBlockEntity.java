@@ -8,6 +8,7 @@ import me.khajiitos.jackseconomy.item.CurrencyItem;
 import me.khajiitos.jackseconomy.menu.CurrencyConverterMenu;
 import me.khajiitos.jackseconomy.util.CurrencyType;
 import me.khajiitos.jackseconomy.util.SideConfig;
+import me.khajiitos.jackseconomy.util.SideConfigNoRejectionSlot;
 import me.khajiitos.jackseconomy.util.SlottedItemStackHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -54,7 +55,7 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
     protected LazyOptional<IItemHandler> itemHandlerInputLazy = LazyOptional.of(() -> itemHandlerInput);
     protected LazyOptional<IItemHandler> itemHandlerOutputLazy = LazyOptional.of(() -> itemHandlerOutput);
     //protected LazyOptional<IItemHandler> itemHandlerRejectionOutputLazy = LazyOptional.of(() -> itemHandlerRejectionOutput);
-    protected SideConfig sideConfig = new SideConfig();
+    protected SideConfig sideConfig = new SideConfigNoRejectionSlot();
 
     public CurrencyConverterBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(BlockEntityReg.CURRENCY_CONVERTER.get(), pPos, pBlockState);
@@ -62,14 +63,6 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
         //itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
-    }
-
-    protected boolean hitCapacityLimit() {
-        return getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get())) >= 0;
-    }
-
-    protected boolean isItemRejected(ItemStack itemStack) {
-        return !(itemStack.getItem() instanceof CurrencyItem);
     }
 
     public BigDecimal getTotalBalance() {
@@ -247,7 +240,7 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
             this.selectedCurrencyType = CurrencyType.PENNY;
         }
 
-        this.sideConfig = SideConfig.fromIntArray(pTag.getIntArray("SideConfig"));
+        this.sideConfig = SideConfigNoRejectionSlot.fromIntArray(pTag.getIntArray("SideConfig"));
     }
 
     @Nullable
@@ -333,7 +326,7 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         super.invalidateCaps();
         itemHandlerInputLazy.invalidate();
         itemHandlerOutputLazy.invalidate();
-        /i/itemHandlerRejectionOutputLazy.invalidate();
+        //itemHandlerRejectionOutputLazy.invalidate();
     }
 
     @Override

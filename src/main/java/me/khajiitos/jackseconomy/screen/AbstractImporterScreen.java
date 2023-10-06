@@ -15,7 +15,6 @@ import me.khajiitos.jackseconomy.screen.widget.BalanceProgressWidget;
 import me.khajiitos.jackseconomy.screen.widget.RedstoneControlWidget;
 import me.khajiitos.jackseconomy.screen.widget.SideConfigWidget;
 import me.khajiitos.jackseconomy.screen.widget.TicketPreviewWidget;
-import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.SideConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiComponent;
@@ -30,7 +29,6 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

@@ -9,13 +9,23 @@ public class SideConfig {
 
     }
 
+    protected boolean hasRejectionSlot() {
+        return true;
+    }
+
+    protected void loadValues(int[] intValues) {
+        for (int i = 0; i < Math.min(intValues.length, 6); i++) {
+            this.values[i] = Value.values()[intValues[i]];
+        }
+    }
+
     public SideConfig(int[] intValues) {
         for (int i = 0; i < Math.min(intValues.length, 6); i++) {
             this.values[i] = Value.values()[intValues[i]];
         }
     }
 
-    private final Value[] values = new Value[] {
+    protected final Value[] values = new Value[] {
             Value.OUTPUT,
             Value.INPUT,
             Value.NONE,
@@ -39,13 +49,15 @@ public class SideConfig {
     }
 
     public void switchValue(Direction direction, boolean forward) {
+        Value[] allValues = this.hasRejectionSlot() ? Value.values() : new Value[]{Value.NONE, Value.INPUT, Value.OUTPUT};
+
         int ordinal = this.values[direction.ordinal()].ordinal();
         if (forward) {
-            ordinal = (ordinal + 1) % Value.values().length;
+            ordinal = (ordinal + 1) % allValues.length;
         } else {
-            ordinal = ordinal == 0 ? Value.values().length - 1 : ordinal - 1;
+            ordinal = ordinal == 0 ? allValues.length - 1 : ordinal - 1;
         }
-        this.values[direction.ordinal()] = Value.values()[ordinal];
+        this.values[direction.ordinal()] = allValues[ordinal];
     }
 
     public void setValue(Direction direction, Value value) {
@@ -69,11 +81,7 @@ public class SideConfig {
 
     public static SideConfig fromIntArray(int[] array) {
         SideConfig sideConfig = new SideConfig();
-
-        for (int i = 0; i < Math.min(array.length, 6); i++) {
-            sideConfig.values[i] = Value.values()[array[i]];
-        }
-
+        sideConfig.loadValues(array);
         return sideConfig;
     }
 

@@ -77,7 +77,8 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
     }
 
     protected boolean isItemRejected(ItemStack itemStack) {
-        return ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
+        ItemStack manifest = this.items.get(slotTicket);
+        return !(manifest.getItem() instanceof ExporterTicketItem) || (!(manifest.getItem() instanceof GoldenExporterTicketItem) && !ExporterTicketItem.getItems(manifest).contains(ItemDescription.ofItem(itemStack))) || ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
     }
 
     @Override

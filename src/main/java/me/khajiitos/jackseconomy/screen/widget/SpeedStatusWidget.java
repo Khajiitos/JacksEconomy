@@ -1,9 +1,7 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
-import com.jozufozu.flywheel.config.FlwConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.Create;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import net.minecraft.ChatFormatting;

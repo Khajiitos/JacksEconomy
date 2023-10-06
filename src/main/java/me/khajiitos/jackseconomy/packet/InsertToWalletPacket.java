@@ -1,8 +1,6 @@
 package me.khajiitos.jackseconomy.packet;
 
 import me.khajiitos.jackseconomy.packet.handler.InsertToWalletHandler;
-import me.khajiitos.jackseconomy.packet.handler.UpdateAdminShopHandler;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
