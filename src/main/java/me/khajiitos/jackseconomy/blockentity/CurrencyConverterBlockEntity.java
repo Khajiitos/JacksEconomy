@@ -40,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 
 public class CurrencyConverterBlockEntity extends BlockEntity implements WorldlyContainer, Container, MenuProvider, ISideConfigurable {
     public NonNullList<ItemStack> items;
@@ -51,18 +52,22 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
 
     protected SlottedItemStackHandler itemHandlerInput;
     protected SlottedItemStackHandler itemHandlerOutput;
-    //protected SlottedItemStackHandler itemHandlerRejectionOutput;
+    protected SlottedItemStackHandler itemHandlerRejectionOutput;
     protected LazyOptional<IItemHandler> itemHandlerInputLazy = LazyOptional.of(() -> itemHandlerInput);
     protected LazyOptional<IItemHandler> itemHandlerOutputLazy = LazyOptional.of(() -> itemHandlerOutput);
-    //protected LazyOptional<IItemHandler> itemHandlerRejectionOutputLazy = LazyOptional.of(() -> itemHandlerRejectionOutput);
-    protected SideConfig sideConfig = new SideConfigNoRejectionSlot();
+    protected LazyOptional<IItemHandler> itemHandlerRejectionOutputLazy = LazyOptional.of(() -> itemHandlerRejectionOutput);
+    protected SideConfig sideConfig = new SideConfig();
 
     public CurrencyConverterBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(BlockEntityReg.CURRENCY_CONVERTER.get(), pPos, pBlockState);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
-        //itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
+        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
+    }
+
+    protected boolean isItemRejected(ItemStack itemStack) {
+        return !(itemStack.getItem() instanceof CurrencyItem);
     }
 
     public BigDecimal getTotalBalance() {
@@ -240,7 +245,7 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
             this.selectedCurrencyType = CurrencyType.PENNY;
         }
 
-        this.sideConfig = SideConfigNoRejectionSlot.fromIntArray(pTag.getIntArray("SideConfig"));
+        this.sideConfig = SideConfig.fromIntArray(pTag.getIntArray("SideConfig"));
     }
 
     @Nullable
@@ -293,8 +298,12 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         switch (this.sideConfig.getValue(SideConfig.directionRelative(facing, pSide))) {
             case INPUT -> {
                 return slotsInput;
-            } case OUTPUT -> {
+            }
+            case OUTPUT -> {
                 return slotsOutput;
+            }
+            case REJECTION_OUTPUT -> {
+                return Arrays.stream(slotsInput).filter(slot -> isItemRejected(this.items.get(slot))).toArray();
             }
         }
         return new int[]{};
@@ -312,9 +321,9 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
                 case OUTPUT -> {
                     return itemHandlerOutputLazy.cast();
                 }
-                //case REJECTION_OUTPUT -> {
-                //    return itemHandlerRejectionOutputLazy.cast();
-                //}
+                case REJECTION_OUTPUT -> {
+                    return itemHandlerRejectionOutputLazy.cast();
+                }
             }
         }
 
@@ -326,7 +335,7 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         super.invalidateCaps();
         itemHandlerInputLazy.invalidate();
         itemHandlerOutputLazy.invalidate();
-        //itemHandlerRejectionOutputLazy.invalidate();
+        itemHandlerRejectionOutputLazy.invalidate();
     }
 
     @Override
