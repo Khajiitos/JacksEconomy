@@ -50,10 +50,10 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
 
     protected SlottedItemStackHandler itemHandlerInput;
     protected SlottedItemStackHandler itemHandlerOutput;
-    protected SlottedItemStackHandler itemHandlerRejectionOutput;
+    //protected SlottedItemStackHandler itemHandlerRejectionOutput;
     protected LazyOptional<IItemHandler> itemHandlerInputLazy = LazyOptional.of(() -> itemHandlerInput);
     protected LazyOptional<IItemHandler> itemHandlerOutputLazy = LazyOptional.of(() -> itemHandlerOutput);
-    protected LazyOptional<IItemHandler> itemHandlerRejectionOutputLazy = LazyOptional.of(() -> itemHandlerRejectionOutput);
+    //protected LazyOptional<IItemHandler> itemHandlerRejectionOutputLazy = LazyOptional.of(() -> itemHandlerRejectionOutput);
     protected SideConfig sideConfig = new SideConfig();
 
     public CurrencyConverterBlockEntity(BlockPos pPos, BlockState pBlockState) {
@@ -61,7 +61,7 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         itemHandlerInput = new SlottedItemStackHandler(this.items, slotsInput, true, false);
         itemHandlerOutput = new SlottedItemStackHandler(this.items, slotsOutput, false, true);
-        itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
+        //itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
     }
 
     protected boolean hitCapacityLimit() {
@@ -69,7 +69,7 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
     }
 
     protected boolean isItemRejected(ItemStack itemStack) {
-        return !(itemStack.getItem() instanceof CurrencyItem) || hitCapacityLimit();
+        return !(itemStack.getItem() instanceof CurrencyItem);
     }
 
     public BigDecimal getTotalBalance() {
@@ -248,7 +248,6 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         }
 
         this.sideConfig = SideConfig.fromIntArray(pTag.getIntArray("SideConfig"));
-
     }
 
     @Nullable
@@ -320,9 +319,9 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
                 case OUTPUT -> {
                     return itemHandlerOutputLazy.cast();
                 }
-                case REJECTION_OUTPUT -> {
-                    return itemHandlerRejectionOutputLazy.cast();
-                }
+                //case REJECTION_OUTPUT -> {
+                //    return itemHandlerRejectionOutputLazy.cast();
+                //}
             }
         }
 
@@ -334,7 +333,7 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         super.invalidateCaps();
         itemHandlerInputLazy.invalidate();
         itemHandlerOutputLazy.invalidate();
-        itemHandlerRejectionOutputLazy.invalidate();
+        /i/itemHandlerRejectionOutputLazy.invalidate();
     }
 
     @Override

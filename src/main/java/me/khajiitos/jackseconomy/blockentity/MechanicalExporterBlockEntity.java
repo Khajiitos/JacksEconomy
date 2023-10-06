@@ -60,7 +60,7 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
     }
 
     protected boolean isItemRejected(ItemStack itemStack) {
-        return ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1 || hitCapacityLimit();
+        return ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
     }
 
     protected Component getDefaultName() {
