@@ -1,10 +1,6 @@
 package me.khajiitos.jackseconomy;
 
-import com.jozufozu.flywheel.backend.instancing.InstancedRenderDispatcher;
-import com.jozufozu.flywheel.backend.instancing.InstancedRenderRegistry;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.simibubi.create.AllBlockEntityTypes;
-import com.simibubi.create.content.kinetics.base.HorizontalHalfShaftInstance;
 import me.khajiitos.jackseconomy.init.BlockEntityReg;
 import me.khajiitos.jackseconomy.init.ContainerReg;
 import me.khajiitos.jackseconomy.listener.ClientEventListeners;
@@ -58,6 +54,7 @@ public class JacksEconomyClient {
         MenuScreens.register(ContainerReg.IMPORTER_TICKET_CREATOR_MENU.get(), TicketCreatorScreen::new);
         MenuScreens.register(ContainerReg.EXPORTER_TICKET_CREATOR_MENU.get(), TicketCreatorScreen::new);
 
+        /*
         InstancedRenderRegistry.configure(BlockEntityReg.MECHANICAL_IMPORTER.get())
                 .factory(HorizontalHalfShaftInstance::new)
                 //.skipRender(be -> false)
@@ -66,7 +63,7 @@ public class JacksEconomyClient {
         InstancedRenderRegistry.configure(BlockEntityReg.MECHANICAL_EXPORTER.get())
                 .factory(HorizontalHalfShaftInstance::new)
                 //.skipRender(be -> false)
-                .apply();
+                .apply();*/
     }
 
     public static void onKeybindRegister(RegisterKeyMappingsEvent e) {

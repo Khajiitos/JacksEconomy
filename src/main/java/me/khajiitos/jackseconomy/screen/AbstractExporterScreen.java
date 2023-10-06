@@ -66,7 +66,7 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
         IExporterBlockEntity blockEntity = this.getBlockEntity();
 
         if (blockEntity != null) {
-            this.addRenderableWidget(new BalanceProgressWidget(this.leftPos + 128, this.topPos + 9, blockEntity::getBalance, () -> BigDecimal.valueOf(Config.maxImporterBalance.get()), tooltip -> {
+            this.addRenderableWidget(new BalanceProgressWidget(this.leftPos + 128, this.topPos + 9, blockEntity::getTotalBalance, () -> BigDecimal.valueOf(Config.maxImporterBalance.get()), tooltip -> {
                 this.tooltip = tooltip;
             }));
             this.addRenderableWidget(new RedstoneControlWidget(this.leftPos - 24, this.topPos + 1, blockEntity, tooltip -> this.tooltip = tooltip));
@@ -148,6 +148,8 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
         this.addRenderableWidget(this.sideConfig);
     }
 
+    @Override
+    protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {}
 
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {

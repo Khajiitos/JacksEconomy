@@ -19,7 +19,7 @@ public class InventoryScreenMixin {
 
     @Inject(at = @At("HEAD"), method = "slotClicked", cancellable = true)
     public void slotClicked(Slot pSlot, int pSlotId, int pMouseButton, ClickType pType, CallbackInfo ci) {
-        if (pSlot != null && CuriosWallet.get(Minecraft.getInstance().player) != null && (pSlot.getItem().getItem() instanceof CurrencyItem || pSlot.getItem().getItem() instanceof CheckItem)) {
+        if (pMouseButton == 2 && pSlot != null && CuriosWallet.get(Minecraft.getInstance().player) != null && (pSlot.getItem().getItem() instanceof CurrencyItem || pSlot.getItem().getItem() instanceof CheckItem)) {
             Packets.sendToServer(new InsertToWalletPacket(pSlot.index));
             ci.cancel();
         }

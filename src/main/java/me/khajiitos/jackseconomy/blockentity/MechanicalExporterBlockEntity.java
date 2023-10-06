@@ -175,7 +175,7 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
 
         List<ItemStack> items = CurrencyHelper.getCurrencyItems(this.currency);
 
-        for (int i = 0; i < Math.min(3, items.size()); i++) {
+        for (int i = 0; i < Math.min(6, items.size()); i++) {
             ItemStack itemStack = items.get(i);
             int slot = slotsOutput[i];
             this.items.set(slot, itemStack);

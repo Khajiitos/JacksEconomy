@@ -67,10 +67,13 @@ public abstract class AbstractImporterScreen<S extends IImporterBlockEntity, T e
         IImporterBlockEntity blockEntity = this.getBlockEntity();
 
         if (blockEntity != null) {
-            this.addRenderableWidget(new BalanceProgressWidget(this.leftPos + 128, this.topPos + 9, blockEntity::getBalance, () -> BigDecimal.valueOf(Config.maxImporterBalance.get()), tooltip -> this.tooltip = tooltip));
+            this.addRenderableWidget(new BalanceProgressWidget(this.leftPos + 128, this.topPos + 9, blockEntity::getTotalBalance, () -> BigDecimal.valueOf(Config.maxImporterBalance.get()), tooltip -> this.tooltip = tooltip));
             this.addRenderableWidget(new RedstoneControlWidget(this.leftPos - 24, this.topPos + 1, blockEntity, tooltip -> this.tooltip = tooltip));
         }
     }
+
+    @Override
+    protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {}
 
     @Override
     protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {

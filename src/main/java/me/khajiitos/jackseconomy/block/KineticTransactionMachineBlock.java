@@ -54,9 +54,11 @@ public abstract class KineticTransactionMachineBlock<T extends BlockEntity> exte
                 }
             }
 
-            if (state.hasBlockEntity() && (!state.is(newState.getBlock()) || !newState.hasBlockEntity())) {
-                level.removeBlockEntity(pos);
-            }
+            //if (state.hasBlockEntity() && (!state.is(newState.getBlock()) || !newState.hasBlockEntity())) {
+            //    level.removeBlockEntity(pos);
+            //}
         }
+
+        super.onRemove(state, level, pos, newState, isMoving);
     }
 }

@@ -32,7 +32,7 @@ public class ImporterMenu extends TransactionMachineMenu {
         }
 
         for (int row = 0; row < 3; row++) {
-            this.addSlot(new Slot(blockEntity, row, 8, 21 + row * 18));
+            this.addSlot(new FilteredSlot(blockEntity, row, 8, 21 + row * 18, null, itemStack -> !(itemStack.getItem() instanceof ImporterTicketItem)));
         }
 
         for (int i = 0; i < 6; i++) {

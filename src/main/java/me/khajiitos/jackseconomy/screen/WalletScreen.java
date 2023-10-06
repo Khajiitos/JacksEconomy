@@ -160,7 +160,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
         }
 
         if (this.itemStack.getItem() instanceof WalletItem walletItem && WalletItem.getBalance(itemStack).compareTo(BigDecimal.valueOf(walletItem.getCapacity())) >= 0) {
-            GuiComponent.drawCenteredString(pPoseStack, Minecraft.getInstance().font, Component.translatable("jackseconomy.capacity_overflow_reached").withStyle(ChatFormatting.RED), this.width / 2, this.topPos - 12, 0xFFFFFFFF);
+            GuiComponent.drawCenteredString(pPoseStack, Minecraft.getInstance().font, Component.translatable("jackseconomy.capacity_overflow_reached").withStyle(ChatFormatting.RED), this.width / 2, this.topPos - 15, 0xFFFFFFFF);
         }
 
         Component header = Component.translatable("jackseconomy.item_owner", Component.literal(Minecraft.getInstance().player.getScoreboardName()), this.itemStack.getItem().getDescription());
@@ -267,6 +267,10 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
                 alpha = (int)(255 * Mth.lerp((maxTimeDelta - timeDelta) / 500.0, 0.0, 1.0));
             } else {
                 alpha = 255;
+            }
+
+            if (alpha < 0 || alpha > 256) {
+                int a = 1;
             }
 
             String balanceDif = CurrencyHelper.formatShortened(JacksEconomyClient.balanceDifPopup);
