@@ -102,19 +102,19 @@ dependencies {
     //implementation fg.deobf("curse.maven:ccore-573646:3778251")
 
     // Only to test energy
-    runtimeOnly fg.deobf("curse.maven:mekanism-268560:4644795")
+    runtimeOnly fg.deobf("curse.maven:mekanism-268560:4776410")
 
-    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.19.2-5.1.4.1")
-    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.19.2-5.1.4.1:api")
+    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.20.1-5.3.5")
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.20.1-5.3.5:api")
 
     implementation fg.deobf("com.simibubi.create:create-${create_minecraft_version}:${create_version}:slim") { transitive = false }
     implementation fg.deobf("com.jozufozu.flywheel:flywheel-forge-${flywheel_minecraft_version}:${flywheel_version}")
     implementation fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}")
 
     // Compile only because it crashes
-    compileOnly fg.deobf("com.teamcofh:cofh_core:1.19.2-10.3.0.+")
-    compileOnly fg.deobf("com.teamcofh:thermal_core:1.19.2-10.3.0.+")
-    compileOnly fg.deobf("curse.maven:thermal-expansion-69163:4759909")
+    //compileOnly fg.deobf("com.teamcofh:cofh_core:1.19.2-10.3.0.+")
+    //compileOnly fg.deobf("com.teamcofh:thermal_core:1.19.2-10.3.0.+")
+    //compileOnly fg.deobf("curse.maven:thermal-expansion-69163:4759909")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

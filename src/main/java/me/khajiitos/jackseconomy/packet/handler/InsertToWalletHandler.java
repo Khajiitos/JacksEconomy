@@ -25,14 +25,14 @@ public class InsertToWalletHandler {
             return;
         }
 
-        if (sender.containerMenu instanceof InventoryMenu inventoryMenu && msg.slotId() >= 0 && msg.slotId() < inventoryMenu.slots.size()) {
+        if (msg.slotId() >= 0 && msg.slotId() < sender.containerMenu.slots.size()) {
             ItemStack walletItemStack = CuriosWallet.get(sender);
 
             if (walletItemStack == null || !(walletItemStack.getItem() instanceof WalletItem walletItem)) {
                 return;
             }
 
-            ItemStack clickedItem = inventoryMenu.slots.get(msg.slotId()).getItem();
+            ItemStack clickedItem = sender.containerMenu.slots.get(msg.slotId()).getItem();
 
             BigDecimal value;
             if (clickedItem.getItem() instanceof CurrencyItem currencyItem) {
