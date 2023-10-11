@@ -1,7 +1,6 @@
 package me.khajiitos.jackseconomy.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.blockentity.CurrencyConverterBlockEntity;
 import me.khajiitos.jackseconomy.config.Config;
@@ -14,7 +13,8 @@ import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.CurrencyType;
 import me.khajiitos.jackseconomy.util.SideConfig;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Direction;
@@ -68,8 +68,8 @@ public class CurrencyConverterScreen extends AbstractContainerScreen<CurrencyCon
         if (this.sideConfig == null) {
             this.sideConfig = new SideConfigWidget(x, y, new ResourceLocation(JacksEconomy.MOD_ID, "textures/block/currency_converter.png"), getAllowedDirections(), this::getSideConfig, tooltip -> this.tooltip = tooltip);
         } else {
-            this.sideConfig.x = x;
-            this.sideConfig.y = y;
+            this.sideConfig.setX(x);
+            this.sideConfig.setY(y);
         }
 
         this.addRenderableWidget(this.sideConfig);
@@ -94,35 +94,32 @@ public class CurrencyConverterScreen extends AbstractContainerScreen<CurrencyCon
     }
 
     @Override
-    protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
+    protected void renderBg(GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
         tooltip = null;
-        this.renderBackground(pPoseStack);
+        this.renderBackground(guiGraphics);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, BACKGROUND);
-        this.blit(pPoseStack, this.leftPos, (this.height - this.imageHeight) / 2, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(BACKGROUND, this.leftPos, (this.height - this.imageHeight) / 2, 0, 0, this.imageWidth, this.imageHeight);
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        this.renderTooltip(pPoseStack, pMouseX, pMouseY);
+    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
+        guiGraphics.renderTooltip(Minecraft.getInstance().font, pMouseX, pMouseY);
 
         BigDecimal currency = blockEntity == null ? BigDecimal.ZERO : blockEntity.getTotalBalance();
 
         BigDecimal capacity = BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get());
         double progress = currency.divide(capacity, RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
 
-        RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
-
         int startX = (this.width - 51) / 2;
         int startY = this.height / 2 - 81;
 
-        blit(pPoseStack, startX, startY, this.getBlitOffset(), 0, 0, 51, 5, 256, 256);
-        blit(pPoseStack, startX, startY, this.getBlitOffset(), 0, 5, ((int)(51 * progress)), 5, 256, 256);
+        guiGraphics.blit(BALANCE_PROGRESS, startX, startY, 0/*this.getBlitOffset()*/, 0, 0, 51, 5, 256, 256);
+        guiGraphics.blit(BALANCE_PROGRESS, startX, startY, 0/*this.getBlitOffset()*/, 0, 5, ((int)(51 * progress)), 5, 256, 256);
 
         if (currency.compareTo(capacity) >= 0) {
-            GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
         }
 
         if (pMouseX >= startX && pMouseX <= startX + 51 && pMouseY >= startY && pMouseY <= startY + 5) {
@@ -130,7 +127,7 @@ public class CurrencyConverterScreen extends AbstractContainerScreen<CurrencyCon
         }
 
         if (tooltip != null) {
-            this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX, pMouseY);
+            guiGraphics.renderTooltip(Minecraft.getInstance().font, tooltip, Optional.empty(), pMouseX, pMouseY);
         }
     }
 }

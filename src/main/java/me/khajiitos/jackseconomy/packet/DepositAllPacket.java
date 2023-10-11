@@ -1,8 +1,8 @@
 package me.khajiitos.jackseconomy.packet;
 
+import me.khajiitos.jackseconomy.packet.handler.DepositAllHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
-import me.khajiitos.jackseconomy.packet.handler.DepositAllHandler;
 
 import java.util.function.Supplier;
 

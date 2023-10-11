@@ -1,13 +1,11 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
-import com.jozufozu.flywheel.config.FlwConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.Create;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -35,10 +33,10 @@ public class SpeedStatusWidget extends AbstractWidget {
     }
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         RenderSystem.setShaderTexture(0, BACKGROUND);
 
-        this.blit(pPoseStack, this.x, this.y, 0, 0, this.width, this.height);
+        guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), 0, 0, this.width, this.height);
 
         double speed = Math.abs(speedSupplier.get());
         double maxSpeed = AllConfigs.server().kinetics.maxRotationSpeed.get();
@@ -46,7 +44,7 @@ public class SpeedStatusWidget extends AbstractWidget {
         double progress = Math.min(speed / maxSpeed, 1.0);
 
         int progressHeight = (int)(progress * this.height);
-        Gui.blit(pPoseStack, this.x, this.y + this.height - progressHeight, 32, this.height - progressHeight, 32, progressHeight, 256, 256);
+        guiGraphics.blit(BACKGROUND, this.getX(), this.getY() + this.height - progressHeight, 32, this.height - progressHeight, 32, progressHeight, 256, 256);
 
         if (isHovered()) {
             onTooltip.accept(List.of(
@@ -57,5 +55,5 @@ public class SpeedStatusWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {}
+    public void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {}
 }

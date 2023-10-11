@@ -1,12 +1,11 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.price.ItemDescription;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -43,20 +42,19 @@ public class TicketPreviewWidget extends AbstractWidget {
     }
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         if (open) {
             this.width = items.size() * 18;
-            GuiComponent.fill(pPoseStack, x - 1, y - 1, x + width + 1, y + height + 1, 0xFF444444);
-            int x = this.x;
+            guiGraphics.fill(getX() - 1, getY() - 1, getX() + width + 1, getY() + height + 1, 0xFF444444);
+            int x = this.getX();
             for (ItemDescription itemDescription : items) {
-                RenderSystem.setShaderTexture(0, BACKGROUND);
-                blit(pPoseStack, x, this.y, this.getBlitOffset(), itemDescription.equals(this.selectedItemDescription) ? 18 : 0, 0, 18, 18, 36, 18);
+                guiGraphics.blit(BACKGROUND, x, this.getY(), 0/*this.getBlitOffset()*/, itemDescription.equals(this.selectedItemDescription) ? 18 : 0, 0, 18, 18, 36, 18);
 
                 ItemStack itemStack = itemDescription.createItemStack();
-                Minecraft.getInstance().getItemRenderer().renderGuiItem(itemStack, x + 1, this.y + 1);
+                guiGraphics.renderItem(itemStack, x + 1, this.getY() + 1);
 
-                if (pMouseX >= x + 1 && pMouseX <= x + 17 && pMouseY >= y + 1 && pMouseY <= y + 17) {
-                    AbstractContainerScreen.renderSlotHighlight(pPoseStack, x + 1, y + 1, this.getBlitOffset());
+                if (pMouseX >= x + 1 && pMouseX <= x + 17 && pMouseY >= getY() + 1 && pMouseY <= getY() + 17) {
+                    AbstractContainerScreen.renderSlotHighlight(guiGraphics, x + 1, getY() + 1, 0/*this.getBlitOffset()*/);
 
                     if (this.onTooltip != null) {
                         List<Component> tooltip = itemStack.getTooltipLines(Minecraft.getInstance().player, TooltipFlag.Default.NORMAL);
@@ -74,16 +72,16 @@ public class TicketPreviewWidget extends AbstractWidget {
         } else {
             this.width = 18;
             RenderSystem.setShaderTexture(0, BACKGROUND);
-            blit(pPoseStack, this.x, this.y, this.width, 0, 0, 18, 18, 36, 18);
+            guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), this.width, 0, 0, 18, 18, 36, 18);
 
             if (!items.isEmpty()) {
                 ItemDescription item = openable ? (items.stream().anyMatch(desc -> desc.equals(this.selectedItemDescription)) ? this.selectedItemDescription : items.get(0)) : items.get((tickCount / 20) % items.size());
 
                 ItemStack itemStack = item.createItemStack();
-                Minecraft.getInstance().getItemRenderer().renderGuiItem(itemStack, this.x + 1, this.y + 1);
+                guiGraphics.renderItem(itemStack, this.getX() + 1, this.getY() + 1);
 
-                if (pMouseX >= x + 1 && pMouseX <= x + 17 && pMouseY >= y + 1 && pMouseY <= y + 17) {
-                    AbstractContainerScreen.renderSlotHighlight(pPoseStack, x + 1, y + 1, this.getBlitOffset());
+                if (pMouseX >= getX() + 1 && pMouseX <= getX() + 17 && pMouseY >= getY() + 1 && pMouseY <= getY() + 17) {
+                    AbstractContainerScreen.renderSlotHighlight(guiGraphics, getX() + 1, getY() + 1, 0/*this.getBlitOffset()*/);
                     this.onTooltip.accept(itemStack.getTooltipLines(Minecraft.getInstance().player, TooltipFlag.Default.NORMAL));
                 }
             }
@@ -110,9 +108,9 @@ public class TicketPreviewWidget extends AbstractWidget {
         }
 
          if (this.onSelect != null && this.open) {
-            int x = this.x;
+            int x = this.getX();
             for (ItemDescription itemDescription : items) {
-                if (pMouseX >= x + 1 && pMouseX <= x + 17 && pMouseY >= y + 1 && pMouseY <= y + 17) {
+                if (pMouseX >= x + 1 && pMouseX <= x + 17 && pMouseY >= getY() + 1 && pMouseY <= getY() + 17) {
                     this.onSelect.accept(itemDescription);
                     return true;
                 }
@@ -124,5 +122,5 @@ public class TicketPreviewWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {}
+    public void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {}
 }

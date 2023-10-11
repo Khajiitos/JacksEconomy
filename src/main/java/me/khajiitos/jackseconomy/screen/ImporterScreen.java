@@ -1,6 +1,5 @@
 package me.khajiitos.jackseconomy.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.blockentity.ImporterBlockEntity;
 import me.khajiitos.jackseconomy.init.Packets;
@@ -9,6 +8,8 @@ import me.khajiitos.jackseconomy.packet.ChangeSpeedPacket;
 import me.khajiitos.jackseconomy.screen.widget.EnergyStatusWidget;
 import me.khajiitos.jackseconomy.screen.widget.SpeedVerticalSlider;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -58,18 +59,18 @@ public class ImporterScreen extends AbstractImporterScreen<ImporterBlockEntity, 
     }
 
     @Override
-    protected void renderTooltipsOrSomething(PoseStack pPoseStack, int pMouseX, int pMouseY) {
+    protected void renderTooltipsOrSomething(GuiGraphics guiGraphics, int pMouseX, int pMouseY) {
         ImporterBlockEntity blockEntity = this.getBlockEntity();
         if (blockEntity != null) {
-            boolean hoveredTicketPreview = this.ticketPreview != null && pMouseX >= this.ticketPreview.x && pMouseX <= this.ticketPreview.x + this.ticketPreview.getWidth() && pMouseY >= this.ticketPreview.y && pMouseY <= this.ticketPreview.y + this.ticketPreview.getHeight();
+            boolean hoveredTicketPreview = this.ticketPreview != null && pMouseX >= this.ticketPreview.getX() && pMouseX <= this.ticketPreview.getX() + this.ticketPreview.getWidth() && pMouseY >= this.ticketPreview.y && pMouseY <= this.ticketPreview.y + this.ticketPreview.getHeight();
             if (!hoveredTicketPreview) {
                 if (this.energyStatus.isHoveredOrFocused()) {
                     IEnergyStorage energyStorage = blockEntity.getEnergyStorage();
-                    this.renderTooltip(pPoseStack, Component.literal(energyStorage.getEnergyStored() + "FE/" + energyStorage.getMaxEnergyStored() + "FE"), pMouseX, pMouseY);
+                    guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal(energyStorage.getEnergyStored() + "FE/" + energyStorage.getMaxEnergyStored() + "FE"), pMouseX, pMouseY);
                 } else if (this.slider.isHoveredOrFocused()) {
                     int fePerTick = blockEntity.getEnergyUsagePerTick();
                     String progressPerTickPercent = String.format("%.2f%%", blockEntity.getProgressPerTick() * 100.0);
-                    this.renderTooltip(pPoseStack, List.of(
+                    guiGraphics.renderTooltip(Minecraft.getInstance().font, List.of(
                             Component.translatable("jackseconomy.fe_per_tick", fePerTick).withStyle(ChatFormatting.GRAY),
                             Component.translatable("jackseconomy.progress_per_tick", progressPerTickPercent).withStyle(ChatFormatting.GRAY)
                     ), Optional.empty(), pMouseX, pMouseY);
@@ -82,7 +83,7 @@ public class ImporterScreen extends AbstractImporterScreen<ImporterBlockEntity, 
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         boolean b = super.mouseClicked(pMouseX, pMouseY, pButton);
 
-        if (pMouseX >= this.slider.x && pMouseX <= this.slider.x + this.slider.getWidth() && pMouseY >= this.slider.y && pMouseY <= this.slider.y + this.slider.getHeight()) {
+        if (pMouseX >= this.slider.getX() && pMouseX <= this.slider.getX() + this.slider.getWidth() && pMouseY >= this.slider.y && pMouseY <= this.slider.y + this.slider.getHeight()) {
             this.slider.dragging = true;
         }
 
@@ -101,7 +102,7 @@ public class ImporterScreen extends AbstractImporterScreen<ImporterBlockEntity, 
     protected boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
         // Stupid way to prevent slot hovers when ticket preview is open
         if (this.ticketPreview != null && this.ticketPreview.isOpen() && pWidth == 16 && pHeight == 16) {
-            if (pMouseX >= this.ticketPreview.x && pMouseX <= this.ticketPreview.x + this.ticketPreview.getWidth() && pMouseY >= this.ticketPreview.y && pMouseY <= this.ticketPreview.y + this.ticketPreview.getHeight()) {
+            if (pMouseX >= this.ticketPreview.getX() && pMouseX <= this.ticketPreview.getX() + this.ticketPreview.getWidth() && pMouseY >= this.ticketPreview.y && pMouseY <= this.ticketPreview.y + this.ticketPreview.getHeight()) {
                 return false;
             }
         }

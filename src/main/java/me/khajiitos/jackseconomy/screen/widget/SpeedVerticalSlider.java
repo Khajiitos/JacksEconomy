@@ -1,8 +1,8 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -24,24 +24,24 @@ public class SpeedVerticalSlider extends AbstractWidget {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        //super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
 
-        Gui.fill(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, 0xFF888888);
+        guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF888888);
 
-        Minecraft.getInstance().font.draw(pPoseStack, "L", this.x + this.width / 2.f - 2.5f, this.y + 3, 0xFFCCCCCC);
-        Minecraft.getInstance().font.draw(pPoseStack, "H", this.x + this.width / 2.f - 2.5f, this.y + this.height - 12, 0xFFCCCCCC);
+        guiGraphics.drawString(Minecraft.getInstance().font, "L", (int) (this.getX() + this.width / 2.f - 2.5f), this.getY() + 3, 0xFFCCCCCC);
+        guiGraphics.drawString(Minecraft.getInstance().font, "H", (int) (this.getX() + this.width / 2.f - 2.5f), this.getY() + this.height - 12, 0xFFCCCCCC);
 
-        float multiplier = (float)(this.y - 2) / this.y;
-        int indicatorY = ((this.y + (int)(this.height * this.progress * multiplier)));
+        float multiplier = (float)(this.getY() - 2) / this.getY();
+        int indicatorY = ((this.getY() + (int)(this.height * this.progress * multiplier)));
 
-        Gui.fill(pPoseStack, this.x - 3, indicatorY, this.x + this.width + 3, indicatorY + 4, 0xFF444444);
+        guiGraphics.fill(this.getX() - 3, indicatorY, this.getX() + this.width + 3, indicatorY + 4, 0xFF444444);
     }
 
     @Override
     public void mouseMoved(double pMouseX, double pMouseY) {
         if (this.dragging) {
-            float newProgress = (float)(Math.min(1.0f, Math.max(0.0f, (pMouseY - this.y) / this.height)));
+            float newProgress = (float)(Math.min(1.0f, Math.max(0.0f, (pMouseY - this.getY()) / this.height)));
             if (this.progress != newProgress) {
                 this.progress = newProgress;
                 this.onChange.accept(newProgress);
@@ -50,5 +50,5 @@ public class SpeedVerticalSlider extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {}
+    public void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {}
 }

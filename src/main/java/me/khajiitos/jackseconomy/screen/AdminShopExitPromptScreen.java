@@ -1,8 +1,7 @@
 package me.khajiitos.jackseconomy.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -22,22 +21,22 @@ public class AdminShopExitPromptScreen extends Screen {
         int midX = this.width / 2;
         int midY = this.height / 2;
 
-        this.addRenderableWidget(new Button(midX - 80, midY + 20, 75, 20, Component.translatable("jackseconomy.leave").withStyle(ChatFormatting.RED), button -> {
+        this.addRenderableWidget(Button.builder(Component.translatable("jackseconomy.leave").withStyle(ChatFormatting.RED), button -> {
             this.onClose();
-        }));
+        }).bounds(midX - 80, midY + 20, 75, 20).build());
 
-        this.addRenderableWidget(new Button(midX + 5, midY + 20, 75, 20, Component.translatable("jackseconomy.stay"), button -> {
+        this.addRenderableWidget(Button.builder(Component.translatable("jackseconomy.stay"), button -> {
             assert this.minecraft != null;
             this.minecraft.screen = parent;
             this.minecraft.screen.init(this.minecraft, this.minecraft.getWindow().getGuiScaledWidth(), this.minecraft.getWindow().getGuiScaledHeight());
-        }));
+        }).bounds(midX + 5, midY + 20, 75, 20).build());
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(pPoseStack);
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        this.renderBackground(guiGraphics);
+        super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
 
-        GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.admin_shop_exit_prompt").withStyle(ChatFormatting.YELLOW), this.width / 2, this.height / 2 - 5, 0xFFFFFFFF);
+        guiGraphics.drawString(this.font, Component.translatable("jackseconomy.admin_shop_exit_prompt").withStyle(ChatFormatting.YELLOW), this.width / 2, this.height / 2 - 5, 0xFFFFFFFF);
     }
 }

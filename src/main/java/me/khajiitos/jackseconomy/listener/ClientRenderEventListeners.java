@@ -9,7 +9,6 @@ import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -31,18 +30,18 @@ public class ClientRenderEventListeners {
         if (wallet != null && wallet.getItem() instanceof WalletItem walletItem) {
             BigDecimal balance = WalletItem.getBalance(wallet);
 
-            Minecraft.getInstance().getItemRenderer().renderGuiItem(wallet, 1, 1);
+            e.getGuiGraphics().renderItem(wallet, 1, 1);
 
             Component balanceText = Component.literal(CurrencyHelper.formatShortened(balance));
 
-            Minecraft.getInstance().font.draw(e.getPoseStack(), balanceText, 19, 7, 0xFFFFFFFF);
+            e.getGuiGraphics().drawString(Minecraft.getInstance().font, balanceText, 19, 7, 0xFFFFFFFF);
 
             BigDecimal capacity = BigDecimal.valueOf(walletItem.getCapacity());
             double progress = balance.divide(capacity, RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
 
             RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
-            GuiComponent.blit(e.getPoseStack(), 3, 19, 0, 0, 0, 51, 5, 256, 256);
-            GuiComponent.blit(e.getPoseStack(), 3, 19, 0, 0, 5, ((int)(51 * progress)), 5, 256, 256);
+            e.getGuiGraphics().blit(BALANCE_PROGRESS, 3, 19, 0, 0, 0, 51, 5, 256, 256);
+            e.getGuiGraphics().blit(BALANCE_PROGRESS, 3, 19, 0, 0, 5, ((int)(51 * progress)), 5, 256, 256);
 
             if (JacksEconomyClient.balanceDifPopup != null) {
                 long timeDelta = System.currentTimeMillis() - JacksEconomyClient.balanceDifPopupStartMillis;
@@ -71,7 +70,7 @@ public class ClientRenderEventListeners {
 
                 Component balanceDifComponent = Component.literal((positive ? "(+" : "(") + balanceDif + ")").withStyle(positive ? ChatFormatting.GREEN : ChatFormatting.RED);
 
-                Minecraft.getInstance().font.draw(e.getPoseStack(), balanceDifComponent, 19 + balanceTextWidth + 3, 7, 0x00FFFFFF | (alpha << 24));
+                e.getGuiGraphics().drawString(Minecraft.getInstance().font, balanceDifComponent, 19 + balanceTextWidth + 3, 7, 0x00FFFFFF | (alpha << 24));
             }
         }
     }

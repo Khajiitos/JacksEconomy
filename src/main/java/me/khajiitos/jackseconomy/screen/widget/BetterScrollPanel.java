@@ -3,6 +3,7 @@ package me.khajiitos.jackseconomy.screen.widget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -28,12 +29,12 @@ public class BetterScrollPanel extends ScrollPanel {
     }
 
     @Override
-    protected void drawPanel(PoseStack poseStack, int entryRight, int relativeY, Tesselator tess, int mouseX, int mouseY) {
+    protected void drawPanel(GuiGraphics guiGraphics, int entryRight, int relativeY, Tesselator tess, int mouseX, int mouseY) {
         int y = relativeY;
         for (AbstractWidget entry : this.children) {
-            entry.x = entryRight - this.width;
-            entry.y = y;
-            entry.render(poseStack, mouseX, mouseY, 0.f);
+            entry.setX(entryRight - this.width);
+            entry.setY(y);
+            entry.render(guiGraphics, mouseX, mouseY, 0.f);
 
             y += entry.getHeight() + 5;
         }
@@ -52,11 +53,6 @@ public class BetterScrollPanel extends ScrollPanel {
     @Override
     public List<? extends GuiEventListener> children() {
         return this.children;
-    }
-
-    @Override
-    protected void drawBackground(PoseStack matrix, Tesselator tess, float partialTick) {
-        super.drawBackground(matrix, tess, partialTick);
     }
 
     private int getMaxScroll() {

@@ -1,8 +1,8 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.screen.AdminShopScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -26,18 +26,18 @@ public class CategoryEntry extends AbstractWidget {
     }
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        boolean hovered = pMouseX >= this.x && pMouseX <= this.x + this.width && pMouseY >= this.y && pMouseY <= this.y + this.height;
+    public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        boolean hovered = pMouseX >= this.getX() && pMouseX <= this.getX() + this.width && pMouseY >= this.getY() && pMouseY <= this.getY() + this.height;
         boolean selected = isSelectedSupplier.get();
 
         if (hovered) {
-            this.fillGradient(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, selected ? 0x8800FF00 : 0x88FFFFFF, selected ? 0x6600FF00 : 0x66FFFFFF);
+            guiGraphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, selected ? 0x8800FF00 : 0x88FFFFFF, selected ? 0x6600FF00 : 0x66FFFFFF);
         } else {
-            this.fillGradient(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, selected ? 0x4400FF00 : 0x44FFFFFF, selected ? 0x2200FF00 : 0x22FFFFFF);
+            guiGraphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, selected ? 0x4400FF00 : 0x44FFFFFF, selected ? 0x2200FF00 : 0x22FFFFFF);
         }
 
         if (category != null) {
-            Minecraft.getInstance().getItemRenderer().renderGuiItem(new ItemStack(category.getItem()), this.x + 2, this.y + 4);
+            guiGraphics.renderItem(new ItemStack(category.getItem()), this.getX() + 2, this.getY() + 4);
         }
 
         MutableComponent name = Component.literal(category == null ? "..." : category.getName());
@@ -48,20 +48,20 @@ public class CategoryEntry extends AbstractWidget {
         int space = this.width - 29;
         if (width > space) {
             scale = (float) space / width;
-            pPoseStack.pushPose();
-            pPoseStack.scale(scale, scale, scale);
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().scale(scale, scale, scale);
         }
 
-        Minecraft.getInstance().font.draw(pPoseStack, name, (this.x + 22) / scale, (this.y + 9) / scale, 0xFFFFFFFF);
+        guiGraphics.drawString(Minecraft.getInstance().font, name, (int) ((this.getX() + 22) / scale), (int) ((this.getY() + 9) / scale), 0xFFFFFFFF);
 
         if (width > space) {
-            pPoseStack.popPose();
+            guiGraphics.pose().popPose();
         }
     }
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        boolean hovered = pMouseX >= this.x && pMouseX <= this.x + this.width && pMouseY >= this.y && pMouseY <= this.y + this.height;
+        boolean hovered = pMouseX >= this.getX() && pMouseX <= this.getX() + this.width && pMouseY >= this.getY() && pMouseY <= this.getY() + this.height;
 
         if (hovered) {
             if (pButton == 0) {
@@ -74,7 +74,7 @@ public class CategoryEntry extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+    public void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {
 
     }
 }

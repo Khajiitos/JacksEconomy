@@ -1,7 +1,6 @@
 package me.khajiitos.jackseconomy.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
 import me.khajiitos.jackseconomy.init.Packets;
@@ -15,7 +14,7 @@ import me.khajiitos.jackseconomy.screen.widget.ShoppingCartEntry;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -68,7 +67,7 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
             this.parent.shoppingCart.clear();
             this.clearWidgets();
             this.init();
-        }, ((pButton, pPoseStack, pMouseX, pMouseY) -> {
+        }, ((pButton, guiGraphics, pMouseX, pMouseY) -> {
             if (wallet.isEmpty()) {
                 tooltip = List.of(Component.translatable("jackseconomy.no_wallet").withStyle(ChatFormatting.YELLOW));
             } else if (!canAfford) {
@@ -110,18 +109,18 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
     }
 
     @Override
-    protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
-        this.renderBackground(pPoseStack);
+    protected void renderBg(GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+        this.renderBackground(guiGraphics);
         RenderSystem.setShaderTexture(0, BACKGROUND);
         int i = this.leftPos;
         int j = (this.height - this.imageHeight) / 2;
-        this.blit(pPoseStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         tooltip = null;
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
 
         ItemStack wallet = CuriosWallet.get(Minecraft.getInstance().player);
 
@@ -131,35 +130,35 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
             Component component = Component.literal(CurrencyHelper.formatShortened(balance));
             int textWidth = this.font.width(component);
             int totalWidth = 29 + textWidth;
-            GuiComponent.fill(pPoseStack, this.leftPos + 181, this.topPos + 5, this.leftPos + 181 + totalWidth, this.topPos + 35, 0xFF4c4c4c);
-            GuiComponent.fill(pPoseStack, this.leftPos + 182, this.topPos + 6, this.leftPos + 182 + totalWidth, this.topPos + 34, 0xFFc6c6c6);
-            Minecraft.getInstance().getItemRenderer().renderGuiItem(wallet, this.leftPos + 183, this.topPos + 8);
-            this.font.draw(pPoseStack, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
+            guiGraphics.fill(this.leftPos + 181, this.topPos + 5, this.leftPos + 181 + totalWidth, this.topPos + 35, 0xFF4c4c4c);
+            guiGraphics.fill(this.leftPos + 182, this.topPos + 6, this.leftPos + 182 + totalWidth, this.topPos + 34, 0xFFc6c6c6);
+            guiGraphics.renderItem(wallet, this.leftPos + 183, this.topPos + 8);
+            guiGraphics.drawString(this.font, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
 
             RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
 
             int barStartX = this.leftPos + 181 + ((totalWidth - 51) / 2);
             int barStartY = this.topPos + 26;
             double progress = balance.divide(BigDecimal.valueOf(walletItem.getCapacity()), RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
-            blit(pPoseStack, barStartX, barStartY, this.getBlitOffset(), 0, 0, 51, 5, 256, 256);
-            blit(pPoseStack, barStartX, barStartY, this.getBlitOffset(), 0, 5, ((int)(51 * progress)), 5, 256, 256);
+            guiGraphics.blit(BACKGROUND, barStartX, barStartY, 0/*this.getBlitOffset()*/, 0, 0, 51, 5, 256, 256);
+            guiGraphics.blit(BACKGROUND, barStartX, barStartY, 0/*this.getBlitOffset()*/, 0, 5, ((int)(51 * progress)), 5, 256, 256);
 
             if (pMouseX >= barStartX && pMouseX <= barStartX + 51 && pMouseY >= barStartY && pMouseY <= barStartY + 5) {
                 tooltip = List.of(Component.translatable("jackseconomy.balance_out_of", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(walletItem.getCapacity()))).withStyle(ChatFormatting.GOLD));
             }        } else {
             Component component = Component.translatable("jackseconomy.no_wallet").withStyle(ChatFormatting.DARK_RED);
             int width = this.font.width(component);
-            GuiComponent.fill(pPoseStack, this.leftPos + 181, this.topPos + 5, this.leftPos + 209 + width, this.topPos + 25, 0xFF4c4c4c);
-            GuiComponent.fill(pPoseStack, this.leftPos + 182, this.topPos + 6, this.leftPos + 208 + width, this.topPos + 24, 0xFFc6c6c6);
+            guiGraphics.fill(this.leftPos + 181, this.topPos + 5, this.leftPos + 209 + width, this.topPos + 25, 0xFF4c4c4c);
+            guiGraphics.fill(this.leftPos + 182, this.topPos + 6, this.leftPos + 208 + width, this.topPos + 24, 0xFFc6c6c6);
             RenderSystem.setShaderTexture(0, NO_WALLET);
-            blit(pPoseStack, this.leftPos + 183, this.topPos + 8, this.getBlitOffset(), 0, 0, 16, 16, 16, 16);
-            this.font.draw(pPoseStack, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
+            guiGraphics.blit(BACKGROUND, this.leftPos + 183, this.topPos + 8, 0/*this.getBlitOffset()*/, 0, 0, 16, 16, 16, 16);
+            guiGraphics.drawString(this.font, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
         }
 
-        this.renderTooltip(pPoseStack, pMouseX, pMouseY);
+        guiGraphics.renderTooltip(Minecraft.getInstance().font, pMouseX, pMouseY);
 
         if (tooltip != null) {
-            this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX, pMouseY);
+            guiGraphics.renderTooltip(Minecraft.getInstance().font, tooltip, Optional.empty(), pMouseX, pMouseY);
         }
     }
 

@@ -1,14 +1,13 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.blockentity.ITransactionMachineBlockEntity;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.packet.ChangeRedstoneTogglePacket;
 import me.khajiitos.jackseconomy.util.RedstoneToggle;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -32,17 +31,17 @@ public class RedstoneControlWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {}
+    public void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {}
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        boolean buttonHovered = pMouseX >= this.x && pMouseX <= this.x + this.width && pMouseY >= this.y && pMouseY <= this.y + 16;
+    public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        boolean buttonHovered = pMouseX >= this.getX() && pMouseX <= this.getX() + this.width && pMouseY >= this.getY() && pMouseY <= this.getY() + 16;
 
-        GuiComponent.fill(pPoseStack, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, 0xFF666666);
-        GuiComponent.fill(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, 0xFF333333);
+        guiGraphics.fill(this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, 0xFF666666);
+        guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF333333);
 
         RenderSystem.setShaderTexture(0, IMAGE);
-        //blit(pPoseStack, this.x, this.y, this.getBlitOffset(), 0, buttonHovered ? 16 : 0, 16, 16, 16, 32);
+        //guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), 0/*this.getBlitOffset()*/, 0, buttonHovered ? 16 : 0, 16, 16, 16, 32);
         RedstoneToggle redstoneToggle = blockEntity.getRedstoneToggle();
 
         if (buttonHovered) {
@@ -58,9 +57,9 @@ public class RedstoneControlWidget extends AbstractWidget {
         }
 
         switch (redstoneToggle) {
-            case IGNORED -> blit(pPoseStack, this.x, this.y, 32, 0, 16, 16);
-            case SIGNAL_ON -> blit(pPoseStack, this.x, this.y, 16, 0, 16, 16);
-            case SIGNAL_OFF -> blit(pPoseStack, this.x, this.y, 0, 0, 16, 16);
+            case IGNORED -> guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), 32, 0, 16, 16);
+            case SIGNAL_ON -> guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), 16, 0, 16, 16);
+            case SIGNAL_OFF -> guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), 0, 0, 16, 16);
         }
 
         RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);
@@ -68,7 +67,7 @@ public class RedstoneControlWidget extends AbstractWidget {
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        boolean buttonHovered = pMouseX >= this.x && pMouseX <= this.x + this.width && pMouseY >= this.y && pMouseY <= this.y + 16;
+        boolean buttonHovered = pMouseX >= this.getX() && pMouseX <= this.getX() + this.width && pMouseY >= this.getY() && pMouseY <= this.getY() + 16;
 
         if (!buttonHovered) {
             return false;

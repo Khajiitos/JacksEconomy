@@ -9,7 +9,6 @@ import me.khajiitos.jackseconomy.packet.InsertToWalletPacket;
 import me.khajiitos.jackseconomy.packet.UpdateWalletBalancePacket;
 import me.khajiitos.jackseconomy.packet.WalletBalanceDifPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 

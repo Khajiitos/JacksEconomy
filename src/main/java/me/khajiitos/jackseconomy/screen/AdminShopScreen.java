@@ -2,7 +2,6 @@ package me.khajiitos.jackseconomy.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
@@ -15,7 +14,7 @@ import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.ItemHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -322,6 +321,15 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         initCategoryPanel();
 
         if (!this.isEditMode()) {
+
+            this.addRenderableWidget(ImageButton.builder(Component.empty(), b -> {
+                assert this.minecraft != null;
+                this.minecraft.screen = new ShoppingCartScreen(this.menu, this.menu.inventory, this);
+                this.minecraft.screen.init(this.minecraft, this.minecraft.getWindow().getGuiScaledWidth(), this.minecraft.getWindow().getGuiScaledHeight());
+            }).bounds(this.leftPos + 139, this.topPos + 121, 30, 26).build());
+
+            // TODO fix
+            /*
             this.addRenderableWidget(new ImageButton(this.leftPos + 139, this.topPos + 121, 30, 26, 176, 0, 26, BACKGROUND, 256, 256, (b) -> {
                 assert this.minecraft != null;
                 this.minecraft.screen = new ShoppingCartScreen(this.menu, this.menu.inventory, this);
@@ -330,31 +338,31 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
             }, (a, b, c, d) -> {
                 this.tooltip = List.of(Component.translatable("jackseconomy.items", Component.literal(String.valueOf(this.shoppingCart.size()))).withStyle(ChatFormatting.GRAY),
                         Component.translatable("jackseconomy.value", Component.literal(CurrencyHelper.format(getShoppingCartValue()))).withStyle(ChatFormatting.GRAY));
-            }, Component.empty()));
+            }, Component.empty()));*/
 
             LocalPlayer player = Minecraft.getInstance().player;
 
             if (player != null && player.isCreative() && player.getPermissionLevel() >= 4) {
-                this.addRenderableWidget(new Button(3, 3, 75, 20, Component.translatable("jackseconomy.edit"), (b) -> {
+                this.addRenderableWidget(Button.builder(Component.translatable("jackseconomy.edit"), (b) -> {
                     Minecraft.getInstance().screen = new EditAdminShopScreen(this.menu, this.menu.inventory, this.title);
                     Minecraft.getInstance().screen.init(Minecraft.getInstance(), this.width, this.height);
-                }));
+                }).bounds(3, 3, 75, 20).build());
             }
         }
     }
 
     @Override
-    protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
+    protected void renderBg(GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
         if (!this.shouldRenderBackground) {
             return;
         }
 
-        this.renderBackground(pPoseStack);
+        this.renderBackground(guiGraphics);
 
         RenderSystem.setShaderTexture(0, BACKGROUND);
         int i = this.leftPos;
         int j = (this.height - this.imageHeight) / 2;
-        this.blit(pPoseStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
     }
 
     private void addItemToCart(ShopItem shopItem, int amount) {
@@ -374,21 +382,21 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         tooltip = null;
 
         shouldRenderBackground = true;
-        this.renderBg(pPoseStack, pPartialTick, pMouseX, pMouseY);
+        this.renderBg(guiGraphics, pPartialTick, pMouseX, pMouseY);
 
         if (!isEditMode()) {
             if (this.selectedCategory != null) {
-                GuiComponent.drawCenteredString(pPoseStack, this.font, this.selectedCategory.name, this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
+                guiGraphics.drawString(this.font, this.selectedCategory.name, this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
             }
         } else {
             if (this.selectedCategory != null) {
-                GuiComponent.drawCenteredString(pPoseStack, this.font, this.selectedCategory.name, this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
+                guiGraphics.drawString(this.font, this.selectedCategory.name, this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
             } else {
-                GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.add_category").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
+                guiGraphics.drawString(this.font, Component.translatable("jackseconomy.add_category").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
             }
         }
 
@@ -399,12 +407,12 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
             boolean hovered = pMouseX >= categoryX && pMouseX <= categoryX + 16 && pMouseY >= categoryY && pMouseY <= categoryY + 16;
 
             if (hovered && !isHoverObstructed(pMouseX, pMouseY)) {
-                renderSlotHighlight(pPoseStack, categoryX, categoryY, this.getBlitOffset());
+                renderSlotHighlight(guiGraphics, categoryX, categoryY, 0);
             }
 
             if (categoryId >= 0 && categoryId < categories.size()) {
                 InnerCategory category = categories.get(categoryId);
-                Minecraft.getInstance().getItemRenderer().renderGuiItem(new ItemStack(category.item), categoryX, categoryY);
+                guiGraphics.renderItem(new ItemStack(category.item), categoryX, categoryY);
 
                 if (hovered) {
                     if (this.isEditMode()) {
@@ -415,8 +423,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                 }
 
                 if (this.selectedCategory == category) {
-                    RenderSystem.setShaderTexture(0, BACKGROUND);
-                    this.blit(pPoseStack, categoryX + 4, categoryY + 19, 176, 52, 10, 6);
+                    guiGraphics.blit(BACKGROUND, categoryX + 4, categoryY + 19, 176, 52, 10, 6);
                 }
             }
         }
@@ -429,11 +436,11 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
                 if (shopItem != null) {
                     ItemStack itemStack = shopItem.itemDescription.createItemStack();
-                    Minecraft.getInstance().getItemRenderer().renderGuiItem(itemStack, slotX, slotY);
+                    guiGraphics.renderItem(itemStack, slotX, slotY);
                 }
 
                 if (pMouseX >= slotX && pMouseX <= slotX + 16 && pMouseY >= slotY && pMouseY <= slotY + 16 && !isHoverObstructed(pMouseX, pMouseY)) {
-                    renderSlotHighlight(pPoseStack, slotX, slotY, this.getBlitOffset());
+                    renderSlotHighlight(guiGraphics, slotX, slotY, 0);
 
                     if (shopItem != null) {
                         ItemStack itemStack = shopItem.itemDescription().createItemStack();
@@ -441,7 +448,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
                         this.tooltip.add(shopItem.customName != null ? Component.literal(shopItem.customName) : shopItem.itemDescription.item().getDescription().copy().withStyle(shopItem.itemDescription.item().getRarity(itemStack).getStyleModifier()));
 
-                        Level level = Minecraft.getInstance().player == null ? null : Minecraft.getInstance().player.level;
+                        Level level = Minecraft.getInstance().player == null ? null : Minecraft.getInstance().player.level();
                         itemStack.getItem().appendHoverText(itemStack, level, this.tooltip, TooltipFlag.Default.NORMAL);
 
                         this.tooltip.add(Component.literal(" "));
@@ -469,18 +476,18 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                 Component component = Component.literal(CurrencyHelper.formatShortened(balance));
                 int textWidth = this.font.width(component);
                 int totalWidth = 29 + textWidth;
-                GuiComponent.fill(pPoseStack, this.leftPos + 181, this.topPos + 5, this.leftPos + 181 + totalWidth, this.topPos + 35, 0xFF4c4c4c);
-                GuiComponent.fill(pPoseStack, this.leftPos + 182, this.topPos + 6, this.leftPos + 182 + totalWidth, this.topPos + 34, 0xFFc6c6c6);
-                Minecraft.getInstance().getItemRenderer().renderGuiItem(wallet, this.leftPos + 183, this.topPos + 8);
-                this.font.draw(pPoseStack, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
+                guiGraphics.fill(this.leftPos + 181, this.topPos + 5, this.leftPos + 181 + totalWidth, this.topPos + 35, 0xFF4c4c4c);
+                guiGraphics.fill(this.leftPos + 182, this.topPos + 6, this.leftPos + 182 + totalWidth, this.topPos + 34, 0xFFc6c6c6);
+                guiGraphics.renderItem(wallet, this.leftPos + 183, this.topPos + 8);
+                guiGraphics.drawString(this.font, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
 
                 RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
 
                 int barStartX = this.leftPos + 181 + ((totalWidth - 51) / 2);
                 int barStartY = this.topPos + 26;
                 double progress = balance.divide(BigDecimal.valueOf(walletItem.getCapacity()), RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
-                blit(pPoseStack, barStartX, barStartY, this.getBlitOffset(), 0, 0, 51, 5, 256, 256);
-                blit(pPoseStack, barStartX, barStartY, this.getBlitOffset(), 0, 5, ((int)(51 * progress)), 5, 256, 256);
+                guiGraphics.blit(BALANCE_PROGRESS, barStartX, barStartY, 0, 0, 0, 51, 5, 256, 256);
+                guiGraphics.blit(BALANCE_PROGRESS, barStartX, barStartY, 0, 0, 5, ((int)(51 * progress)), 5, 256, 256);
 
                 if (pMouseX >= barStartX && pMouseX <= barStartX + 51 && pMouseY >= barStartY && pMouseY <= barStartY + 5) {
                     tooltip = List.of(Component.translatable("jackseconomy.balance_out_of", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(walletItem.getCapacity()))).withStyle(ChatFormatting.GOLD));
@@ -488,26 +495,25 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
             } else {
                 Component component = Component.translatable("jackseconomy.no_wallet").withStyle(ChatFormatting.DARK_RED);
                 int width = this.font.width(component);
-                GuiComponent.fill(pPoseStack, this.leftPos + 181, this.topPos + 5, this.leftPos + 209 + width, this.topPos + 25, 0xFF4c4c4c);
-                GuiComponent.fill(pPoseStack, this.leftPos + 182, this.topPos + 6, this.leftPos + 208 + width, this.topPos + 24, 0xFFc6c6c6);
-                RenderSystem.setShaderTexture(0, NO_WALLET);
-                blit(pPoseStack, this.leftPos + 183, this.topPos + 8, this.getBlitOffset(), 0, 0, 16, 16, 16, 16);
-                this.font.draw(pPoseStack, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
+                guiGraphics.fill(this.leftPos + 181, this.topPos + 5, this.leftPos + 209 + width, this.topPos + 25, 0xFF4c4c4c);
+                guiGraphics.fill(this.leftPos + 182, this.topPos + 6, this.leftPos + 208 + width, this.topPos + 24, 0xFFc6c6c6);
+                guiGraphics.blit(NO_WALLET, this.leftPos + 183, this.topPos + 8, 0, 0, 0, 16, 16, 16, 16);
+                guiGraphics.drawString(Minecraft.getInstance().font, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
             }
         }
 
         this.shouldRenderBackground = false;
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        this.renderStageTwo(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
+        this.renderStageTwo(guiGraphics, pMouseX, pMouseY, pPartialTick);
 
-        this.renderTooltip(pPoseStack, pMouseX, pMouseY);
+        guiGraphics.renderTooltip(Minecraft.getInstance().font, pMouseX, pMouseY);
 
         if (tooltip != null) {
-            this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX, pMouseY);
+            guiGraphics.renderTooltip(Minecraft.getInstance().font, tooltip, Optional.empty(), pMouseX, pMouseY);
         }
     }
 
-    protected void renderStageTwo(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {}
+    protected void renderStageTwo(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {}
 
     protected boolean onCategorySlotClicked(int pButton, int categoryId) {
         if (pButton == 0) {

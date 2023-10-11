@@ -1,7 +1,6 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.init.Packets;
@@ -9,7 +8,7 @@ import me.khajiitos.jackseconomy.packet.UpdateSideConfigPacket;
 import me.khajiitos.jackseconomy.util.SideConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.core.Direction;
@@ -43,24 +42,23 @@ public class SideConfigWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {}
+    public void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {}
 
     protected SideConfig.Value getValue(Direction direction) {
         return this.sideConfigSupplier.get().getValue(direction);
     }
 
-    protected void bindSideTexture(Direction direction) {
+    protected ResourceLocation getSideTexture(Direction direction) {
         if (direction == Direction.NORTH) {
-            RenderSystem.setShaderTexture(0, faceTexture);
-            return;
+            return faceTexture;
         }
 
-        switch (this.sideConfigSupplier.get().getValue(direction)) {
-            case NONE -> RenderSystem.setShaderTexture(0, NONE_TEXTURE);
-            case INPUT -> RenderSystem.setShaderTexture(0, INPUT_TEXTURE);
-            case OUTPUT -> RenderSystem.setShaderTexture(0, OUTPUT_TEXTURE);
-            case REJECTION_OUTPUT -> RenderSystem.setShaderTexture(0, REJECTION_OUTPUT_TEXTURE);
-        }
+        return switch (this.sideConfigSupplier.get().getValue(direction)) {
+            case NONE -> NONE_TEXTURE;
+            case INPUT -> INPUT_TEXTURE;
+            case OUTPUT -> OUTPUT_TEXTURE;
+            case REJECTION_OUTPUT -> REJECTION_OUTPUT_TEXTURE;
+        };
     }
 
     protected Pair<Integer, Integer> getDirectionOffsets(Direction direction) {
@@ -73,9 +71,9 @@ public class SideConfigWidget extends AbstractWidget {
             case NORTH -> Pair.of(40, 40);
         };
     }
-
+    
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         if (this.open) {
             this.width = 96;
             this.height = 96;
@@ -84,35 +82,33 @@ public class SideConfigWidget extends AbstractWidget {
             this.height = 16;
         }
 
-        boolean buttonHovered = pMouseX >= this.x && pMouseX <= this.x + 16 && pMouseY >= this.y && pMouseY <= this.y + 16;
+        boolean buttonHovered = pMouseX >= this.getX() && pMouseX <= this.getX() + 16 && pMouseY >= this.getY() && pMouseY <= this.getY() + 16;
 
-        GuiComponent.fill(pPoseStack, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, 0xFF666666);
-        GuiComponent.fill(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, 0xFF333333);
+        guiGraphics.fill(this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, 0xFF666666);
+        guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF333333);
 
         RenderSystem.setShaderTexture(0, IMAGE);
-        blit(pPoseStack, this.x, this.y, this.getBlitOffset(), 0, buttonHovered ? 16 : 0, 16, 16, 16, 32);
+        guiGraphics.blit(IMAGE, this.getX(), this.getY(), 0/*this.getBlitOffset()*/, 0, buttonHovered ? 16 : 0, 16, 16, 16, 32);
         if (open) {
-            Minecraft.getInstance().font.draw(pPoseStack, Component.translatable("jackseconomy.configuration").withStyle(ChatFormatting.YELLOW), this.x + 18, this.y + 4, 0xFFFFFFFF);
+            guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("jackseconomy.configuration").withStyle(ChatFormatting.YELLOW), this.getX() + 18, this.getY() + 4, 0xFFFFFFFF);
 
             for (Direction direction : this.allowedDirections) {
                 Pair<Integer, Integer> offsets = getDirectionOffsets(direction);
                 int xOffset = offsets.getFirst(), yOffset = offsets.getSecond();
 
-                if (pMouseX >= this.x + xOffset && pMouseX <= this.x + xOffset + 16 && pMouseY >= this.y + yOffset && pMouseY <= this.y + yOffset + 16) {
+                if (pMouseX >= this.getX() + xOffset && pMouseX <= this.getX() + xOffset + 16 && pMouseY >= this.getY() + yOffset && pMouseY <= this.getY() + yOffset + 16) {
                     RenderSystem.setShaderColor(1.5f, 1.5f, 1.5f, 1.f);
 
                     onTooltip.accept(List.of(Component.translatable("jackseconomy.direction." + direction.getName()).withStyle(ChatFormatting.YELLOW), Component.translatable("jackseconomy.sidevalue." + getValue(direction).name().toLowerCase())));
                 }
 
-                bindSideTexture(direction);
-                blit(pPoseStack, this.x + xOffset, this.y + yOffset, this.getBlitOffset(), 0, 0, 16, 16, 16, 16);
+                guiGraphics.blit(getSideTexture(direction), this.getX() + xOffset, this.getY() + yOffset, 0/*this.getBlitOffset()*/, 0, 0, 16, 16, 16, 16);
                 RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);
 
             }
 
-            bindSideTexture(Direction.NORTH);
             Pair<Integer, Integer> offsets = getDirectionOffsets(Direction.NORTH);
-            blit(pPoseStack, this.x + offsets.getFirst(), this.y + offsets.getSecond(), this.getBlitOffset(), 0, 0, 16, 16, 16, 16);
+            guiGraphics.blit(getSideTexture(Direction.NORTH), this.getX() + offsets.getFirst(), this.getY() + offsets.getSecond(), 0/*this.getBlitOffset()*/, 0, 0, 16, 16, 16, 16);
         }
     }
 
@@ -122,7 +118,7 @@ public class SideConfigWidget extends AbstractWidget {
             return super.mouseClicked(pMouseX, pMouseY, pButton);
         }
 
-        if (pMouseX >= this.x && pMouseX <= this.x + 16 && pMouseY >= this.y && pMouseY <= this.y + 16) {
+        if (pMouseX >= this.getX() && pMouseX <= this.getX() + 16 && pMouseY >= this.getY() && pMouseY <= this.getY() + 16) {
             this.open = !this.open;
             return false;
         }
@@ -131,7 +127,7 @@ public class SideConfigWidget extends AbstractWidget {
             Pair<Integer, Integer> offsets = getDirectionOffsets(direction);
             int xOffset = offsets.getFirst(), yOffset = offsets.getSecond();
 
-            if (pMouseX >= this.x + xOffset && pMouseX <= this.x + xOffset + 16 && pMouseY >= this.y + yOffset && pMouseY <= this.y + yOffset + 16) {
+            if (pMouseX >= this.getX() + xOffset && pMouseX <= this.getX() + xOffset + 16 && pMouseY >= this.getY() + yOffset && pMouseY <= this.getY() + yOffset + 16) {
                 this.sideConfigSupplier.get().switchValue(direction, pButton == 0);
                 Packets.sendToServer(new UpdateSideConfigPacket(this.sideConfigSupplier.get().getIntValues()));
                 return false;

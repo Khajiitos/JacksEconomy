@@ -1,11 +1,10 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.screen.AdminShopScreen;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -26,8 +25,8 @@ public class ShoppingCartEntry extends AbstractWidget {
     }
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        Minecraft.getInstance().getItemRenderer().renderGuiItem(this.shoppingCartItem.getKey().itemDescription().createItemStack(), this.x + 3, this.y);
+    public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        guiGraphics.renderItem(this.shoppingCartItem.getKey().itemDescription().createItemStack(), this.getX() + 3, this.getY());
 
         MutableComponent itemName = (this.shoppingCartItem.getKey().customName() != null ? Component.literal(this.shoppingCartItem.getKey().customName()) : this.shoppingCartItem.getKey().itemDescription().item().getDescription().copy());
 
@@ -37,53 +36,53 @@ public class ShoppingCartEntry extends AbstractWidget {
         int space = this.width - 100;
         if (width > space) {
             scale = (float) space / width;
-            pPoseStack.pushPose();
-            pPoseStack.scale(scale, scale, scale);
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().scale(scale, scale, scale);
         }
         Component header = itemName.append(Component.literal(" (" + shoppingCartItem.getValue() + ")").withStyle(ChatFormatting.GRAY));
         Component footer = Component.literal(CurrencyHelper.format(shoppingCartItem.getKey().price() * shoppingCartItem.getValue())).withStyle(ChatFormatting.DARK_GRAY);
-        Minecraft.getInstance().font.draw(pPoseStack, header, (this.x + 22) / scale, (this.y) / scale, 0xFFFFFFFF);
-        Minecraft.getInstance().font.draw(pPoseStack, footer, (this.x + 22) / scale, (this.y + 9) / scale, 0xFFFFFFFF);
+        guiGraphics.drawString(Minecraft.getInstance().font, header, (int) ((this.getX() + 22) / scale), (int) ((this.getY()) / scale), 0xFFFFFFFF);
+        guiGraphics.drawString(Minecraft.getInstance().font, footer, (int) ((this.getX() + 22) / scale), (int) ((this.getY() + 9) / scale), 0xFFFFFFFF);
 
         if (width > space) {
-            pPoseStack.popPose();
+            guiGraphics.pose().popPose();
         }
 
-        boolean removeHovered = pMouseX >= this.x + 102 && pMouseX <= this.x + 117 && pMouseY >= this.y + 4 && pMouseY <= this.y + 18;
-        boolean minusHovered = pMouseX >= this.x + 122 && pMouseX <= this.x + 137 && pMouseY >= this.y + 4 && pMouseY <= this.y + 18;
-        boolean plusHovered = pMouseX >= this.x + 142 && pMouseX <= this.x + 157 && pMouseY >= this.y + 4 && pMouseY <= this.y + 18;
+        boolean removeHovered = pMouseX >= this.getX() + 102 && pMouseX <= this.getX() + 117 && pMouseY >= this.getY() + 4 && pMouseY <= this.getY() + 18;
+        boolean minusHovered = pMouseX >= this.getX() + 122 && pMouseX <= this.getX() + 137 && pMouseY >= this.getY() + 4 && pMouseY <= this.getY() + 18;
+        boolean plusHovered = pMouseX >= this.getX() + 142 && pMouseX <= this.getX() + 157 && pMouseY >= this.getY() + 4 && pMouseY <= this.getY() + 18;
 
-        GuiComponent.fill(pPoseStack, this.x + 100, this.y + 3, this.x + 115, this.y + 18, removeHovered ? 0xFFFFFFFF : 0xFF000000);
-        GuiComponent.fill(pPoseStack, this.x + 101, this.y + 4, this.x + 114, this.y + 17, 0xFF666666);
+        guiGraphics.fill(this.getX() + 100, this.getY() + 3, this.getX() + 115, this.getY() + 18, removeHovered ? 0xFFFFFFFF : 0xFF000000);
+        guiGraphics.fill(this.getX() + 101, this.getY() + 4, this.getX() + 114, this.getY() + 17, 0xFF666666);
 
-        GuiComponent.fill(pPoseStack, this.x + 120, this.y + 3, this.x + 135, this.y + 18, minusHovered ? 0xFFFFFFFF : 0xFF000000);
-        GuiComponent.fill(pPoseStack, this.x + 121, this.y + 4, this.x + 134, this.y + 17, 0xFF666666);
+        guiGraphics.fill(this.getX() + 120, this.getY() + 3, this.getX() + 135, this.getY() + 18, minusHovered ? 0xFFFFFFFF : 0xFF000000);
+        guiGraphics.fill(this.getX() + 121, this.getY() + 4, this.getX() + 134, this.getY() + 17, 0xFF666666);
 
-        GuiComponent.fill(pPoseStack, this.x + 140, this.y + 3, this.x + 155, this.y + 18, plusHovered ? 0xFFFFFFFF : 0xFF000000);
-        GuiComponent.fill(pPoseStack, this.x + 141, this.y + 4, this.x + 154, this.y + 17, 0xFF666666);
+        guiGraphics.fill(this.getX() + 140, this.getY() + 3, this.getX() + 155, this.getY() + 18, plusHovered ? 0xFFFFFFFF : 0xFF000000);
+        guiGraphics.fill(this.getX() + 141, this.getY() + 4, this.getX() + 154, this.getY() + 17, 0xFF666666);
 
-        Minecraft.getInstance().font.draw(pPoseStack, "-", (this.x + 125), (this.y + 7), 0xFFFFFFFF);
-        Minecraft.getInstance().font.draw(pPoseStack, "+", (this.x + 145), (this.y + 7), 0xFFFFFFFF);
-        Minecraft.getInstance().font.draw(pPoseStack, "x", (this.x + 105), (this.y + 6), 0xFFFF0000);
+        guiGraphics.drawString(Minecraft.getInstance().font, "-", (this.getX() + 125), (this.getY() + 7), 0xFFFFFFFF);
+        guiGraphics.drawString(Minecraft.getInstance().font, "+", (this.getX() + 145), (this.getY() + 7), 0xFFFFFFFF);
+        guiGraphics.drawString(Minecraft.getInstance().font, "x", (this.getX() + 105), (this.getY() + 6), 0xFFFF0000);
     }
 
     @Override
     public void onClick(double pMouseX, double pMouseY) {
-        if (pMouseX >= this.x + 122 && pMouseX <= this.x + 137 && pMouseY >= this.y + 4 && pMouseY <= this.y + 18) {
+        if (pMouseX >= this.getX() + 122 && pMouseX <= this.getX() + 137 && pMouseY >= this.getY() + 4 && pMouseY <= this.getY() + 18) {
             if (shoppingCartItem.getValue() > 1) {
                 shoppingCartItem.setValue(shoppingCartItem.getValue() - 1);
                 onChange.run();
             }
-        } else if (pMouseX >= this.x + 142 && pMouseX <= this.x + 157 && pMouseY >= this.y + 4 && pMouseY <= this.y + 18) {
+        } else if (pMouseX >= this.getX() + 142 && pMouseX <= this.getX() + 157 && pMouseY >= this.getY() + 4 && pMouseY <= this.getY() + 18) {
             shoppingCartItem.setValue(shoppingCartItem.getValue() + 1);
             onChange.run();
-        } else if (pMouseX >= this.x + 102 && pMouseX <= this.x + 117 && pMouseY >= this.y + 4 && pMouseY <= this.y + 18) {
+        } else if (pMouseX >= this.getX() + 102 && pMouseX <= this.getX() + 117 && pMouseY >= this.getY() + 4 && pMouseY <= this.getY() + 18) {
             onRemoveClicked.run();
         }
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+    public void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {
 
     }
 }

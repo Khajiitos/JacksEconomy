@@ -1,9 +1,13 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
 import me.khajiitos.jackseconomy.util.CurrencyType;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.List;
+import java.util.function.Supplier;
 
 public class CurrencyToggleButton extends SimpleImageButton {
     private CurrencyType currencyType;
@@ -15,8 +19,8 @@ public class CurrencyToggleButton extends SimpleImageButton {
         this.onChange = onChange;
     }
 
-    public CurrencyToggleButton(int pX, int pY, int pWidth, int pHeight, OnChange onChange, OnTooltip onTooltip, CurrencyType currencyType) {
-        super(pX, pY, pWidth, pHeight, getImage(currencyType.item), (b) -> {}, onTooltip);
+    public CurrencyToggleButton(int pX, int pY, int pWidth, int pHeight, OnChange onChange, Supplier<List<Component>> onTooltip, CurrencyType currencyType) {
+        super(pX, pY, pWidth, pHeight, getImage(currencyType.item), (b) -> {}, Supplier::get);
         this.currencyType = currencyType;
         this.onChange = onChange;
     }

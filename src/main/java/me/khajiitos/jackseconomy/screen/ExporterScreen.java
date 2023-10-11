@@ -1,6 +1,5 @@
 package me.khajiitos.jackseconomy.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.blockentity.ExporterBlockEntity;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.menu.ExporterMenu;
@@ -8,6 +7,8 @@ import me.khajiitos.jackseconomy.packet.ChangeSpeedPacket;
 import me.khajiitos.jackseconomy.screen.widget.EnergyStatusWidget;
 import me.khajiitos.jackseconomy.screen.widget.SpeedVerticalSlider;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -56,16 +57,16 @@ public class ExporterScreen extends AbstractExporterScreen<ExporterBlockEntity, 
     }
 
     @Override
-    protected void renderTooltipsOrSomething(PoseStack poseStack, int mouseX, int mouseY) {
+    protected void renderTooltipsOrSomething(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         ExporterBlockEntity blockEntity = this.getBlockEntity();
         if (blockEntity != null) {
             if (this.energyStatus.isHoveredOrFocused()) {
                 IEnergyStorage energyStorage = blockEntity.getEnergyStorage();
-                this.renderTooltip(poseStack, Component.literal(energyStorage.getEnergyStored() + "FE/" + energyStorage.getMaxEnergyStored() + "FE"), mouseX, mouseY);
+                guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal(energyStorage.getEnergyStored() + "FE/" + energyStorage.getMaxEnergyStored() + "FE"), mouseX, mouseY);
             } else if (this.slider.isHoveredOrFocused()) {
                 int fePerTick = blockEntity.getEnergyUsagePerTick();
                 String progressPerTickPercent = String.format("%.2f%%", blockEntity.getProgressPerTick() * 100.0);
-                this.renderTooltip(poseStack, List.of(
+                guiGraphics.renderTooltip(Minecraft.getInstance().font, List.of(
                         Component.translatable("jackseconomy.fe_per_tick", fePerTick).withStyle(ChatFormatting.GRAY),
                         Component.translatable("jackseconomy.progress_per_tick", progressPerTickPercent).withStyle(ChatFormatting.GRAY)
                 ), Optional.empty(), mouseX, mouseY);
@@ -77,7 +78,7 @@ public class ExporterScreen extends AbstractExporterScreen<ExporterBlockEntity, 
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         boolean b = super.mouseClicked(pMouseX, pMouseY, pButton);
 
-        if (pMouseX >= this.slider.x && pMouseX <= this.slider.x + this.slider.getWidth() && pMouseY >= this.slider.y && pMouseY <= this.slider.y + this.slider.getHeight()) {
+        if (pMouseX >= this.slider.getX() && pMouseX <= this.slider.getX() + this.slider.getWidth() && pMouseY >= this.slider.getY() && pMouseY <= this.slider.getY() + this.slider.getHeight()) {
             this.slider.dragging = true;
         }
 

@@ -23,7 +23,7 @@ public class FloatingEditBoxWidget extends EditBox {
     public void calculateWidthAndPos() {
         Font font = Minecraft.getInstance().font;
         this.width = Math.max(this.minWidth, font.width(this.getValue()) + 16);
-        this.x = this.midX - this.width / 2;
+        this.getX() = this.midX - this.width / 2;
     }
 
     @Override

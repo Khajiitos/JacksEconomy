@@ -1,11 +1,10 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -33,10 +32,10 @@ public class CheckCreatorWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {}
+    public void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {}
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         if (this.open) {
             this.width = 81;
             this.height = 140;
@@ -45,41 +44,39 @@ public class CheckCreatorWidget extends AbstractWidget {
             this.height = 16;
         }
 
-        int buttonStartX = this.x + this.width - 16;
-        int buttonStartY = this.y;
+        int buttonStartX = this.getX() + this.width - 16;
+        int buttonStartY = this.getY();
         boolean buttonHovered = pMouseX >= buttonStartX && pMouseX <= buttonStartX + 16 && pMouseY >= buttonStartY && pMouseY <= buttonStartY + 16;
 
-        GuiComponent.fill(pPoseStack, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, 0xFF666666);
-        GuiComponent.fill(pPoseStack, this.x, this.y, this.x + this.width, this.y + this.height, 0xFF333333);
-
-        RenderSystem.setShaderTexture(0, IMAGE);
+        guiGraphics.fill(this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, 0xFF666666);
+        guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF333333);
 
         if (buttonHovered) {
             RenderSystem.setShaderColor(0.75f, 0.75f, 0.75f, 1.f);
         }
 
-        blit(pPoseStack, buttonStartX, buttonStartY, this.getBlitOffset(), 0, 0, 16, 16, 16, 16);
+        guiGraphics.blit(IMAGE, buttonStartX, buttonStartY, 0/*this.getBlitOffset()*/, 0, 0, 16, 16, 16, 16);
 
         RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);
 
         if (open) {
-            Minecraft.getInstance().font.draw(pPoseStack, Component.translatable("jackseconomy.write_check").withStyle(ChatFormatting.YELLOW), this.x + 3, this.y + 5, 0xFFFFFFFF);
+            guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("jackseconomy.write_check").withStyle(ChatFormatting.YELLOW), this.getX() + 3, this.getY() + 5, 0xFFFFFFFF);
 
             for (AbstractWidget widget : this.renderables) {
-                widget.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+                widget.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
             }
         }
     }
 
     protected void addRenderables() {
         String keypadText = keypadTextbox == null ? "" : keypadTextbox.getText();
-        keypadTextbox = new TextBox(this.x + 13, this.y + 20, 55, 15, keypadText);
+        keypadTextbox = new TextBox(this.getX() + 13, this.getY() + 20, 55, 15, keypadText);
 
         this.renderables.add(keypadTextbox);
 
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 3; x++) {
-                this.renderables.add(new SimpleButton(this.x + 13 + x * 20, this.y + 40 + y * 20, 15, 15, Component.literal(String.valueOf(1 + y * 3 + x)), (b) -> {
+                this.renderables.add(new SimpleButton(this.getX() + 13 + x * 20, this.getY() + 40 + y * 20, 15, 15, Component.literal(String.valueOf(1 + y * 3 + x)), (b) -> {
                     if (this.keypadTextbox.getText().length() < 8) {
                         int dotIndex = this.keypadTextbox.getText().indexOf('.');
                         if (dotIndex == -1 || dotIndex > this.keypadTextbox.getText().length() - 3) {
@@ -90,25 +87,25 @@ public class CheckCreatorWidget extends AbstractWidget {
             }
         }
 
-        this.renderables.add(new SimpleButton(this.x + 13, this.y + 100, 15, 15, Component.literal("0"), (b) -> {
+        this.renderables.add(new SimpleButton(this.getX() + 13, this.getY() + 100, 15, 15, Component.literal("0"), (b) -> {
             if (this.keypadTextbox.getText().length() < 8) {
                 keypadTextbox.setText(keypadTextbox.getText() + b.getMessage().getString());
             }
         }));
 
-        this.renderables.add(new SimpleButton(this.x + 33, this.y + 100, 15, 15, Component.literal("."), (b) -> {
+        this.renderables.add(new SimpleButton(this.getX() + 33, this.getY() + 100, 15, 15, Component.literal("."), (b) -> {
             if (this.keypadTextbox.getText().length() > 0 && !this.keypadTextbox.getText().contains(".") &&  this.keypadTextbox.getText().length() < 8) {
                 keypadTextbox.setText(keypadTextbox.getText() + b.getMessage().getString());
             }
         }));
 
-        this.renderables.add(new SimpleButton(this.x + 53, this.y + 100, 15, 15, Component.literal("C"), (b) -> {
+        this.renderables.add(new SimpleButton(this.getX() + 53, this.getY() + 100, 15, 15, Component.literal("C"), (b) -> {
             if (this.keypadTextbox.getText().length() > 0) {
                 this.keypadTextbox.setText(this.keypadTextbox.getText().substring(0, this.keypadTextbox.getText().length() - 1));
             }
         }));
 
-        this.renderables.add(new SimpleButton(this.x + 13, this.y + 120, 55, 15, Component.translatable("jackseconomy.write"), (b) -> {
+        this.renderables.add(new SimpleButton(this.getX() + 13, this.getY() + 120, 55, 15, Component.translatable("jackseconomy.write"), (b) -> {
             BigDecimal value;
             try {
                 value = new BigDecimal(this.keypadTextbox.getText());
@@ -137,7 +134,7 @@ public class CheckCreatorWidget extends AbstractWidget {
             if (value.compareTo(BigDecimal.ZERO) > 0 && value.compareTo(WalletItem.getBalance(itemStack)) <= 0) {
                 Packets.sendToServer(new CreateCheckPacket(value));
             }
-        }, ((pButton, pPoseStack, pMouseX, pMouseY) -> this.tooltip = List.of(Component.translatable("jackseconomy.turn_into_check").withStyle(ChatFormatting.GRAY)))));
+        }, ((pButton, guiGraphics, pMouseX, pMouseY) -> this.tooltip = List.of(Component.translatable("jackseconomy.turn_into_check").withStyle(ChatFormatting.GRAY)))));
 */
     }
 
@@ -147,19 +144,18 @@ public class CheckCreatorWidget extends AbstractWidget {
             return super.mouseClicked(pMouseX, pMouseY, pButton);
         }
 
-        int buttonStartX = this.x + this.width - 16;
-        int buttonStartY = this.y;
+        int buttonStartX = this.getX() + this.width - 16;
+        int buttonStartY = this.getY();
 
         if (pMouseX >= buttonStartX && pMouseX <= buttonStartX + 16 && pMouseY >= buttonStartY && pMouseY <= buttonStartY + 16) {
             this.renderables.clear();
             this.open = !this.open;
 
             if (this.open) {
-                this.x -= 65;
+                this.setX(this.getX() - 65);
                 this.addRenderables();
             } else {
-
-                this.x += 65;
+                this.setX(this.getX() + 65);
             }
 
             return true;

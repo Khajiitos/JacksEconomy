@@ -1,7 +1,6 @@
 package me.khajiitos.jackseconomy.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.menu.AdminShopMenu;
@@ -13,7 +12,8 @@ import me.khajiitos.jackseconomy.screen.widget.FloatingEditBoxWidget;
 import me.khajiitos.jackseconomy.util.ItemHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -38,7 +38,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
 
     @Override
     protected boolean isHoverObstructed(int mouseX, int mouseY) {
-        return this.floatingEditBox != null && mouseX >= this.floatingEditBox.x && mouseX <= this.floatingEditBox.x + this.floatingEditBox.getWidth() && mouseY >= this.floatingEditBox.y && mouseY <= this.floatingEditBox.y + this.floatingEditBox.getWidth();
+        return this.floatingEditBox != null && mouseX >= this.floatingEditBox.getX() && mouseX <= this.floatingEditBox.getX() + this.floatingEditBox.getWidth() && mouseY >= this.floatingEditBox.getY() && mouseY <= this.floatingEditBox.getY() + this.floatingEditBox.getWidth();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
                         this.floatingEditBox = null;
                     }
 
-                    this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, categoryEntry.x + 37, categoryEntry.y + 20, 75, 15, (value) -> {
+                    this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, categoryEntry.getX() + 37, categoryEntry.getY() + 20, 75, 15, (value) -> {
                         for (Category otherCategory : this.shopItems.keySet()) {
                             if (this.shopItems.size() > 1 && otherCategory == category) {
                                 continue;
@@ -369,11 +369,11 @@ public class EditAdminShopScreen extends AdminShopScreen {
     }
 
     @Override
-    public void renderStageTwo(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.renderStageTwo(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void renderStageTwo(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        super.renderStageTwo(guiGraphics, pMouseX, pMouseY, pPartialTick);
 
         if (this.itemOnCursor != null) {
-            Minecraft.getInstance().getItemRenderer().renderGuiItem(this.itemOnCursor.itemDescription().createItemStack(), pMouseX - 8, pMouseY - 8);
+            guiGraphics.renderItem(this.itemOnCursor.itemDescription().createItemStack(), pMouseX - 8, pMouseY - 8);
         }
     }
 
@@ -400,7 +400,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         if (pKeyCode == GLFW.GLFW_KEY_LEFT) {
-            if (this.getFocused() instanceof Widget widget && this.renderables.contains(widget)) {
+            if (this.getFocused() instanceof AbstractWidget widget && this.renderables.contains(widget)) {
                 return false;
             }
 
@@ -415,7 +415,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
             this.addAtIndex(this.shopItems.get(selectedBigCategory), this.selectedCategory, items, categoryIndex - 1);
             return true;
         } else if (pKeyCode == GLFW.GLFW_KEY_RIGHT) {
-            if (this.getFocused() instanceof Widget widget && this.renderables.contains(widget)) {
+            if (this.getFocused() instanceof AbstractWidget widget && this.renderables.contains(widget)) {
                 return false;
             }
 

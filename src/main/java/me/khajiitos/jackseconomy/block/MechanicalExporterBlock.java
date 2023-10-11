@@ -8,20 +8,20 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.material.Material;
 
 import javax.annotation.Nullable;
 
 public class MechanicalExporterBlock extends KineticTransactionMachineBlock<MechanicalExporterBlockEntity> {
 
     public MechanicalExporterBlock() {
-        super(BlockBehaviour.Properties.of(Material.METAL).noOcclusion().strength(1.5F, 6.0F));
+        super(BlockBehaviour.Properties.of().sound(SoundType.METAL).noOcclusion().strength(1.5F, 6.0F));
         this.registerDefaultState(this.stateDefinition.any().setValue(HORIZONTAL_FACING, Direction.NORTH));
     }
 

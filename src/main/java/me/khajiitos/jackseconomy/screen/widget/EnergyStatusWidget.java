@@ -1,9 +1,9 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -23,18 +23,18 @@ public class EnergyStatusWidget extends AbstractWidget {
     }
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         RenderSystem.setShaderTexture(0, BACKGROUND);
 
-        this.blit(pPoseStack, this.x, this.y, 0, 0, this.width, this.height);
+        guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), 0, 0, this.width, this.height);
 
         int energy = energyStorage.getEnergyStored();
         int maxEnergy = energyStorage.getMaxEnergyStored();
         
         int progressHeight = (int) (((float)energy / (float)maxEnergy) * this.height);
-        Gui.blit(pPoseStack, this.x, this.y + this.height - progressHeight, 15, this.height - progressHeight, 15, progressHeight, 256, 256);
+        guiGraphics.blit(BACKGROUND, this.getX(), this.getY() + this.height - progressHeight, 15, this.height - progressHeight, 15, progressHeight, 256, 256);
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {}
+    public void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {}
 }

@@ -1,7 +1,7 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.screen.AdminShopScreen;
+import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -15,8 +15,8 @@ public class EditCategoryEntry extends CategoryEntry {
     }
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        super.renderWidget(guiGraphics, pMouseX, pMouseY, pPartialTick);
 
         if (this.isHovered) {
             this.onHovered.run();

@@ -1,7 +1,6 @@
 package me.khajiitos.jackseconomy.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.blockentity.IExporterBlockEntity;
 import me.khajiitos.jackseconomy.config.Config;
@@ -17,9 +16,9 @@ import me.khajiitos.jackseconomy.screen.widget.SideConfigWidget;
 import me.khajiitos.jackseconomy.screen.widget.TicketPreviewWidget;
 import me.khajiitos.jackseconomy.util.SideConfig;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -74,14 +73,14 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
     }
 
     @Override
-    protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
+    protected void renderBg(GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, BACKGROUND);
         int i = this.leftPos;
         int j = (this.height - this.imageHeight) / 2;
-        this.blit(pPoseStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
-        blit(pPoseStack, this.leftPos + 41, this.topPos + 21, 14, 24, 204, 0, 28, 48, 256, 256);
+        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(BACKGROUND, this.leftPos + 41, this.topPos + 21, 14, 24, 204, 0, 28, 48, 256, 256);
     }
 
     public BigDecimal getCurrencyInOutputSlots() {
@@ -141,7 +140,7 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
         if (this.sideConfig == null) {
             this.sideConfig = new SideConfigWidget(x, y, new ResourceLocation(JacksEconomy.MOD_ID, "textures/block/exporter.png"), getAllowedDirections(), this::getSideConfig, tooltip -> this.tooltip = tooltip);
         } else {
-            this.sideConfig.x = x;
+            this.sideConfig.getX() = x;
             this.sideConfig.y = y;
         }
 
@@ -149,43 +148,41 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
     }
 
     @Override
-    protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {}
+    protected void renderLabels(GuiGraphics guiGraphics, int pMouseX, int pMouseY) {}
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         this.tooltip = null;
-        this.renderBackground(pPoseStack);
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        this.renderBackground(guiGraphics);
+        super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
 
         IExporterBlockEntity blockEntity = this.getBlockEntity();
 
         BigDecimal currency = (blockEntity == null ? BigDecimal.ZERO : blockEntity.getBalance()).add(getCurrencyInOutputSlots());
 
         if (blockEntity != null) {
-            RenderSystem.setShaderTexture(0, BACKGROUND);
-
             int pixels = (int)Math.ceil(blockEntity.getProgress() * 24);
-            blit(pPoseStack, this.leftPos + 41, this.topPos + 21 + (24 - pixels), 14, pixels, 176, (48 - pixels * 2), 28, pixels * 2, 256, 256);
+            guiGraphics.blit(BACKGROUND, this.leftPos + 41, this.topPos + 21 + (24 - pixels), 14, pixels, 176, (48 - pixels * 2), 28, pixels * 2, 256, 256);
         }
 
         BigDecimal capacity = BigDecimal.valueOf(Config.maxExporterBalance.get());
 
         if (!(this.menu.slots.get(9).getItem().getItem() instanceof ExporterTicketItem)) {
-            GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.manifest_required").withStyle(ChatFormatting.YELLOW), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("jackseconomy.manifest_required").withStyle(ChatFormatting.YELLOW), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
         } else if (currency.compareTo(capacity) >= 0) {
-            GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
         }
 
-        renderTooltipsOrSomething(pPoseStack, pMouseX, pMouseY);
+        renderTooltipsOrSomething(guiGraphics, pMouseX, pMouseY);
 
-        this.renderTooltip(pPoseStack, pMouseX, pMouseY);
+        guiGraphics.renderTooltip(Minecraft.getInstance().font, pMouseX, pMouseY);
 
         if (tooltip != null) {
-            this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX, pMouseY);
+            guiGraphics.renderTooltip(Minecraft.getInstance().font, tooltip, Optional.empty(), pMouseX, pMouseY);
         }
     }
 
-    protected void renderTooltipsOrSomething(PoseStack poseStack, int mouseX, int mouseY) {}
+    protected void renderTooltipsOrSomething(GuiGraphics guiGraphics, int mouseX, int mouseY) {}
 
     @Override
     protected void containerTick() {

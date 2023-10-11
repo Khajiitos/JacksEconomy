@@ -1,7 +1,6 @@
 package me.khajiitos.jackseconomy.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.blockentity.IImporterBlockEntity;
 import me.khajiitos.jackseconomy.config.Config;
@@ -15,10 +14,10 @@ import me.khajiitos.jackseconomy.screen.widget.BalanceProgressWidget;
 import me.khajiitos.jackseconomy.screen.widget.RedstoneControlWidget;
 import me.khajiitos.jackseconomy.screen.widget.SideConfigWidget;
 import me.khajiitos.jackseconomy.screen.widget.TicketPreviewWidget;
-import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.SideConfig;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Direction;
@@ -30,7 +29,6 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -73,17 +71,16 @@ public abstract class AbstractImporterScreen<S extends IImporterBlockEntity, T e
     }
 
     @Override
-    protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {}
+    protected void renderLabels(GuiGraphics guiGraphics, int pMouseX, int pMouseY) {}
 
     @Override
-    protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
+    protected void renderBg(GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, BACKGROUND);
         int i = this.leftPos;
         int j = (this.height - this.imageHeight) / 2;
-        this.blit(pPoseStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
-        blit(pPoseStack, this.leftPos + 39, this.topPos + 26, 18, 13, 212, 0, 36, 26, 256, 256);
+        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(BACKGROUND, this.leftPos + 39, this.topPos + 26, 18, 13, 212, 0, 36, 26, 256, 256);
     }
 
     public void refreshTicketPreview() {
@@ -135,43 +132,41 @@ public abstract class AbstractImporterScreen<S extends IImporterBlockEntity, T e
         if (this.sideConfig == null) {
             this.sideConfig = new SideConfigWidget(x, y, new ResourceLocation(JacksEconomy.MOD_ID, "textures/block/importer.png"), getAllowedDirections(), this::getSideConfig, tooltip -> this.tooltip = tooltip);
         } else {
-            this.sideConfig.x = x;
-            this.sideConfig.y = y;
+            this.sideConfig.setX(x);
+            this.sideConfig.setY(y);
         }
 
         this.addRenderableWidget(this.sideConfig);
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         tooltip = null;
-        this.renderBackground(pPoseStack);
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        this.renderBackground(guiGraphics);
+        super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
 
         IImporterBlockEntity blockEntity = this.getBlockEntity();
         BigDecimal currency = blockEntity == null ? BigDecimal.ZERO : blockEntity.getBalance();
 
         if (blockEntity != null) {
-            RenderSystem.setShaderTexture(0, BACKGROUND);
-
             int pixels = (int)(blockEntity.getProgress() * 18);
-            blit(pPoseStack, this.leftPos + 39, this.topPos + 26, pixels, 13, 176, 0, pixels * 2, 26, 256, 256);
+            guiGraphics.blit(BACKGROUND, this.leftPos + 39, this.topPos + 26, pixels, 13, 176, 0, pixels * 2, 26, 256, 256);
         }
 
         BigDecimal capacity = BigDecimal.valueOf(Config.maxImporterBalance.get());
 
         if (!(this.menu.slots.get(9).getItem().getItem() instanceof ImporterTicketItem)) {
-            GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.manifest_required").withStyle(ChatFormatting.YELLOW), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("jackseconomy.manifest_required").withStyle(ChatFormatting.YELLOW), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
         } else if (currency.compareTo(capacity) >= 0) {
-            GuiComponent.drawCenteredString(pPoseStack, this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
+            guiGraphics.drawString(this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
         }
 
-        renderTooltipsOrSomething(pPoseStack, pMouseX, pMouseY);
+        renderTooltipsOrSomething(guiGraphics, pMouseX, pMouseY);
 
-        this.renderTooltip(pPoseStack, pMouseX, pMouseY);
+        guiGraphics.renderTooltip(Minecraft.getInstance().font, pMouseX, pMouseY);
 
         if (tooltip != null) {
-            this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX, pMouseY);
+            guiGraphics.renderTooltip(Minecraft.getInstance().font, tooltip, Optional.empty(), pMouseX, pMouseY);
         }
     }
 
@@ -180,7 +175,7 @@ public abstract class AbstractImporterScreen<S extends IImporterBlockEntity, T e
         int j = (this.height - this.imageHeight) / 2;
         int startXRedstone = this.leftPos - 53;
 
-        boolean hoveredTicketPreview = this.ticketPreview != null && pMouseX >= this.ticketPreview.x && pMouseX <= this.ticketPreview.x + this.ticketPreview.getWidth() && pMouseY >= this.ticketPreview.y && pMouseY <= this.ticketPreview.y + this.ticketPreview.getHeight();
+        boolean hoveredTicketPreview = this.ticketPreview != null && pMouseX >= this.ticketPreview.getX() && pMouseX <= this.ticketPreview.getX() + this.ticketPreview.getWidth() && pMouseY >= this.ticketPreview.getY() && pMouseY <= this.ticketPreview.getY() + this.ticketPreview.getHeight();
 
         if (hoveredTicketPreview && this.ticketPreview.mouseClicked(pMouseX, pMouseY, pButton)) {
             return true;
@@ -209,7 +204,7 @@ public abstract class AbstractImporterScreen<S extends IImporterBlockEntity, T e
         super.containerTick();
     }
 
-    protected void renderTooltipsOrSomething(PoseStack poseStack, int mouseX, int mouseY) {
+    protected void renderTooltipsOrSomething(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 
     }
 
@@ -217,7 +212,7 @@ public abstract class AbstractImporterScreen<S extends IImporterBlockEntity, T e
     protected boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
         // Stupid way to prevent slot hovers when ticket preview is open
         if (this.ticketPreview != null && this.ticketPreview.isOpen() && pWidth == 16 && pHeight == 16) {
-            if (pMouseX >= this.ticketPreview.x && pMouseX <= this.ticketPreview.x + this.ticketPreview.getWidth() && pMouseY >= this.ticketPreview.y && pMouseY <= this.ticketPreview.y + this.ticketPreview.getHeight()) {
+            if (pMouseX >= this.ticketPreview.getX() && pMouseX <= this.ticketPreview.getX() + this.ticketPreview.getWidth() && pMouseY >= this.ticketPreview.getY() && pMouseY <= this.ticketPreview.getY() + this.ticketPreview.getHeight()) {
                 return false;
             }
         }

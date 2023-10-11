@@ -5,6 +5,7 @@ import me.khajiitos.jackseconomy.block.*;
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.item.*;
 import me.khajiitos.jackseconomy.util.CurrencyType;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -14,17 +15,14 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 
 public class ItemBlockReg {
-    public static final CreativeModeTab tab = new CreativeModeTab("jackseconomy") {
-        @Override
-        public @NotNull ItemStack makeIcon() {
-            return new ItemStack(ItemBlockReg.EXPORTER_ITEM.get());
-        }
-    };
+    public static final CreativeModeTab tab = CreativeModeTab.builder().icon(() -> new ItemStack(ItemBlockReg.EXPORTER_ITEM.get())).title(Component.translatable("itemGroup.jackseconomy")).displayItems((params, output) -> {
+        output.accept(ItemBlockReg.EXPORTER_ITEM.get());
+        output.accept(ItemBlockReg.IMPORTER_ITEM.get());
+    }).build();
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, JacksEconomy.MOD_ID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, JacksEconomy.MOD_ID);
@@ -92,5 +90,6 @@ public class ItemBlockReg {
     public static void init(IEventBus eventBus) {
         BLOCKS.register(eventBus);
         ITEMS.register(eventBus);
+
     }
 }

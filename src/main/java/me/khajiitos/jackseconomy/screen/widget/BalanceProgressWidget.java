@@ -1,13 +1,10 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.infrastructure.config.AllConfigs;
 import me.khajiitos.jackseconomy.JacksEconomy;
-import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -38,19 +35,17 @@ public class BalanceProgressWidget extends AbstractWidget {
     }
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         BigDecimal balance = balanceSupplier.get();
         BigDecimal capacity = maxBalanceSupplier.get();
         double progress = balance.divide(capacity, RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
 
-        RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
-
-        int startX = this.x;
-        int startY = this.y;
+        int startX = this.getX();
+        int startY = this.getY();
         int pixels = (int)(65 * progress);
 
-        blit(pPoseStack, startX, startY, this.getBlitOffset(), 56, 0, 5, 65, 256, 256);
-        blit(pPoseStack, startX, startY + (65 - pixels), this.getBlitOffset(), 51, 65 - pixels, 5, pixels, 256, 256);
+        guiGraphics.blit(BALANCE_PROGRESS, startX, startY, 0/*this.getBlitOffset()*/, 56, 0, 5, 65, 256, 256);
+        guiGraphics.blit(BALANCE_PROGRESS, startX, startY + (65 - pixels), 0/*this.getBlitOffset()*/, 51, 65 - pixels, 5, pixels, 256, 256);
 
         if (isHovered()) {
             onTooltip.accept(List.of(
@@ -61,5 +56,5 @@ public class BalanceProgressWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {}
+    public void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {}
 }
