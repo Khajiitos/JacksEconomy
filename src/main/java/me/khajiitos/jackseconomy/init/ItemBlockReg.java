@@ -5,6 +5,8 @@ import me.khajiitos.jackseconomy.block.*;
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.item.*;
 import me.khajiitos.jackseconomy.util.CurrencyType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -19,24 +21,21 @@ import net.minecraftforge.registries.RegistryObject;
 import java.math.BigDecimal;
 
 public class ItemBlockReg {
-    public static final CreativeModeTab tab = CreativeModeTab.builder().icon(() -> new ItemStack(ItemBlockReg.EXPORTER_ITEM.get())).title(Component.translatable("itemGroup.jackseconomy")).displayItems((params, output) -> {
-        output.accept(ItemBlockReg.EXPORTER_ITEM.get());
-        output.accept(ItemBlockReg.IMPORTER_ITEM.get());
-    }).build();
-
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, JacksEconomy.MOD_ID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, JacksEconomy.MOD_ID);
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, JacksEconomy.MOD_ID);
+
     public static final RegistryObject<ExporterBlock> EXPORTER = BLOCKS.register("exporter", ExporterBlock::new);
     public static final RegistryObject<ImporterBlock> IMPORTER = BLOCKS.register("importer", ImporterBlock::new);
     public static final RegistryObject<MechanicalExporterBlock> MECHANICAL_EXPORTER = BLOCKS.register("mechanical_exporter", MechanicalExporterBlock::new);
     public static final RegistryObject<MechanicalImporterBlock> MECHANICAL_IMPORTER = BLOCKS.register("mechanical_importer", MechanicalImporterBlock::new);
 
     public static final RegistryObject<CurrencyConverterBlock> CURRENCY_CONVERTER = BLOCKS.register("currency_converter", CurrencyConverterBlock::new);
-    public static final RegistryObject<BlockItem> EXPORTER_ITEM = ITEMS.register("exporter", () -> new BlockItem(EXPORTER.get(), new Item.Properties().tab(tab)));
-    public static final RegistryObject<BlockItem> IMPORTER_ITEM = ITEMS.register("importer", () -> new BlockItem(IMPORTER.get(), new Item.Properties().tab(tab)));
-    public static final RegistryObject<BlockItem> MECHANICAL_EXPORTER_ITEM = ITEMS.register("mechanical_exporter", () -> new BlockItem(MECHANICAL_EXPORTER.get(), new Item.Properties().tab(tab)));
-    public static final RegistryObject<BlockItem> MECHANICAL_IMPORTER_ITEM = ITEMS.register("mechanical_importer", () -> new BlockItem(MECHANICAL_IMPORTER.get(), new Item.Properties().tab(tab)));
-    public static final RegistryObject<BlockItem> CURRENCY_CONVERTER_ITEM = ITEMS.register("currency_converter", () -> new BlockItem(CURRENCY_CONVERTER.get(), new Item.Properties().tab(tab)));
+    public static final RegistryObject<BlockItem> EXPORTER_ITEM = ITEMS.register("exporter", () -> new BlockItem(EXPORTER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> IMPORTER_ITEM = ITEMS.register("importer", () -> new BlockItem(IMPORTER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> MECHANICAL_EXPORTER_ITEM = ITEMS.register("mechanical_exporter", () -> new BlockItem(MECHANICAL_EXPORTER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> MECHANICAL_IMPORTER_ITEM = ITEMS.register("mechanical_importer", () -> new BlockItem(MECHANICAL_IMPORTER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> CURRENCY_CONVERTER_ITEM = ITEMS.register("currency_converter", () -> new BlockItem(CURRENCY_CONVERTER.get(), new Item.Properties()));
 
     public static final RegistryObject<CurrencyItem> PENNY_ITEM = ITEMS.register("penny", () -> new CurrencyItem(new BigDecimal("0.01"), false));
     public static final RegistryObject<CurrencyItem> NICKEL_ITEM = ITEMS.register("nickel", () -> new CurrencyItem(new BigDecimal("0.05"), false));
@@ -86,10 +85,46 @@ public class ItemBlockReg {
     public static final RegistryObject<EmptyTicketItem> EMPTY_IMPORTER_TICKET_ITEM = ITEMS.register("empty_importer_manifest", () -> new EmptyTicketItem(EmptyTicketItem.Type.IMPORTER));
     public static final RegistryObject<EmptyTicketItem> EMPTY_EXPORTER_TICKET_ITEM = ITEMS.register("empty_exporter_manifest", () -> new EmptyTicketItem(EmptyTicketItem.Type.EXPORTER));
 
+    public static final RegistryObject<CreativeModeTab> tab = CREATIVE_MODE_TABS.register("jackseconomy", () -> CreativeModeTab.builder().icon(() -> new ItemStack(ItemBlockReg.EXPORTER_ITEM.get())).title(Component.translatable("itemGroup.jackseconomy")).displayItems((params, output) -> {
+        output.accept(ItemBlockReg.EXPORTER_ITEM.get());
+        output.accept(ItemBlockReg.IMPORTER_ITEM.get());
+        output.accept(ItemBlockReg.MECHANICAL_IMPORTER_ITEM.get());
+        output.accept(ItemBlockReg.MECHANICAL_EXPORTER_ITEM.get());
+        output.accept(ItemBlockReg.CURRENCY_CONVERTER_ITEM.get());
+        output.accept(ItemBlockReg.PENNY_ITEM.get());
+        output.accept(ItemBlockReg.NICKEL_ITEM.get());
+        output.accept(ItemBlockReg.DIME_ITEM.get());
+        output.accept(ItemBlockReg.QUARTER_ITEM.get());
+        output.accept(ItemBlockReg.DOLLAR_BILL_ITEM.get());
+        output.accept(ItemBlockReg.FIVE_DOLLAR_BILL_ITEM.get());
+        output.accept(ItemBlockReg.TEN_DOLLAR_BILL_ITEM.get());
+        output.accept(ItemBlockReg.TWENTY_DOLLAR_BILL_ITEM.get());
+        output.accept(ItemBlockReg.FIFTY_DOLLAR_BILL_ITEM.get());
+        output.accept(ItemBlockReg.HUNDRED_DOLLAR_BILL_ITEM.get());
+        output.accept(ItemBlockReg.THOUSAND_DOLLAR_BILL_ITEM.get());
+        output.accept(ItemBlockReg.PENNY_STACK_ITEM.get());
+        output.accept(ItemBlockReg.NICKEL_STACK_ITEM.get());
+        output.accept(ItemBlockReg.DIME_STACK_ITEM.get());
+        output.accept(ItemBlockReg.QUARTER_STACK_ITEM.get());
+        output.accept(ItemBlockReg.DOLLAR_BILL_STACK_ITEM.get());
+        output.accept(ItemBlockReg.FIVE_DOLLAR_BILL_STACK_ITEM.get());
+        output.accept(ItemBlockReg.TEN_DOLLAR_BILL_STACK_ITEM.get());
+        output.accept(ItemBlockReg.TWENTY_DOLLAR_BILL_STACK_ITEM.get());
+        output.accept(ItemBlockReg.FIFTY_DOLLAR_BILL_STACK_ITEM.get());
+        output.accept(ItemBlockReg.HUNDRED_DOLLAR_BILL_STACK_ITEM.get());
+        output.accept(ItemBlockReg.THOUSAND_DOLLAR_BILL_STACK_ITEM.get());
+        output.accept(ItemBlockReg.BASIC_WALLET_ITEM.get());
+        output.accept(ItemBlockReg.INTERMEDIATE_WALLET_ITEM.get());
+        output.accept(ItemBlockReg.ADVANCED_WALLET_ITEM.get());
+        output.accept(ItemBlockReg.THE_PHAT_WALLET_ITEM.get());
+        output.accept(ItemBlockReg.GOLDEN_EXPORTER_TICKET_ITEM.get());
+        output.accept(ItemBlockReg.EMPTY_EXPORTER_TICKET_ITEM.get());
+        output.accept(ItemBlockReg.EMPTY_IMPORTER_TICKET_ITEM.get());
+    }).build());
 
     public static void init(IEventBus eventBus) {
         BLOCKS.register(eventBus);
         ITEMS.register(eventBus);
-
+        CREATIVE_MODE_TABS.register(eventBus);
     }
 }

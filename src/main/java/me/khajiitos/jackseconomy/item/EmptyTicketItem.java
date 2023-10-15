@@ -18,7 +18,7 @@ public class EmptyTicketItem extends Item {
     public final Type type;
 
     public EmptyTicketItem(Type type) {
-        super(new Item.Properties().stacksTo(1).tab(ItemBlockReg.tab));
+        super(new Item.Properties().stacksTo(1));
         this.type = type;
     }
 

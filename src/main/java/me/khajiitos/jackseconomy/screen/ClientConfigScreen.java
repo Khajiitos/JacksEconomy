@@ -30,10 +30,10 @@ public class ClientConfigScreen extends Screen {
     }
 
     private Button configBooleanButton(int y, ForgeConfigSpec.ConfigValue<Boolean> configValue, String translationName) {
-        return new Button(this.width / 2 - 100, y, 200, 20, getBooleanButtonComponent(translationName, configValue.get()), (button) -> {
+        return Button.builder(getBooleanButtonComponent(translationName, configValue.get()), button -> {
             configValue.set(!configValue.get());
             button.setMessage(getBooleanButtonComponent(translationName, configValue.get()));
-        });
+        }).bounds(this.width / 2 - 100, y, 200, 20).build();
     }
 
     @Override

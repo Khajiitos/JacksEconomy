@@ -20,7 +20,7 @@ public class WalletItem extends Item {
     public Supplier<ForgeConfigSpec.ConfigValue<Double>> capacity;
 
     public WalletItem(Supplier<ForgeConfigSpec.ConfigValue<Double>> capacity) {
-        super(new Properties().stacksTo(1).tab(ItemBlockReg.tab));
+        super(new Properties().stacksTo(1));
         this.capacity = capacity;
     }
 

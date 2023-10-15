@@ -98,11 +98,6 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    //implementation fg.deobf("curse.maven:calemis-economy-579403:4662132")
-    //implementation fg.deobf("curse.maven:ccore-573646:3778251")
-
-    implementation fg.deobf("curse.maven:server-country-flags-841311:4775575")
-
     // Only to test energy
     runtimeOnly fg.deobf("curse.maven:mekanism-268560:4776410")
 

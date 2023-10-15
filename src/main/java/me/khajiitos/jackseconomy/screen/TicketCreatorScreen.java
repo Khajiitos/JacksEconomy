@@ -32,6 +32,6 @@ public class TicketCreatorScreen extends AbstractContainerScreen<TicketCreatorMe
     @Override
     public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
-        guiGraphics.renderTooltip(Minecraft.getInstance().font, pMouseX, pMouseY);
+        this.renderTooltip(guiGraphics, pMouseX, pMouseY);
     }
 }

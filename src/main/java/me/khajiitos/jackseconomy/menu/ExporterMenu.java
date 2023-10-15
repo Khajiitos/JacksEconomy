@@ -44,7 +44,7 @@ public class ExporterMenu extends TransactionMachineMenu {
     }
 
     public ExporterMenu(int containerID, Inventory playerInv, BlockPos pos) {
-        this(containerID, playerInv, (TransactionMachineBlockEntity) playerInv.player.level.getBlockEntity(pos));
+        this(containerID, playerInv, (TransactionMachineBlockEntity) playerInv.player.level().getBlockEntity(pos));
     }
 
     @Override

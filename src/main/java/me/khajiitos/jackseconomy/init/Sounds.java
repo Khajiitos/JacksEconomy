@@ -10,9 +10,9 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class Sounds {
     private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, JacksEconomy.MOD_ID);
-    public static final RegistryObject<SoundEvent> COIN = SOUND_EVENTS.register("coin", () -> new SoundEvent(new ResourceLocation(JacksEconomy.MOD_ID, "coin")));
-    public static final RegistryObject<SoundEvent> CASH = SOUND_EVENTS.register("cash", () -> new SoundEvent(new ResourceLocation(JacksEconomy.MOD_ID, "cash")));
-    public static final RegistryObject<SoundEvent> CHECKOUT = SOUND_EVENTS.register("checkout", () -> new SoundEvent(new ResourceLocation(JacksEconomy.MOD_ID, "checkout")));
+    public static final RegistryObject<SoundEvent> COIN = SOUND_EVENTS.register("coin", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(JacksEconomy.MOD_ID, "coin")));
+    public static final RegistryObject<SoundEvent> CASH = SOUND_EVENTS.register("cash", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(JacksEconomy.MOD_ID, "cash")));
+    public static final RegistryObject<SoundEvent> CHECKOUT = SOUND_EVENTS.register("checkout", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(JacksEconomy.MOD_ID, "checkout")));
 
     public static void init(IEventBus eventBus) {
         SOUND_EVENTS.register(eventBus);

@@ -66,7 +66,7 @@ public class PriceCommands {
             ItemPriceManager.addPriceInfo(itemInHand, new ItemPriceInfo(-1, price, -1, null, -1, null));
         }
 
-        ctx.getSource().sendSuccess(Component.translatable("jackseconomy.importer_price_set", itemInHand.getItem().getDescription().copy().withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD), true);
+        ctx.getSource().sendSuccess(() -> Component.translatable("jackseconomy.importer_price_set", itemInHand.getItem().getDescription().copy().withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD), true);
 
         ItemPriceManager.save();
         ItemPriceManager.sendDataToPlayers();
@@ -98,7 +98,7 @@ public class PriceCommands {
             ItemPriceManager.addPriceInfo(itemInHand, new ItemPriceInfo(price, -1, -1, null, -1, null));
         }
 
-        ctx.getSource().sendSuccess(Component.translatable("jackseconomy.exporter_price_set", itemInHand.getItem().getDescription().copy().withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD), true);
+        ctx.getSource().sendSuccess(() -> Component.translatable("jackseconomy.exporter_price_set", itemInHand.getItem().getDescription().copy().withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD), true);
 
         ItemPriceManager.save();
         ItemPriceManager.sendDataToPlayers();

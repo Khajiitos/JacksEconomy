@@ -60,7 +60,9 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
     }
 
     protected boolean isItemRejected(ItemStack itemStack) {
-        return ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1 || hitCapacityLimit();
+        ItemStack ticketItem = this.items.get(slotTicket);
+        boolean isOnTicket = (ticketItem.getItem() instanceof GoldenExporterTicketItem || (ticketItem.getItem() instanceof ExporterTicketItem && ExporterTicketItem.getItems(ticketItem).contains(ItemDescription.ofItem(itemStack))));
+        return !isOnTicket || ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
     }
 
     protected Component getDefaultName() {
@@ -247,6 +249,7 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
 
         this.itemHandlerInput.changeItems(this.items);
         this.itemHandlerOutput.changeItems(this.items);
+        this.itemHandlerRejectionOutput.changeItems(this.items);
 
         this.progress = tag.getFloat("Progress");
     }

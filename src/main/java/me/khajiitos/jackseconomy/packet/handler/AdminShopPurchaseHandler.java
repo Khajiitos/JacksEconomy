@@ -56,7 +56,7 @@ public class AdminShopPurchaseHandler {
             itemStack.setCount(entry.getValue());
 
             if (!sender.addItem(itemStack)) {
-                ItemHelper.dropItem(itemStack, sender.level, sender.blockPosition());
+                ItemHelper.dropItem(itemStack, sender.level(), sender.blockPosition());
             }
         }
     }

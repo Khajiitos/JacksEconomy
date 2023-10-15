@@ -42,8 +42,8 @@ public class CreateCheckHandler {
         WalletItem.setBalance(walletStack, WalletItem.getBalance(walletStack).subtract(msg.amount()));
         Packets.sendToClient(sender, new UpdateWalletBalancePacket(WalletItem.getBalance(walletStack)));
         if (!sender.getInventory().add(checkItem)) {
-            ItemEntity itemEntity = new ItemEntity(sender.getLevel(), sender.getX(), sender.getY(), sender.getZ(), checkItem);
-            sender.level.addFreshEntity(itemEntity);
+            ItemEntity itemEntity = new ItemEntity(sender.level(), sender.getX(), sender.getY(), sender.getZ(), checkItem);
+            sender.level().addFreshEntity(itemEntity);
         }
     }
 }

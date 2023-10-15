@@ -1,0 +1,12 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "jackseconomy:gui/ticket_slot"
+    },
+    {
+      "type": "single",
+      "resource": "jackseconomy:gui/wallet_slot"
+    }
+  ]
+}

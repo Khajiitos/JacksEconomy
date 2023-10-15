@@ -28,7 +28,7 @@ public class CurrencyItem extends Item {
     public final boolean bill;
 
     public CurrencyItem(BigDecimal value, boolean bill) {
-        super(new Item.Properties().tab(ItemBlockReg.tab));
+        super(new Item.Properties());
         this.value = value;
         this.bill = bill;
     }
@@ -70,9 +70,9 @@ public class CurrencyItem extends Item {
         itemStack.shrink((int)insertCount);
 
         if (this.bill) {
-            pPlayer.level.playSound(null, pPlayer.blockPosition(), Sounds.CASH.get(), SoundSource.PLAYERS, 1.f, 1.f);
+            pPlayer.level().playSound(null, pPlayer.blockPosition(), Sounds.CASH.get(), SoundSource.PLAYERS, 1.f, 1.f);
         } else {
-            pPlayer.level.playSound(null, pPlayer.blockPosition(), Sounds.COIN.get(), SoundSource.PLAYERS, 1.f, 1.f);
+            pPlayer.level().playSound(null, pPlayer.blockPosition(), Sounds.COIN.get(), SoundSource.PLAYERS, 1.f, 1.f);
         }
 
         if (pPlayer instanceof ServerPlayer serverPlayer) {

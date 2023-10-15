@@ -11,10 +11,11 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class  SimpleImageButton extends Button {
+public class SimpleImageButton extends Button {
     protected ResourceLocation image;
     protected int imageWidth;
     protected int imageHeight;
+    protected final Consumer<List<Component>> onTooltip;
     public SimpleImageButton(int pX, int pY, int pWidth, int pHeight, ResourceLocation image, OnPress pOnPress) {
         this(pX, pY, pWidth, pHeight, image, pOnPress, (a) -> {});
         this.imageWidth = pWidth == 18 ? 16 : pWidth;
@@ -22,10 +23,11 @@ public class  SimpleImageButton extends Button {
     }
 
     public SimpleImageButton(int pX, int pY, int pWidth, int pHeight, ResourceLocation image, OnPress pOnPress, Consumer<List<Component>> onTooltip) {
-        super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, onTooltip);
+        super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, Supplier::get);
         this.imageWidth = pWidth == 18 ? 16 : pWidth;
         this.imageHeight = pHeight == 18 ? 16 : pHeight;
         this.image = image;
+        this.onTooltip = onTooltip;
     }
 
     public SimpleImageButton(int pX, int pY, int pWidth, int pHeight, int imageWidth, int imageHeight, ResourceLocation image, OnPress pOnPress, Consumer<List<Component>> onTooltip) {
@@ -33,6 +35,7 @@ public class  SimpleImageButton extends Button {
         this.image = image;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
+        this.onTooltip = onTooltip;
     }
 
     @Override
@@ -42,8 +45,10 @@ public class  SimpleImageButton extends Button {
 
         guiGraphics.blit(image, this.getX() + (this.width - this.imageWidth) / 2, this.getY() + (this.height - this.imageHeight) / 2, 0/*this.getBlitOffset()*/, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
 
-        if (this.isHoveredOrFocused()) {
-            guiGraphics.renderTooltip(Minecraft.getInstance().font, pMouseX, pMouseY);
+        if (this.isHovered()) {
+            // TODO: is this correct?
+            this.onTooltip.accept(List.of());
+            //this.renderTooltip(guiGraphics, pMouseX, pMouseY);
         }
     }
 }

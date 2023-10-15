@@ -34,8 +34,6 @@ public class SpeedStatusWidget extends AbstractWidget {
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        RenderSystem.setShaderTexture(0, BACKGROUND);
-
         guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), 0, 0, this.width, this.height);
 
         double speed = Math.abs(speedSupplier.get());

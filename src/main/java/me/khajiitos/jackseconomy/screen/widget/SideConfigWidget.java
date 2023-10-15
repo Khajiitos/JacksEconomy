@@ -87,7 +87,6 @@ public class SideConfigWidget extends AbstractWidget {
         guiGraphics.fill(this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, 0xFF666666);
         guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF333333);
 
-        RenderSystem.setShaderTexture(0, IMAGE);
         guiGraphics.blit(IMAGE, this.getX(), this.getY(), 0/*this.getBlitOffset()*/, 0, buttonHovered ? 16 : 0, 16, 16, 16, 32);
         if (open) {
             guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("jackseconomy.configuration").withStyle(ChatFormatting.YELLOW), this.getX() + 18, this.getY() + 4, 0xFFFFFFFF);

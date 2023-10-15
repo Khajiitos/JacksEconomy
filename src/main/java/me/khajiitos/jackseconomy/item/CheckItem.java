@@ -80,7 +80,7 @@ public class CheckItem extends Item {
             Packets.sendToClient(serverPlayer, new WalletBalanceDifPacket(checkValue));
         }
 
-        pPlayer.level.playSound(null, pPlayer.blockPosition(), Sounds.CASH.get(), SoundSource.PLAYERS, 1.f, 1.f);
+        pPlayer.level().playSound(null, pPlayer.blockPosition(), Sounds.CASH.get(), SoundSource.PLAYERS, 1.f, 1.f);
 
         return InteractionResultHolder.success(itemStack);
     }

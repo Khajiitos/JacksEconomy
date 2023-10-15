@@ -67,7 +67,7 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
     }
 
     protected boolean isItemRejected(ItemStack itemStack) {
-        return !(itemStack.getItem() instanceof CurrencyItem) || hitCapacityLimit();
+        return !(itemStack.getItem() instanceof CurrencyItem);
     }
 
 
@@ -118,6 +118,7 @@ public class ImporterBlockEntity extends TransactionMachineBlockEntity implement
         // When items are loaded, the items array is a completely new array
         this.itemHandlerInput.changeItems(this.items);
         this.itemHandlerOutput.changeItems(this.items);
+        this.itemHandlerRejectionOutput.changeItems(this.items);
 
         this.progress = tag.getFloat("Progress");
 

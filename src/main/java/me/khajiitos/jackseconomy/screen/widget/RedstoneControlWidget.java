@@ -40,7 +40,6 @@ public class RedstoneControlWidget extends AbstractWidget {
         guiGraphics.fill(this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, 0xFF666666);
         guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF333333);
 
-        RenderSystem.setShaderTexture(0, IMAGE);
         //guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), 0/*this.getBlitOffset()*/, 0, buttonHovered ? 16 : 0, 16, 16, 16, 32);
         RedstoneToggle redstoneToggle = blockEntity.getRedstoneToggle();
 
@@ -57,9 +56,9 @@ public class RedstoneControlWidget extends AbstractWidget {
         }
 
         switch (redstoneToggle) {
-            case IGNORED -> guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), 32, 0, 16, 16);
-            case SIGNAL_ON -> guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), 16, 0, 16, 16);
-            case SIGNAL_OFF -> guiGraphics.blit(BACKGROUND, this.getX(), this.getY(), 0, 0, 16, 16);
+            case IGNORED -> guiGraphics.blit(IMAGE, this.getX(), this.getY(), 32, 0, 16, 16);
+            case SIGNAL_ON -> guiGraphics.blit(IMAGE, this.getX(), this.getY(), 16, 0, 16, 16);
+            case SIGNAL_OFF -> guiGraphics.blit(IMAGE, this.getX(), this.getY(), 0, 0, 16, 16);
         }
 
         RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);

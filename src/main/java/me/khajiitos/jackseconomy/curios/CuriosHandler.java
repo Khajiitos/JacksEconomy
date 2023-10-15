@@ -17,6 +17,9 @@ import java.util.Map;
 
 public class CuriosHandler {
 
+    // FIXME: EVERYTHING is deprecated...
+    // but I don't feel like fixing it
+
     @SubscribeEvent
     public static void onImc(InterModEnqueueEvent e) {
         InterModComms.sendTo("curios",

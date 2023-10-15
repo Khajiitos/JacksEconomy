@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
@@ -26,8 +27,8 @@ public class ContainerReg {
     public static final RegistryObject<MenuType<CurrencyConverterMenu>> CURRENCY_CONVERTER_MENU = MENU_TYPES.register("currency_converter", regBlockMenu(CurrencyConverterMenu::new));
     public static final RegistryObject<MenuType<WalletMenu>> WALLET_MENU = MENU_TYPES.register("wallet", regItemMenu(WalletMenu::new));
     public static final RegistryObject<MenuType<AdminShopMenu>> ADMIN_SHOP_MENU = MENU_TYPES.register("admin_shop", regCompoundMenu(AdminShopMenu::new));
-    public static final RegistryObject<MenuType<ExporterTicketCreatorMenu>> EXPORTER_TICKET_CREATOR_MENU = MENU_TYPES.register("exporter_ticket_creator", () -> new MenuType<>(ExporterTicketCreatorMenu::new));
-    public static final RegistryObject<MenuType<ImporterTicketCreatorMenu>> IMPORTER_TICKET_CREATOR_MENU = MENU_TYPES.register("importer_ticket_creator", () -> new MenuType<>(ImporterTicketCreatorMenu::new));
+    public static final RegistryObject<MenuType<ExporterTicketCreatorMenu>> EXPORTER_TICKET_CREATOR_MENU = MENU_TYPES.register("exporter_ticket_creator", () -> new MenuType<>(ExporterTicketCreatorMenu::new, FeatureFlagSet.of()));
+    public static final RegistryObject<MenuType<ImporterTicketCreatorMenu>> IMPORTER_TICKET_CREATOR_MENU = MENU_TYPES.register("importer_ticket_creator", () -> new MenuType<>(ImporterTicketCreatorMenu::new, FeatureFlagSet.of()));
 
     public static void init(IEventBus eventBus) {
         MENU_TYPES.register(eventBus);
@@ -35,15 +36,15 @@ public class ContainerReg {
 
     // Borrowed from Calemi's Economy
     static <M extends AbstractContainerMenu> Supplier<MenuType<M>> regBlockMenu(BlockMenuFactory<M> factory) {
-        return () -> new MenuType<>(factory);
+        return () -> new MenuType<>(factory, FeatureFlagSet.of());
     }
 
     static <M extends AbstractContainerMenu> Supplier<MenuType<M>> regItemMenu(ItemMenuFactory<M> factory) {
-        return () -> new MenuType<>(factory);
+        return () -> new MenuType<>(factory, FeatureFlagSet.of());
     }
 
     static <M extends AbstractContainerMenu> Supplier<MenuType<M>> regCompoundMenu(CompoundMenuFactory<M> factory) {
-        return () -> new MenuType<>(factory);
+        return () -> new MenuType<>(factory, FeatureFlagSet.of());
     }
 
     interface BlockMenuFactory<M extends AbstractContainerMenu> extends IContainerFactory<M> {

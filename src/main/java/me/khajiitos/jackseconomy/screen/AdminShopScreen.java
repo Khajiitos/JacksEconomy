@@ -59,6 +59,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     protected ImageButton categoryNextButton;
     protected ImageButton pageNextButton;
     protected ImageButton pagePreviousButton;
+    protected ImageButton shoppingCartButton;
 
     protected boolean shouldRenderBackground;
 
@@ -322,23 +323,11 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
         if (!this.isEditMode()) {
 
-            this.addRenderableWidget(ImageButton.builder(Component.empty(), b -> {
+            shoppingCartButton = this.addRenderableWidget(new ImageButton(this.leftPos + 139, this.topPos + 121, 30, 26, 176, 0, 26, BACKGROUND, 256, 256, (b) -> {
                 assert this.minecraft != null;
                 this.minecraft.screen = new ShoppingCartScreen(this.menu, this.menu.inventory, this);
                 this.minecraft.screen.init(this.minecraft, this.minecraft.getWindow().getGuiScaledWidth(), this.minecraft.getWindow().getGuiScaledHeight());
-            }).bounds(this.leftPos + 139, this.topPos + 121, 30, 26).build());
-
-            // TODO fix
-            /*
-            this.addRenderableWidget(new ImageButton(this.leftPos + 139, this.topPos + 121, 30, 26, 176, 0, 26, BACKGROUND, 256, 256, (b) -> {
-                assert this.minecraft != null;
-                this.minecraft.screen = new ShoppingCartScreen(this.menu, this.menu.inventory, this);
-                this.minecraft.screen.init(this.minecraft, this.minecraft.getWindow().getGuiScaledWidth(), this.minecraft.getWindow().getGuiScaledHeight());
-
-            }, (a, b, c, d) -> {
-                this.tooltip = List.of(Component.translatable("jackseconomy.items", Component.literal(String.valueOf(this.shoppingCart.size()))).withStyle(ChatFormatting.GRAY),
-                        Component.translatable("jackseconomy.value", Component.literal(CurrencyHelper.format(getShoppingCartValue()))).withStyle(ChatFormatting.GRAY));
-            }, Component.empty()));*/
+            }, Component.empty()));
 
             LocalPlayer player = Minecraft.getInstance().player;
 
@@ -390,14 +379,20 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
         if (!isEditMode()) {
             if (this.selectedCategory != null) {
-                guiGraphics.drawString(this.font, this.selectedCategory.name, this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
+                guiGraphics.drawCenteredString(this.font, this.selectedCategory.name, this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
             }
         } else {
             if (this.selectedCategory != null) {
-                guiGraphics.drawString(this.font, this.selectedCategory.name, this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
+                guiGraphics.drawCenteredString(this.font, this.selectedCategory.name, this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
             } else {
-                guiGraphics.drawString(this.font, Component.translatable("jackseconomy.add_category").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
+                guiGraphics.drawCenteredString(this.font, Component.translatable("jackseconomy.add_category").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos + 6, 0xFFFFFFFF);
             }
+        }
+
+        if (shoppingCartButton != null && shoppingCartButton.isHovered()) {
+            this.tooltip = List.of(Component.translatable("jackseconomy.items", Component.literal(String.valueOf(this.shoppingCart.size()))).withStyle(ChatFormatting.GRAY),
+                    Component.translatable("jackseconomy.value", Component.literal(CurrencyHelper.format(getShoppingCartValue()))).withStyle(ChatFormatting.GRAY));
+
         }
 
         List<InnerCategory> categories = this.shopItems.get(selectedBigCategory).keySet().stream().toList();
@@ -506,7 +501,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
         this.renderStageTwo(guiGraphics, pMouseX, pMouseY, pPartialTick);
 
-        guiGraphics.renderTooltip(Minecraft.getInstance().font, pMouseX, pMouseY);
+        this.renderTooltip(guiGraphics, pMouseX, pMouseY);
 
         if (tooltip != null) {
             guiGraphics.renderTooltip(Minecraft.getInstance().font, tooltip, Optional.empty(), pMouseX, pMouseY);

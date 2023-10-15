@@ -43,8 +43,8 @@ public class WithdrawBalanceSpecificHandler {
             ItemStack itemStack = new ItemStack(msg.currencyType().item, stackAmount);
 
             if (!sender.getInventory().add(itemStack)) {
-                ItemEntity itemEntity = new ItemEntity(sender.getLevel(), sender.getX(), sender.getY(), sender.getZ(), itemStack);
-                sender.level.addFreshEntity(itemEntity);
+                ItemEntity itemEntity = new ItemEntity(sender.level(), sender.getX(), sender.getY(), sender.getZ(), itemStack);
+                sender.level().addFreshEntity(itemEntity);
             }
 
             itemsLeft -= stackAmount;

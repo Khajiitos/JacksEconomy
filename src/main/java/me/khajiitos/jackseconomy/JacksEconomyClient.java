@@ -38,7 +38,6 @@ public class JacksEconomyClient {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(JacksEconomyClient::onClientSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(JacksEconomyClient::onKeybindRegister);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(JacksEconomyClient::onRegisterBlockEntityRenderers);
-        FMLJavaModLoadingContext.get().getModEventBus().register(new TextureEventListeners());
 
         ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> new ConfigScreenHandler.ConfigScreenFactory(ClientConfigScreen::new));
     }

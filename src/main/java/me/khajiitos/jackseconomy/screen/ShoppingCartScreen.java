@@ -16,6 +16,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -57,6 +58,21 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
         ItemStack wallet = CuriosWallet.get(Minecraft.getInstance().player);
         BigDecimal shoppingCartValue = getShoppingCartValue();
         boolean canAfford = !wallet.isEmpty() && WalletItem.getBalance(wallet).compareTo(shoppingCartValue) >= 0;
+
+        purchaseButton = this.addRenderableWidget(Button.builder(Component.translatable("jackseconomy.purchase").withStyle((canAfford && !this.parent.shoppingCart.isEmpty()) ? ChatFormatting.GREEN : ChatFormatting.RED), b -> {
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(Sounds.CHECKOUT.get(), 1.0F));
+
+            Map<ItemDescription, Integer> map = new HashMap<>();
+            this.parent.shoppingCart.forEach((shopItem, amount) -> map.put(shopItem.itemDescription(), amount));
+            Packets.sendToServer(new AdminShopPurchasePacket(map));
+
+            this.parent.shoppingCart.clear();
+            this.clearWidgets();
+            this.init();
+        }).bounds(this.leftPos + 94, this.topPos + 125, 75, 20).build());
+
+        // TODO: re-add tooltip
+        /*
         purchaseButton = this.addRenderableWidget(new Button(this.leftPos + 94, this.topPos + 125, 75, 20, Component.translatable("jackseconomy.purchase").withStyle((canAfford && !this.parent.shoppingCart.isEmpty()) ? ChatFormatting.GREEN : ChatFormatting.RED), (b) -> {
             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(Sounds.CHECKOUT.get(), 1.0F));
 
@@ -82,7 +98,7 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
                     tooltip.add(shopItem.itemDescription().item().getDescription().copy().withStyle(ChatFormatting.BLUE).append(Component.literal(" x" + amount).withStyle(ChatFormatting.BLUE)));
                 }));
             }
-        })));
+        })));*/
 
         if (!canAfford || this.parent.shoppingCart.isEmpty()) {
             purchaseButton.active = false;
@@ -135,17 +151,16 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
             guiGraphics.renderItem(wallet, this.leftPos + 183, this.topPos + 8);
             guiGraphics.drawString(this.font, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
 
-            RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
-
             int barStartX = this.leftPos + 181 + ((totalWidth - 51) / 2);
             int barStartY = this.topPos + 26;
             double progress = balance.divide(BigDecimal.valueOf(walletItem.getCapacity()), RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
-            guiGraphics.blit(BACKGROUND, barStartX, barStartY, 0/*this.getBlitOffset()*/, 0, 0, 51, 5, 256, 256);
-            guiGraphics.blit(BACKGROUND, barStartX, barStartY, 0/*this.getBlitOffset()*/, 0, 5, ((int)(51 * progress)), 5, 256, 256);
+            guiGraphics.blit(BALANCE_PROGRESS, barStartX, barStartY, 0/*this.getBlitOffset()*/, 0, 0, 51, 5, 256, 256);
+            guiGraphics.blit(BALANCE_PROGRESS, barStartX, barStartY, 0/*this.getBlitOffset()*/, 0, 5, ((int)(51 * progress)), 5, 256, 256);
 
             if (pMouseX >= barStartX && pMouseX <= barStartX + 51 && pMouseY >= barStartY && pMouseY <= barStartY + 5) {
                 tooltip = List.of(Component.translatable("jackseconomy.balance_out_of", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(walletItem.getCapacity()))).withStyle(ChatFormatting.GOLD));
-            }        } else {
+            }
+        } else {
             Component component = Component.translatable("jackseconomy.no_wallet").withStyle(ChatFormatting.DARK_RED);
             int width = this.font.width(component);
             guiGraphics.fill(this.leftPos + 181, this.topPos + 5, this.leftPos + 209 + width, this.topPos + 25, 0xFF4c4c4c);
@@ -155,7 +170,7 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
             guiGraphics.drawString(this.font, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
         }
 
-        guiGraphics.renderTooltip(Minecraft.getInstance().font, pMouseX, pMouseY);
+        this.renderTooltip(guiGraphics, pMouseX, pMouseY);
 
         if (tooltip != null) {
             guiGraphics.renderTooltip(Minecraft.getInstance().font, tooltip, Optional.empty(), pMouseX, pMouseY);

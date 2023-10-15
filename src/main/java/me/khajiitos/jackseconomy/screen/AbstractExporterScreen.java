@@ -76,7 +76,6 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
     protected void renderBg(GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, BACKGROUND);
         int i = this.leftPos;
         int j = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
@@ -140,8 +139,8 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
         if (this.sideConfig == null) {
             this.sideConfig = new SideConfigWidget(x, y, new ResourceLocation(JacksEconomy.MOD_ID, "textures/block/exporter.png"), getAllowedDirections(), this::getSideConfig, tooltip -> this.tooltip = tooltip);
         } else {
-            this.sideConfig.getX() = x;
-            this.sideConfig.y = y;
+            this.sideConfig.setX(x);
+            this.sideConfig.setY(y);
         }
 
         this.addRenderableWidget(this.sideConfig);
@@ -168,14 +167,14 @@ public abstract class AbstractExporterScreen<S extends IExporterBlockEntity, T e
         BigDecimal capacity = BigDecimal.valueOf(Config.maxExporterBalance.get());
 
         if (!(this.menu.slots.get(9).getItem().getItem() instanceof ExporterTicketItem)) {
-            guiGraphics.drawString(this.font, Component.translatable("jackseconomy.manifest_required").withStyle(ChatFormatting.YELLOW), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("jackseconomy.manifest_required").withStyle(ChatFormatting.YELLOW), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
         } else if (currency.compareTo(capacity) >= 0) {
-            guiGraphics.drawString(this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
         }
 
         renderTooltipsOrSomething(guiGraphics, pMouseX, pMouseY);
 
-        guiGraphics.renderTooltip(Minecraft.getInstance().font, pMouseX, pMouseY);
+        this.renderTooltip(guiGraphics, pMouseX, pMouseY);
 
         if (tooltip != null) {
             guiGraphics.renderTooltip(Minecraft.getInstance().font, tooltip, Optional.empty(), pMouseX, pMouseY);

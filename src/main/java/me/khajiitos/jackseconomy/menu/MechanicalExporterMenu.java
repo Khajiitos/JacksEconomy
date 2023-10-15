@@ -38,7 +38,7 @@ public class MechanicalExporterMenu extends KineticTransactionMachineMenu {
     }
 
     public MechanicalExporterMenu(int containerID, Inventory playerInv, BlockPos pos) {
-        this(containerID, playerInv, (TransactionKineticMachineBlockEntity) playerInv.player.level.getBlockEntity(pos));
+        this(containerID, playerInv, (TransactionKineticMachineBlockEntity) playerInv.player.level().getBlockEntity(pos));
     }
 
     @Override

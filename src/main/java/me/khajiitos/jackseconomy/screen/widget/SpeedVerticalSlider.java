@@ -29,8 +29,8 @@ public class SpeedVerticalSlider extends AbstractWidget {
 
         guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF888888);
 
-        guiGraphics.drawString(Minecraft.getInstance().font, "L", (int) (this.getX() + this.width / 2.f - 2.5f), this.getY() + 3, 0xFFCCCCCC);
-        guiGraphics.drawString(Minecraft.getInstance().font, "H", (int) (this.getX() + this.width / 2.f - 2.5f), this.getY() + this.height - 12, 0xFFCCCCCC);
+        guiGraphics.drawString(Minecraft.getInstance().font, "L", (int) (this.getX() + this.width / 2.f - 2.5f), this.getY() + 3, 0xFFCCCCCC, false);
+        guiGraphics.drawString(Minecraft.getInstance().font, "H", (int) (this.getX() + this.width / 2.f - 2.5f), this.getY() + this.height - 12, 0xFFCCCCCC, false);
 
         float multiplier = (float)(this.getY() - 2) / this.getY();
         int indicatorY = ((this.getY() + (int)(this.height * this.progress * multiplier)));

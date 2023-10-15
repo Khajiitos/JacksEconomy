@@ -32,7 +32,7 @@ public class CurrencyConverterMenu extends AbstractContainerMenu implements IBlo
     }
 
     public CurrencyConverterMenu(int containerID, Inventory playerInv, BlockPos pos) {
-        this(containerID, playerInv, (CurrencyConverterBlockEntity) playerInv.player.level.getBlockEntity(pos));
+        this(containerID, playerInv, (CurrencyConverterBlockEntity) playerInv.player.level().getBlockEntity(pos));
     }
 
     @Override

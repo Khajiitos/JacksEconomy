@@ -32,7 +32,7 @@ public class TextBox extends AbstractWidget {
     public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF000000);
         guiGraphics.fill(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, this.backgroundColor);
-        guiGraphics.drawString(Minecraft.getInstance().font, this.text, this.getX() + 3, (int) (this.getY() + (this.height - 9) / 2.f), 0xFFFFFFFF);
+        guiGraphics.drawString(Minecraft.getInstance().font, this.text, this.getX() + 3, (int) (this.getY() + (this.height - 9) / 2.f), 0xFFFFFFFF, false);
     }
 
     @Override

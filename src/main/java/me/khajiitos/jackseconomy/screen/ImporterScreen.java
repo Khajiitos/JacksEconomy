@@ -62,12 +62,12 @@ public class ImporterScreen extends AbstractImporterScreen<ImporterBlockEntity, 
     protected void renderTooltipsOrSomething(GuiGraphics guiGraphics, int pMouseX, int pMouseY) {
         ImporterBlockEntity blockEntity = this.getBlockEntity();
         if (blockEntity != null) {
-            boolean hoveredTicketPreview = this.ticketPreview != null && pMouseX >= this.ticketPreview.getX() && pMouseX <= this.ticketPreview.getX() + this.ticketPreview.getWidth() && pMouseY >= this.ticketPreview.y && pMouseY <= this.ticketPreview.y + this.ticketPreview.getHeight();
+            boolean hoveredTicketPreview = this.ticketPreview != null && pMouseX >= this.ticketPreview.getX() && pMouseX <= this.ticketPreview.getX() + this.ticketPreview.getWidth() && pMouseY >= this.ticketPreview.getY() && pMouseY <= this.ticketPreview.getY() + this.ticketPreview.getHeight();
             if (!hoveredTicketPreview) {
-                if (this.energyStatus.isHoveredOrFocused()) {
+                if (this.energyStatus.isHovered()) {
                     IEnergyStorage energyStorage = blockEntity.getEnergyStorage();
                     guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal(energyStorage.getEnergyStored() + "FE/" + energyStorage.getMaxEnergyStored() + "FE"), pMouseX, pMouseY);
-                } else if (this.slider.isHoveredOrFocused()) {
+                } else if (this.slider.isHovered()) {
                     int fePerTick = blockEntity.getEnergyUsagePerTick();
                     String progressPerTickPercent = String.format("%.2f%%", blockEntity.getProgressPerTick() * 100.0);
                     guiGraphics.renderTooltip(Minecraft.getInstance().font, List.of(
@@ -83,7 +83,7 @@ public class ImporterScreen extends AbstractImporterScreen<ImporterBlockEntity, 
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         boolean b = super.mouseClicked(pMouseX, pMouseY, pButton);
 
-        if (pMouseX >= this.slider.getX() && pMouseX <= this.slider.getX() + this.slider.getWidth() && pMouseY >= this.slider.y && pMouseY <= this.slider.y + this.slider.getHeight()) {
+        if (pMouseX >= this.slider.getX() && pMouseX <= this.slider.getX() + this.slider.getWidth() && pMouseY >= this.slider.getY() && pMouseY <= this.slider.getY() + this.slider.getHeight()) {
             this.slider.dragging = true;
         }
 
@@ -102,7 +102,7 @@ public class ImporterScreen extends AbstractImporterScreen<ImporterBlockEntity, 
     protected boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
         // Stupid way to prevent slot hovers when ticket preview is open
         if (this.ticketPreview != null && this.ticketPreview.isOpen() && pWidth == 16 && pHeight == 16) {
-            if (pMouseX >= this.ticketPreview.getX() && pMouseX <= this.ticketPreview.getX() + this.ticketPreview.getWidth() && pMouseY >= this.ticketPreview.y && pMouseY <= this.ticketPreview.y + this.ticketPreview.getHeight()) {
+            if (pMouseX >= this.ticketPreview.getX() && pMouseX <= this.ticketPreview.getX() + this.ticketPreview.getWidth() && pMouseY >= this.ticketPreview.getY() && pMouseY <= this.ticketPreview.getY() + this.ticketPreview.getHeight()) {
                 return false;
             }
         }

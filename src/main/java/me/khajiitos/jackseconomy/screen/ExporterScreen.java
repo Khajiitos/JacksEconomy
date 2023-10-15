@@ -60,10 +60,10 @@ public class ExporterScreen extends AbstractExporterScreen<ExporterBlockEntity, 
     protected void renderTooltipsOrSomething(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         ExporterBlockEntity blockEntity = this.getBlockEntity();
         if (blockEntity != null) {
-            if (this.energyStatus.isHoveredOrFocused()) {
+            if (this.energyStatus.isHovered()) {
                 IEnergyStorage energyStorage = blockEntity.getEnergyStorage();
                 guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal(energyStorage.getEnergyStored() + "FE/" + energyStorage.getMaxEnergyStored() + "FE"), mouseX, mouseY);
-            } else if (this.slider.isHoveredOrFocused()) {
+            } else if (this.slider.isHovered()) {
                 int fePerTick = blockEntity.getEnergyUsagePerTick();
                 String progressPerTickPercent = String.format("%.2f%%", blockEntity.getProgressPerTick() * 100.0);
                 guiGraphics.renderTooltip(Minecraft.getInstance().font, List.of(

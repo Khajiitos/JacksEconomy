@@ -86,7 +86,7 @@ public class CurrencyConverterScreen extends AbstractContainerScreen<CurrencyCon
         this.addRenderableWidget(new CurrencyToggleButton(this.leftPos + 70, this.topPos + 38, 18, 18, newCurrencyType -> {
             this.currencyType = newCurrencyType;
             Packets.sendToServer(new ChangeCurrencyTypePacket(newCurrencyType));
-        }, (a, b, c, d) -> {
+        }, (a) -> {
             this.tooltip = List.of(this.currencyType.item.getDescription());
         }, this.currencyType));
 
@@ -105,7 +105,7 @@ public class CurrencyConverterScreen extends AbstractContainerScreen<CurrencyCon
     @Override
     public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
-        guiGraphics.renderTooltip(Minecraft.getInstance().font, pMouseX, pMouseY);
+        this.renderTooltip(guiGraphics, pMouseX, pMouseY);
 
         BigDecimal currency = blockEntity == null ? BigDecimal.ZERO : blockEntity.getTotalBalance();
 
@@ -119,7 +119,7 @@ public class CurrencyConverterScreen extends AbstractContainerScreen<CurrencyCon
         guiGraphics.blit(BALANCE_PROGRESS, startX, startY, 0/*this.getBlitOffset()*/, 0, 5, ((int)(51 * progress)), 5, 256, 256);
 
         if (currency.compareTo(capacity) >= 0) {
-            guiGraphics.drawString(this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("jackseconomy.max_capacity_reached").withStyle(ChatFormatting.RED), this.leftPos + (this.imageWidth / 2), this.topPos - 12, 0xFFFFFFFF);
         }
 
         if (pMouseX >= startX && pMouseX <= startX + 51 && pMouseY >= startY && pMouseY <= startY + 5) {

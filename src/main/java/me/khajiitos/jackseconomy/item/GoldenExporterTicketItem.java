@@ -15,7 +15,7 @@ import java.util.List;
 public class GoldenExporterTicketItem extends ExporterTicketItem {
 
     public GoldenExporterTicketItem() {
-        super(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON).tab(ItemBlockReg.tab));
+        super(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
     }
 
     @Override

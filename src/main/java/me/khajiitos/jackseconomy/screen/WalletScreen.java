@@ -7,6 +7,7 @@ import me.khajiitos.jackseconomy.JacksEconomyClient;
 import me.khajiitos.jackseconomy.config.ClientConfig;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
 import me.khajiitos.jackseconomy.init.Packets;
+import me.khajiitos.jackseconomy.init.Sounds;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.menu.WalletMenu;
 import me.khajiitos.jackseconomy.packet.CreateCheckPacket;
@@ -26,9 +27,11 @@ import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -143,7 +146,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 
     private static void drawCenteredStringNoShadow(GuiGraphics guiGraphics, Font pFont, Component pText, int pX, int pY, int pColor) {
         FormattedCharSequence formattedcharsequence = pText.getVisualOrderText();
-        guiGraphics.drawString(pFont, formattedcharsequence, (int)(pX - pFont.width(formattedcharsequence) / 2), (int)pY, pColor);
+        guiGraphics.drawString(pFont, formattedcharsequence, (int)(pX - pFont.width(formattedcharsequence) / 2), (int)pY, pColor, false);
     }
 
     @Override
@@ -158,7 +161,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
         }
 
         if (this.itemStack.getItem() instanceof WalletItem walletItem && WalletItem.getBalance(itemStack).compareTo(BigDecimal.valueOf(walletItem.getCapacity())) >= 0) {
-            guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("jackseconomy.capacity_overflow_reached").withStyle(ChatFormatting.RED), this.width / 2, this.topPos - 15, 0xFFFFFFFF);
+            guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("jackseconomy.capacity_overflow_reached").withStyle(ChatFormatting.RED), this.width / 2, this.topPos - 15, 0xFFFFFFFF, false);
         }
 
         Component header = Component.translatable("jackseconomy.item_owner", Component.literal(Minecraft.getInstance().player.getScoreboardName()), this.itemStack.getItem().getDescription());
@@ -178,7 +181,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
             guiGraphics.pose().scale(scale, scale, scale);
         }
 
-        guiGraphics.drawString(Minecraft.getInstance().font, header, (int)((this.leftPos + 78) / scale), (int)((this.topPos + 43) / scale), 0xFF000000);
+        guiGraphics.drawString(Minecraft.getInstance().font, header, (int)((this.leftPos + 78) / scale), (int)((this.topPos + 43) / scale), 0xFF000000, false);
 
         if (scale != 1.f) {
             guiGraphics.pose().popPose();
@@ -194,7 +197,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 
         Minecraft.getInstance().font.getSplitter().splitLines(Component.translatable("jackseconomy.thanks_for_using"), (int)(57 * contentScaleInv), Style.EMPTY, (line, idk) -> {
             int count = lineCount.getAndAdd(1);
-            guiGraphics.drawString(Minecraft.getInstance().font, line.getString(), (int)((this.leftPos + 108) * contentScaleInv), (int)((this.topPos + 59 + count * 6) * contentScaleInv), 0xFF000000);
+            guiGraphics.drawString(Minecraft.getInstance().font, line.getString(), (int)((this.leftPos + 108) * contentScaleInv), (int)((this.topPos + 59 + count * 6) * contentScaleInv), 0xFF000000, false);
         });
 
         guiGraphics.pose().popPose();
@@ -204,21 +207,18 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
             BigDecimal capacity = BigDecimal.valueOf(walletItem.getCapacity());
             double progress = balance.divide(capacity, RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
 
-            RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
-            guiGraphics.blit(BACKGROUND, this.leftPos + 70, this.topPos + 28, 0/*this.getBlitOffset()*/, 0, 65, 101, 5, 256, 256);
-            guiGraphics.blit(BACKGROUND, this.leftPos + 70, this.topPos + 28, 0/*this.getBlitOffset()*/, 0, 70, ((int)(101 * progress)), 5, 256, 256);
+            guiGraphics.blit(BALANCE_PROGRESS, this.leftPos + 70, this.topPos + 28, 0/*this.getBlitOffset()*/, 0, 65, 101, 5, 256, 256);
+            guiGraphics.blit(BALANCE_PROGRESS, this.leftPos + 70, this.topPos + 28, 0/*this.getBlitOffset()*/, 0, 70, ((int)(101 * progress)), 5, 256, 256);
 
             if (pMouseX >= this.leftPos + 70 && pMouseX <= this.leftPos + 70 + 101 && pMouseY >= this.topPos + 28 && pMouseY <= this.topPos + 28 + 5) {
                 tooltip = List.of(Component.translatable("jackseconomy.max_storage", Component.literal(CurrencyHelper.format(capacity)).withStyle(ChatFormatting.GOLD), Component.literal((int)(progress * 100) + "%").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW));
             }
         }
 
-        guiGraphics.renderTooltip(Minecraft.getInstance().font, this.tooltip, pMouseX, pMouseY);
+        //guiGraphics.renderTooltip(Minecraft.getInstance().font, this.tooltip, Optional.empty(), pMouseX, pMouseY);
 
         // Render hovered items last because they're larger and need to be drawn over others
         for (ClickableCurrencyItem item : this.clickableCurrencyItems.stream().sorted(Comparator.comparing(item -> (pMouseX > item.x() && pMouseX <= item.x() + item.width && pMouseY > item.y && pMouseY <= item.y + item.height) ? 1 : 0)).toList()) {
-            RenderSystem.setShaderTexture(0, item.getTexture());
-
             boolean hovered = pMouseX > item.x() && pMouseX <= item.x() + item.width && pMouseY > item.y && pMouseY <= item.y + item.height;
 
             if (hovered) {
@@ -239,7 +239,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
                 this.tooltipShiftLeft = true;
             }
 
-            guiGraphics.blit(BACKGROUND, (int)(item.x() * (hovered ? (1.f / 1.25f) : 1.f)), (int)(item.y * (hovered ? (1.f / 1.25f) : 1.f)), 0, 0, item.width, item.height, item.width, item.height);
+            guiGraphics.blit(item.getTexture(), (int)(item.x() * (hovered ? (1.f / 1.25f) : 1.f)), (int)(item.y * (hovered ? (1.f / 1.25f) : 1.f)), 0, 0, item.width, item.height, item.width, item.height);
 
             if (hovered) {
                 guiGraphics.pose().popPose();
@@ -279,6 +279,8 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
             drawCenteredStringNoShadow(guiGraphics, Minecraft.getInstance().font, balanceDifComponent, this.leftPos + 120, this.topPos + 2, 0x00FFFFFF | (alpha << 24));
         }
 
+        this.renderTooltip(guiGraphics, pMouseX, pMouseY);
+
         if (tooltip != null) {
             if (tooltipShiftLeft) {
                 int maxWidth = tooltip.stream().map(a -> Minecraft.getInstance().font.width(a)).max(Comparator.naturalOrder()).orElse(0);
@@ -309,10 +311,12 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
                     }
 
                     if (count > 0) {
+                        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.F));
                         Packets.sendToServer(new WithdrawBalanceSpecificPacket(count, item.currencyType));
                         return true;
                     }
 
+                    Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 0.9F));
                     return false;
                 }
             }

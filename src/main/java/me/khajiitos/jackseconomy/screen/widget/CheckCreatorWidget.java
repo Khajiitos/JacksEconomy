@@ -162,7 +162,7 @@ public class CheckCreatorWidget extends AbstractWidget {
         }
 
         for (AbstractWidget widget : renderables) {
-            if (widget.isHoveredOrFocused() && widget.mouseClicked(pMouseX, pMouseY, pButton)) {
+            if (widget.isHovered()   && widget.mouseClicked(pMouseX, pMouseY, pButton)) {
                 return true;
             }
         }

@@ -1,0 +1,9 @@
+{
+  "values": [
+    "jackseconomy:exporter",
+    "jackseconomy:importer",
+    "jackseconomy:mechanical_exporter",
+    "jackseconomy:mechanical_importer",
+    "jackseconomy:currency_converter"
+  ]
+}

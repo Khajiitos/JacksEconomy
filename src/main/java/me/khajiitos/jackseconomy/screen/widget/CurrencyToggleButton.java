@@ -7,6 +7,7 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class CurrencyToggleButton extends SimpleImageButton {
@@ -19,8 +20,8 @@ public class CurrencyToggleButton extends SimpleImageButton {
         this.onChange = onChange;
     }
 
-    public CurrencyToggleButton(int pX, int pY, int pWidth, int pHeight, OnChange onChange, Supplier<List<Component>> onTooltip, CurrencyType currencyType) {
-        super(pX, pY, pWidth, pHeight, getImage(currencyType.item), (b) -> {}, Supplier::get);
+    public CurrencyToggleButton(int pX, int pY, int pWidth, int pHeight, OnChange onChange, Consumer<List<Component>> onTooltip, CurrencyType currencyType) {
+        super(pX, pY, pWidth, pHeight, getImage(currencyType.item), (b) -> {}, onTooltip);
         this.currencyType = currencyType;
         this.onChange = onChange;
     }

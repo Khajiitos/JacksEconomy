@@ -1,6 +1,8 @@
 package me.khajiitos.jackseconomy.packet.handler;
 
+import me.khajiitos.jackseconomy.blockentity.IImporterBlockEntity;
 import me.khajiitos.jackseconomy.blockentity.ImporterBlockEntity;
+import me.khajiitos.jackseconomy.menu.IBlockEntityContainer;
 import me.khajiitos.jackseconomy.menu.ImporterMenu;
 import me.khajiitos.jackseconomy.packet.ChangeSelectedItemPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,9 +18,9 @@ public class ChangeSelectedItemHandler {
             return;
         }
 
-        if (sender.containerMenu instanceof ImporterMenu importerMenu && importerMenu.getBlockEntity() instanceof ImporterBlockEntity blockEntity) {
-            blockEntity.selectedItem = msg.selectedItem();
-            blockEntity.markUpdated();
+        if (sender.containerMenu instanceof IBlockEntityContainer<?> blockEntityContainer && blockEntityContainer.getBlockEntity() instanceof IImporterBlockEntity importerBlockEntity) {
+            importerBlockEntity.selectItem(msg.selectedItem());
+            importerBlockEntity.markUpdated();
         }
     }
 }
