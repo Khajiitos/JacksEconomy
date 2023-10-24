@@ -64,12 +64,8 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
     }
 
-    protected boolean hitCapacityLimit() {
-        return getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get())) >= 0;
-    }
-
     protected boolean isItemRejected(ItemStack itemStack) {
-        return !(itemStack.getItem() instanceof CurrencyItem) || hitCapacityLimit();
+        return !(itemStack.getItem() instanceof CurrencyItem);
     }
 
     public BigDecimal getTotalBalance() {

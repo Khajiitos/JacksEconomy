@@ -67,7 +67,7 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
     }
 
     protected boolean isItemRejected(ItemStack itemStack) {
-        return !(itemStack.getItem() instanceof CurrencyItem) || hitCapacityLimit();
+        return !(itemStack.getItem() instanceof CurrencyItem);
     }
 
     @Override

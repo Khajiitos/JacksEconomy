@@ -2,12 +2,9 @@ package me.khajiitos.jackseconomy.screen.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.infrastructure.config.AllConfigs;
 import me.khajiitos.jackseconomy.JacksEconomy;
-import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
