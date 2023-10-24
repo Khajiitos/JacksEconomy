@@ -72,11 +72,15 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
         return balance;
     }
 
-    protected boolean isItemRejected(ItemStack itemStack) {
-        ItemStack ticketItem = this.items.get(slotTicket);
-        boolean isOnTicket = (ticketItem.getItem() instanceof GoldenExporterTicketItem || (ticketItem.getItem() instanceof ExporterTicketItem && ExporterTicketItem.getItems(ticketItem).contains(ItemDescription.ofItem(itemStack))));
-        return !isOnTicket || ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
+    protected boolean hitCapacityLimit() {
+        return getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxExporterBalance.get())) >= 0;
     }
+
+    protected boolean isItemRejected(ItemStack itemStack) {
+        ItemStack manifest = this.items.get(slotTicket);
+        return !(manifest.getItem() instanceof ExporterTicketItem) || (!(manifest.getItem() instanceof GoldenExporterTicketItem) && !ExporterTicketItem.getItems(manifest).contains(ItemDescription.ofItem(itemStack))) || ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
+    }
+
     @Override
     protected Component getDefaultName() {
         return Component.translatable("block.jackseconomy.exporter");

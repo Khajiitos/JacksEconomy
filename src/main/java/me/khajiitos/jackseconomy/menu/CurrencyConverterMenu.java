@@ -19,7 +19,7 @@ public class CurrencyConverterMenu extends AbstractContainerMenu implements IBlo
         this.blockEntity = blockEntity;
 
         for (int row = 0; row < 3; row++) {
-            this.addSlot(new CoinInputSlot(blockEntity, row, 26, 21 + row * 18));
+            this.addSlot(new Slot(blockEntity, row, 26, 21 + row * 18));
         }
 
         for (int row = 0; row < 3; row++) {

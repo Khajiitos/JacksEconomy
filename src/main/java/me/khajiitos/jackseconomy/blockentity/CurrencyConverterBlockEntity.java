@@ -8,6 +8,7 @@ import me.khajiitos.jackseconomy.item.CurrencyItem;
 import me.khajiitos.jackseconomy.menu.CurrencyConverterMenu;
 import me.khajiitos.jackseconomy.util.CurrencyType;
 import me.khajiitos.jackseconomy.util.SideConfig;
+import me.khajiitos.jackseconomy.util.SideConfigNoRejectionSlot;
 import me.khajiitos.jackseconomy.util.SlottedItemStackHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -39,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 
 public class CurrencyConverterBlockEntity extends BlockEntity implements WorldlyContainer, Container, MenuProvider, ISideConfigurable {
     public NonNullList<ItemStack> items;
@@ -244,7 +246,6 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         }
 
         this.sideConfig = SideConfig.fromIntArray(pTag.getIntArray("SideConfig"));
-
     }
 
     @Nullable
@@ -297,8 +298,12 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
         switch (this.sideConfig.getValue(SideConfig.directionRelative(facing, pSide))) {
             case INPUT -> {
                 return slotsInput;
-            } case OUTPUT -> {
+            }
+            case OUTPUT -> {
                 return slotsOutput;
+            }
+            case REJECTION_OUTPUT -> {
+                return Arrays.stream(slotsInput).filter(slot -> isItemRejected(this.items.get(slot))).toArray();
             }
         }
         return new int[]{};

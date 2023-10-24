@@ -55,14 +55,9 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
         itemHandlerRejectionOutput = new SlottedItemStackHandler(this.items, slotsInput, false, true, this::isItemRejected);
     }
 
-    protected boolean hitCapacityLimit() {
-        return getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxExporterBalance.get())) >= 0;
-    }
-
     protected boolean isItemRejected(ItemStack itemStack) {
-        ItemStack ticketItem = this.items.get(slotTicket);
-        boolean isOnTicket = (ticketItem.getItem() instanceof GoldenExporterTicketItem || (ticketItem.getItem() instanceof ExporterTicketItem && ExporterTicketItem.getItems(ticketItem).contains(ItemDescription.ofItem(itemStack))));
-        return !isOnTicket || ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
+        ItemStack manifest = this.items.get(slotTicket);
+        return !(manifest.getItem() instanceof ExporterTicketItem) || (!(manifest.getItem() instanceof GoldenExporterTicketItem) && !ExporterTicketItem.getItems(manifest).contains(ItemDescription.ofItem(itemStack))) || ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
     }
 
     protected Component getDefaultName() {
