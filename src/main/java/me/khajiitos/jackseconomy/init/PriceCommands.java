@@ -1,4 +1,4 @@
-package me.khajiitos.jackseconomy;
+package me.khajiitos.jackseconomy.init;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -63,7 +63,7 @@ public class PriceCommands {
         if (existingInfo != null) {
             existingInfo.importerBuyPrice = price;
         } else {
-            ItemPriceManager.addPriceInfo(itemInHand, new ItemPriceInfo(-1, price, -1, null, -1, null));
+            ItemPriceManager.addPriceInfo(itemInHand, new ItemPriceInfo(-1, -1, price, -1, null, -1, null, null));
         }
 
         ctx.getSource().sendSuccess(() -> Component.translatable("jackseconomy.importer_price_set", itemInHand.getItem().getDescription().copy().withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD), true);
@@ -95,7 +95,7 @@ public class PriceCommands {
         if (existingInfo != null) {
             existingInfo.sellPrice = price;
         } else {
-            ItemPriceManager.addPriceInfo(itemInHand, new ItemPriceInfo(price, -1, -1, null, -1, null));
+            ItemPriceManager.addPriceInfo(itemInHand, new ItemPriceInfo(price, -1, -1, -1, null, -1, null, null));
         }
 
         ctx.getSource().sendSuccess(() -> Component.translatable("jackseconomy.exporter_price_set", itemInHand.getItem().getDescription().copy().withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD), true);

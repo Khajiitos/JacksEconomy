@@ -79,7 +79,7 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
     protected boolean isItemRejected(ItemStack itemStack) {
         ItemStack ticketItem = this.items.get(slotTicket);
         boolean isOnTicket = (ticketItem.getItem() instanceof GoldenExporterTicketItem || (ticketItem.getItem() instanceof ExporterTicketItem && ExporterTicketItem.getItems(ticketItem).contains(ItemDescription.ofItem(itemStack))));
-        return !isOnTicket || ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
+        return !isOnTicket || ItemPriceManager.getExporterSellPrice(ItemDescription.ofItem(itemStack), 1) == -1;
     }
 
     @Override
@@ -122,7 +122,7 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
                 for (int i = 0; i < 6; i++) {
                     ItemStack item = exporter.items.get(i);
                     ItemDescription itemDescription = ItemDescription.ofItem(item);
-                    if (!item.isEmpty() && ItemPriceManager.getSellPrice(itemDescription, 1) != -1) {
+                    if (!item.isEmpty() && ItemPriceManager.getExporterSellPrice(itemDescription, 1) != -1) {
                         if (ticketItem.getItem() instanceof GoldenExporterTicketItem || TicketItem.getItems(ticketItem).stream().anyMatch(desc -> desc.equals(itemDescription))) {
                             progressItem = item;
                         }
@@ -255,7 +255,7 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
     }
 
     public boolean sellItemFromItemstack(ItemStack itemStack) {
-        double sellPrice = ItemPriceManager.getSellPrice(ItemDescription.ofItem(itemStack), 1);
+        double sellPrice = ItemPriceManager.getExporterSellPrice(ItemDescription.ofItem(itemStack), 1);
 
         if (sellPrice == -1.0) {
             return false;
@@ -274,7 +274,7 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
 
     @Override
     public boolean canPlaceItemThroughFace(int pIndex, ItemStack pItemStack, @Nullable Direction pDirection) {
-        return ItemPriceManager.getSellPrice(ItemDescription.ofItem(pItemStack), 1) != -1;
+        return ItemPriceManager.getExporterSellPrice(ItemDescription.ofItem(pItemStack), 1) != -1;
     }
 
     @Override

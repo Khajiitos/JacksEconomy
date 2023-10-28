@@ -4,10 +4,13 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import me.khajiitos.jackseconomy.JacksEconomy;
+import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
+import me.khajiitos.jackseconomy.gamestages.GameStagesManager;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.menu.AdminShopMenu;
 import me.khajiitos.jackseconomy.price.ItemDescription;
+import me.khajiitos.jackseconomy.price.ItemPriceManager;
 import me.khajiitos.jackseconomy.screen.widget.BetterScrollPanel;
 import me.khajiitos.jackseconomy.screen.widget.CategoryEntry;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
@@ -27,10 +30,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
@@ -42,13 +48,20 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     protected static final ResourceLocation BACKGROUND = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/admin_shop.png");
     protected static final ResourceLocation NO_WALLET = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/no_wallet.png");
     protected static final ResourceLocation BALANCE_PROGRESS = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/balance_progress.png");
+    protected static final ResourceLocation QUESTION_MARK = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/question_mark.png");
+
     protected final LinkedHashMap<Category, LinkedHashMap<InnerCategory, List<ShopItem>>> shopItems = new LinkedHashMap<>() {
         @Override
         public LinkedHashMap<InnerCategory, List<ShopItem>> get(Object key) {
             return this.getOrDefault(key, new LinkedHashMap<>());
         }
     };
+
+    protected final HashMap<ItemDescription, Double> sellPrices = new HashMap<>();
+
     public LinkedHashMap<ShopItem, Integer> shoppingCart = new LinkedHashMap<>();
+    public LinkedHashMap<ItemDescription, Integer> itemsToSell = new LinkedHashMap<>();
+
     protected InnerCategory selectedCategory = null;
     protected Category selectedBigCategory = null;
     protected int categoryOffset = 0;
@@ -123,11 +136,17 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
                 String category = compoundTag.getString("category");
                 double buyPrice = compoundTag.getDouble("adminShopBuyPrice");
+                double sellPrice = compoundTag.getDouble("adminShopSellPrice");
                 int slot = compoundTag.contains("slot") ? compoundTag.getInt("slot") : -1;
                 String customName = compoundTag.contains("customAdminShopName") ? compoundTag.getString("customAdminShopName") : null;
+                String stage = compoundTag.contains("adminShopStage") ? compoundTag.getString("adminShopStage") : null;
+
+                if (sellPrice > 0) {
+                    sellPrices.put(itemDescription, sellPrice);
+                }
 
                 if (slot < 0) {
-                    slotlessShopItems.computeIfAbsent(category, categoryName -> new ArrayList<>()).add(new UnpreparedShopItem(itemDescription, buyPrice, customName));
+                    slotlessShopItems.computeIfAbsent(category, categoryName -> new ArrayList<>()).add(new UnpreparedShopItem(itemDescription, buyPrice, customName, stage));
                 } else {
                     String[] categoryNamesInner = category.split(":", 2);
                     if (categoryNamesInner.length < 2) {
@@ -141,7 +160,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                         if (categoryEntry.getKey().name.equals(bigCategoryName)) {
                             for (Map.Entry<InnerCategory, List<ShopItem>> entry : shopItems.get(categoryEntry.getKey()).entrySet()) {
                                 if (entry.getKey().name.equals(innerCategoryName)) {
-                                    entry.getValue().add(new ShopItem(itemDescription, buyPrice, slot, customName));
+                                    entry.getValue().add(new ShopItem(itemDescription, buyPrice, slot, customName, stage));
                                     break;
                                 }
                             }
@@ -168,7 +187,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                     for (UnpreparedShopItem item : list) {
                         for (Map.Entry<InnerCategory, List<ShopItem>> entry1 : entry.getValue().entrySet()) {
                             if (entry1.getKey().name.equals(innerCategoryName)) {
-                                shopItems.get(entry.getKey()).get(entry1.getKey()).add(new ShopItem(item.itemDescription, item.price, this.findFirstAvailableSlot(entry.getKey()), item.customName));
+                                shopItems.get(entry.getKey()).get(entry1.getKey()).add(new ShopItem(item.itemDescription, item.price, this.findFirstAvailableSlot(entry.getKey()), item.customName, item.stage));
                                 break;
                             }
                         }
@@ -292,7 +311,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
     }
 
     protected void selectBigCategory(Category bigCategory) {
-        // TODO: make sure this is actually a big category, otherwise we will crash lol
+        // NOTTODO: make sure this is actually a big category, otherwise we will crash lol
         // Update: whatever it works
 
         this.selectedBigCategory = bigCategory;
@@ -312,6 +331,34 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
         for (Category category : shopItems.keySet()) {
             this.categoryPanel.children.add(new CategoryEntry(0, 0, 75, 25, category, (entry, button) -> selectBigCategory(category), () -> this.selectedBigCategory == category));
+        }
+    }
+
+    @Override
+    protected void slotClicked(Slot pSlot, int pSlotId, int pMouseButton, @NotNull ClickType pType) {
+        // pSlot CAN BE GODDAMN NULL
+        if (pSlot != null && pType == ClickType.SWAP && (pMouseButton == 0 || pMouseButton == 1)) {
+            ItemDescription itemDescription = ItemDescription.ofItem(pSlot.getItem());
+
+            if (sellPrices.containsKey(itemDescription)) {
+                int oldAmount = itemsToSell.getOrDefault(itemDescription, 0);
+
+                int count;
+                if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)) {
+                    count = 64;
+                } else if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_CONTROL)) {
+                    count = 10;
+                } else {
+                    count = 1;
+                }
+
+                if (pMouseButton == 1) {
+                    count *= -1;
+                }
+
+                itemsToSell.put(itemDescription, Math.max(0, oldAmount + count));
+                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, pMouseButton == 1 ? 0.75F : 1.25F));
+            }
         }
     }
 
@@ -430,8 +477,12 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                 ShopItem shopItem = this.getItemAtSlot(this.page * 27 + row * 9 + col, this.selectedCategory);
 
                 if (shopItem != null) {
-                    ItemStack itemStack = shopItem.itemDescription.createItemStack();
-                    guiGraphics.renderItem(itemStack, slotX, slotY);
+                    if (shopItem.isLocked()) {
+                        guiGraphics.blit(QUESTION_MARK, slotX, slotY, 0, 0, 16, 16, 16, 16);
+                    } else {
+                        ItemStack itemStack = shopItem.itemDescription.createItemStack();
+                        guiGraphics.renderItem(itemStack, slotX, slotY);
+                    }
                 }
 
                 if (pMouseX >= slotX && pMouseX <= slotX + 16 && pMouseY >= slotY && pMouseY <= slotY + 16 && !isHoverObstructed(pMouseX, pMouseY)) {
@@ -439,14 +490,17 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
                     if (shopItem != null) {
                         ItemStack itemStack = shopItem.itemDescription().createItemStack();
-                        this.tooltip = new ArrayList<>();
 
-                        this.tooltip.add(shopItem.customName != null ? Component.literal(shopItem.customName) : shopItem.itemDescription.item().getDescription().copy().withStyle(shopItem.itemDescription.item().getRarity(itemStack).getStyleModifier()));
+                        if (this.isEditMode() || !shopItem.isLocked() || Config.showNamesForLockedAdminShopItems.get()) {
+                            this.tooltip = new ArrayList<>();
 
-                        Level level = Minecraft.getInstance().player == null ? null : Minecraft.getInstance().player.level();
-                        itemStack.getItem().appendHoverText(itemStack, level, this.tooltip, TooltipFlag.Default.NORMAL);
+                            this.tooltip.add(shopItem.customName != null ? Component.literal(shopItem.customName) : shopItem.itemDescription.item().getDescription().copy().withStyle(shopItem.itemDescription.item().getRarity(itemStack).getStyleModifier()));
 
-                        this.tooltip.add(Component.literal(" "));
+                            Level level = Minecraft.getInstance().player == null ? null : Minecraft.getInstance().player.level();
+                            itemStack.getItem().appendHoverText(itemStack, level, this.tooltip, TooltipFlag.Default.NORMAL);
+
+                            this.tooltip.add(Component.literal(" "));
+                        }
 
                         if (this.isEditMode()) {
                             this.tooltip.add(shopItem.price == -1 ? Component.translatable("jackseconomy.no_price").withStyle(ChatFormatting.GRAY) : Component.literal(CurrencyHelper.format(shopItem.price)).withStyle(ChatFormatting.GRAY));
@@ -454,8 +508,16 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                             this.tooltip.add(Component.translatable("jackseconomy.shift_right_click_to_rename").withStyle(ChatFormatting.AQUA));
                             this.tooltip.add(Component.translatable("jackseconomy.middle_click_to_remove").withStyle(ChatFormatting.RED));
                         } else {
-                            this.tooltip.add(Component.literal(CurrencyHelper.format(shopItem.price)).withStyle(ChatFormatting.GRAY));
-                            this.tooltip.add(Component.translatable("jackseconomy.in_cart", Component.literal(String.valueOf(shoppingCart.getOrDefault(shopItem, 0))).withStyle(ChatFormatting.AQUA)));
+                            if (shopItem.isLocked()) {
+                                this.tooltip.add(Component.translatable("jackseconomy.locked").withStyle(ChatFormatting.GRAY));
+
+                                if (Config.showStageForLockedAdminShopItems.get()) {
+                                    this.tooltip.add(Component.translatable("jackseconomy.required_game_stage", Component.literal(shopItem.stage())).withStyle(ChatFormatting.GRAY));
+                                }
+                            } else {
+                                this.tooltip.add(Component.literal(CurrencyHelper.format(shopItem.price)).withStyle(ChatFormatting.GRAY));
+                                this.tooltip.add(Component.translatable("jackseconomy.in_cart", Component.literal(String.valueOf(shoppingCart.getOrDefault(shopItem, 0))).withStyle(ChatFormatting.AQUA)));
+                            }
                         }
                     }
                 }
@@ -501,7 +563,40 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
         this.renderStageTwo(guiGraphics, pMouseX, pMouseY, pPartialTick);
 
-        this.renderTooltip(guiGraphics, pMouseX, pMouseY);
+        if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
+            ItemStack itemstack = this.hoveredSlot.getItem();
+
+            List<Component> tooltip = new ArrayList<>(this.getTooltipFromContainerItem(itemstack));
+
+            ItemDescription itemDescription = ItemDescription.ofItem(itemstack);
+            double price = sellPrices.getOrDefault(itemDescription, -1.0);
+
+            if (this.isEditMode()) {
+                tooltip.add(Component.literal(" "));
+
+                if (price != -1) {
+                    tooltip.add(Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.GRAY));
+                } else {
+                    tooltip.add(Component.translatable("jackseconomy.no_sell_price").withStyle(ChatFormatting.GRAY));
+                }
+
+                tooltip.add(Component.translatable("jackseconomy.right_click_to_edit_price").withStyle(ChatFormatting.AQUA));
+
+                if (price != -1) {
+                    tooltip.add(Component.translatable("jackseconomy.middle_click_to_remove_sell_price").withStyle(ChatFormatting.RED));
+                }
+            } else {
+                tooltip.add(Component.literal(" "));
+                if (price != -1) {
+                    tooltip.add(Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.GRAY));
+                    tooltip.add(Component.translatable("jackseconomy.to_sell", Component.literal(String.valueOf(itemsToSell.getOrDefault(itemDescription, 0))).withStyle(ChatFormatting.AQUA)));
+                } else {
+                    tooltip.add(Component.translatable("jackseconomy.no_sell_price").withStyle(ChatFormatting.GRAY));
+                }
+            }
+
+            guiGraphics.renderTooltip(this.font, tooltip, itemstack.getTooltipImage(), itemstack, pMouseX, pMouseY);
+        }
 
         if (tooltip != null) {
             guiGraphics.renderTooltip(Minecraft.getInstance().font, tooltip, Optional.empty(), pMouseX, pMouseY);
@@ -574,7 +669,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         }
 
         if (shopItem != null) {
-            this.shopItems.get(selectedBigCategory).get(category).add(new ShopItem(shopItem.itemDescription, shopItem.price, slot, shopItem.customName));
+            this.shopItems.get(selectedBigCategory).get(category).add(new ShopItem(shopItem.itemDescription, shopItem.price, slot, shopItem.customName, shopItem.stage));
         }
 
         return existingItem;
@@ -665,6 +760,11 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         }
     }
 
-    public record ShopItem(ItemDescription itemDescription, double price, int slot, String customName) { }
-    private record UnpreparedShopItem(ItemDescription itemDescription, double price, String customName) { }
+    public record ShopItem(@NotNull ItemDescription itemDescription, double price, int slot, @Nullable String customName, @Nullable String stage) {
+        public boolean isLocked() {
+            return this.stage != null && !GameStagesManager.hasGameStage(Minecraft.getInstance().player, this.stage);
+        }
+    }
+
+    private record UnpreparedShopItem(@NotNull ItemDescription itemDescription, double price, @Nullable String customName, @Nullable String stage) { }
 }

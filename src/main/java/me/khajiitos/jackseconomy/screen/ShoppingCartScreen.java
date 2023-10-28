@@ -71,35 +71,6 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
             this.init();
         }).bounds(this.leftPos + 94, this.topPos + 125, 75, 20).build());
 
-        // TODO: re-add tooltip
-        /*
-        purchaseButton = this.addRenderableWidget(new Button(this.leftPos + 94, this.topPos + 125, 75, 20, Component.translatable("jackseconomy.purchase").withStyle((canAfford && !this.parent.shoppingCart.isEmpty()) ? ChatFormatting.GREEN : ChatFormatting.RED), (b) -> {
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(Sounds.CHECKOUT.get(), 1.0F));
-
-            Map<ItemDescription, Integer> map = new HashMap<>();
-            this.parent.shoppingCart.forEach((shopItem, amount) -> map.put(shopItem.itemDescription(), amount));
-            Packets.sendToServer(new AdminShopPurchasePacket(map));
-
-            this.parent.shoppingCart.clear();
-            this.clearWidgets();
-            this.init();
-        }, ((pButton, guiGraphics, pMouseX, pMouseY) -> {
-            if (wallet.isEmpty()) {
-                tooltip = List.of(Component.translatable("jackseconomy.no_wallet").withStyle(ChatFormatting.YELLOW));
-            } else if (!canAfford) {
-                tooltip = List.of(Component.translatable("jackseconomy.cant_afford").withStyle(ChatFormatting.RED));
-            } else if (this.parent.shoppingCart.isEmpty()) {
-                tooltip = List.of(Component.translatable("jackseconomy.shopping_cart_empty").withStyle(ChatFormatting.YELLOW));
-            } else {
-                tooltip = new ArrayList<>();
-                tooltip.add(Component.translatable("jackseconomy.total", Component.literal(CurrencyHelper.format(shoppingCartValue)).withStyle(ChatFormatting.AQUA)).withStyle(ChatFormatting.DARK_AQUA));
-                tooltip.add(Component.literal(" "));
-                this.parent.shoppingCart.forEach(((shopItem, amount) -> {
-                    tooltip.add(shopItem.itemDescription().item().getDescription().copy().withStyle(ChatFormatting.BLUE).append(Component.literal(" x" + amount).withStyle(ChatFormatting.BLUE)));
-                }));
-            }
-        })));*/
-
         if (!canAfford || this.parent.shoppingCart.isEmpty()) {
             purchaseButton.active = false;
         }
@@ -137,6 +108,27 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
     public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         tooltip = null;
         super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
+
+        if (purchaseButton.isHovered()) {
+            ItemStack wallet = CuriosWallet.get(Minecraft.getInstance().player);
+            BigDecimal shoppingCartValue = getShoppingCartValue();
+            boolean canAfford = !wallet.isEmpty() && WalletItem.getBalance(wallet).compareTo(shoppingCartValue) >= 0;
+
+            if (wallet.isEmpty()) {
+                tooltip = List.of(Component.translatable("jackseconomy.no_wallet").withStyle(ChatFormatting.YELLOW));
+            } else if (!canAfford) {
+                tooltip = List.of(Component.translatable("jackseconomy.cant_afford").withStyle(ChatFormatting.RED));
+            } else if (this.parent.shoppingCart.isEmpty()) {
+                tooltip = List.of(Component.translatable("jackseconomy.shopping_cart_empty").withStyle(ChatFormatting.YELLOW));
+            } else {
+                tooltip = new ArrayList<>();
+                tooltip.add(Component.translatable("jackseconomy.total", Component.literal(CurrencyHelper.format(shoppingCartValue)).withStyle(ChatFormatting.AQUA)).withStyle(ChatFormatting.DARK_AQUA));
+                tooltip.add(Component.literal(" "));
+                this.parent.shoppingCart.forEach(((shopItem, amount) -> {
+                    tooltip.add(shopItem.itemDescription().item().getDescription().copy().withStyle(ChatFormatting.BLUE).append(Component.literal(" x" + amount).withStyle(ChatFormatting.BLUE)));
+                }));
+            }
+        }
 
         ItemStack wallet = CuriosWallet.get(Minecraft.getInstance().player);
 

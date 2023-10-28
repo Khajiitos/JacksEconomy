@@ -20,10 +20,11 @@ public class PricesInfoHandler {
 
                 if (itemDescription != null) {
                     double sellPrice = itemTag.getDouble("sellPrice");
+                    double adminShopSellPrice = itemTag.getDouble("adminShopSellPrice");
                     double importerBuyPrice = itemTag.getDouble("importerBuyPrice");
                     double adminShopBuyPrice = itemTag.getDouble("adminShopBuyPrice");
 
-                    JacksEconomyClient.priceInfos.put(itemDescription, new ItemPriceInfo(sellPrice, importerBuyPrice, adminShopBuyPrice, null, -1, null));
+                    JacksEconomyClient.priceInfos.put(itemDescription, new ItemPriceInfo(sellPrice, adminShopSellPrice, importerBuyPrice, adminShopBuyPrice, null, -1, null, null));
                 }
             }
         });

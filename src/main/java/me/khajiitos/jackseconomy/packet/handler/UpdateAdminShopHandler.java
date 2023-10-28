@@ -43,8 +43,10 @@ public class UpdateAdminShopHandler {
         // if the item wasn't removed they will be restored
         for (ItemPriceInfo itemPriceInfo : itemPriceInfos.values()) {
             itemPriceInfo.adminShopBuyPrice = -1;
+            itemPriceInfo.adminShopSellPrice = -1;
             itemPriceInfo.category = null;
             itemPriceInfo.customAdminShopName = null;
+            itemPriceInfo.adminShopStage = null;
         }
 
         categoriesTag.forEach(tag -> {
@@ -81,17 +83,21 @@ public class UpdateAdminShopHandler {
 
                 String category = compoundTag.getString("category");
                 double buyPrice = compoundTag.getDouble("adminShopBuyPrice");
+                double sellPrice = compoundTag.getDouble("adminShopSellPrice");
                 int slot = compoundTag.contains("slot") ? compoundTag.getInt("slot") : -1;
                 String customName = compoundTag.contains("customAdminShopName") ? compoundTag.getString("customAdminShopName") : null;
+                String stage = compoundTag.contains("adminShopStage") ? compoundTag.getString("adminShopStage") : null;
 
                 if (itemPriceInfos.containsKey(itemDescription)) {
                     ItemPriceInfo priceInfo = itemPriceInfos.get(itemDescription);
                     priceInfo.category = category;
                     priceInfo.adminShopBuyPrice = buyPrice;
+                    priceInfo.adminShopSellPrice = sellPrice;
                     priceInfo.adminShopSlot = slot;
                     priceInfo.customAdminShopName = customName;
+                    priceInfo.adminShopStage = stage;
                 } else {
-                    itemPriceInfos.put(itemDescription, new ItemPriceInfo(-1, -1, buyPrice, category, slot, customName));
+                    itemPriceInfos.put(itemDescription, new ItemPriceInfo(-1, sellPrice, -1, buyPrice, category, slot, customName, stage));
                 }
             }
         });
@@ -99,5 +105,6 @@ public class UpdateAdminShopHandler {
         ItemPriceManager.save();
         // TODO: Make sure it works!
         // Update: it doesn't
+        // TODO: did I forget to remove this TODO? Maybe I should re-test this again later...
     }
 }

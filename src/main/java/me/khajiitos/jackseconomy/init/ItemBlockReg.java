@@ -31,11 +31,14 @@ public class ItemBlockReg {
     public static final RegistryObject<MechanicalImporterBlock> MECHANICAL_IMPORTER = BLOCKS.register("mechanical_importer", MechanicalImporterBlock::new);
 
     public static final RegistryObject<CurrencyConverterBlock> CURRENCY_CONVERTER = BLOCKS.register("currency_converter", CurrencyConverterBlock::new);
+    public static final RegistryObject<AdminShopBlock> ADMIN_SHOP = BLOCKS.register("admin_shop", AdminShopBlock::new);
+
     public static final RegistryObject<BlockItem> EXPORTER_ITEM = ITEMS.register("exporter", () -> new BlockItem(EXPORTER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> IMPORTER_ITEM = ITEMS.register("importer", () -> new BlockItem(IMPORTER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> MECHANICAL_EXPORTER_ITEM = ITEMS.register("mechanical_exporter", () -> new BlockItem(MECHANICAL_EXPORTER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> MECHANICAL_IMPORTER_ITEM = ITEMS.register("mechanical_importer", () -> new BlockItem(MECHANICAL_IMPORTER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> CURRENCY_CONVERTER_ITEM = ITEMS.register("currency_converter", () -> new BlockItem(CURRENCY_CONVERTER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> ADMIN_SHOP_ITEM = ITEMS.register("admin_shop", () -> new BlockItem(ADMIN_SHOP.get(), new Item.Properties()));
 
     public static final RegistryObject<CurrencyItem> PENNY_ITEM = ITEMS.register("penny", () -> new CurrencyItem(new BigDecimal("0.01"), false));
     public static final RegistryObject<CurrencyItem> NICKEL_ITEM = ITEMS.register("nickel", () -> new CurrencyItem(new BigDecimal("0.05"), false));
@@ -91,6 +94,7 @@ public class ItemBlockReg {
         output.accept(ItemBlockReg.MECHANICAL_IMPORTER_ITEM.get());
         output.accept(ItemBlockReg.MECHANICAL_EXPORTER_ITEM.get());
         output.accept(ItemBlockReg.CURRENCY_CONVERTER_ITEM.get());
+        output.accept(ItemBlockReg.ADMIN_SHOP_ITEM.get());
         output.accept(ItemBlockReg.PENNY_ITEM.get());
         output.accept(ItemBlockReg.NICKEL_ITEM.get());
         output.accept(ItemBlockReg.DIME_ITEM.get());

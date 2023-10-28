@@ -6,6 +6,7 @@ import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.menu.AdminShopMenu;
 import me.khajiitos.jackseconomy.packet.UpdateAdminShopPacket;
 import me.khajiitos.jackseconomy.price.ItemDescription;
+import me.khajiitos.jackseconomy.price.ItemPriceManager;
 import me.khajiitos.jackseconomy.screen.widget.BetterScrollPanel;
 import me.khajiitos.jackseconomy.screen.widget.EditCategoryEntry;
 import me.khajiitos.jackseconomy.screen.widget.FloatingEditBoxWidget;
@@ -242,7 +243,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
                     try {
                         double newPrice = Double.parseDouble(value);
 
-                        this.setItemAtSlot(new ShopItem(onCursorBefore.itemDescription(), newPrice, slot, onCursorBefore.customName()), slot, this.selectedCategory);
+                        this.setItemAtSlot(new ShopItem(onCursorBefore.itemDescription(), newPrice, slot, onCursorBefore.customName(), onCursorBefore.stage()), slot, this.selectedCategory);
                         this.removeWidget(this.floatingEditBox);
                         this.floatingEditBox = null;
                     } catch (NumberFormatException ignored) {}
@@ -268,9 +269,9 @@ public class EditAdminShopScreen extends AdminShopScreen {
             if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)) {
                 this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, slotPos.getFirst() + 8, slotPos.getSecond() + 16, 50, 15, (value) -> {
                     if (!value.isEmpty()) {
-                        this.setItemAtSlot(new ShopItem(itemAtSlot.itemDescription(), itemAtSlot.price(), slot, value), slot, this.selectedCategory);
+                        this.setItemAtSlot(new ShopItem(itemAtSlot.itemDescription(), itemAtSlot.price(), slot, value, itemAtSlot.stage()), slot, this.selectedCategory);
                     } else {
-                        this.setItemAtSlot(new ShopItem(itemAtSlot.itemDescription(), itemAtSlot.price(), slot, null), slot, this.selectedCategory);
+                        this.setItemAtSlot(new ShopItem(itemAtSlot.itemDescription(), itemAtSlot.price(), slot, null, itemAtSlot.stage()), slot, this.selectedCategory);
                     }
                     this.removeWidget(this.floatingEditBox);
                     this.floatingEditBox = null;
@@ -284,7 +285,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
                     try {
                         double newPrice = Double.parseDouble(value);
 
-                        this.setItemAtSlot(new ShopItem(itemAtSlot.itemDescription(), newPrice, slot, itemAtSlot.customName()), slot, this.selectedCategory);
+                        this.setItemAtSlot(new ShopItem(itemAtSlot.itemDescription(), newPrice, slot, itemAtSlot.customName(), itemAtSlot.stage()), slot, this.selectedCategory);
                         this.removeWidget(this.floatingEditBox);
                         this.floatingEditBox = null;
                     } catch (NumberFormatException ignored) {}
@@ -314,6 +315,8 @@ public class EditAdminShopScreen extends AdminShopScreen {
         ListTag itemsTag = new ListTag();
         ListTag categoriesTag = new ListTag();
 
+        HashMap<ItemDescription, CompoundTag> tagsForItems = new HashMap<>();
+
         this.shopItems.forEach((category, innerCategories) -> {
             String itemName = ItemHelper.getItemName(category.item);
 
@@ -339,8 +342,13 @@ public class EditAdminShopScreen extends AdminShopScreen {
                 innerCategoryTag.putString("item", innerItemName);
 
                 for (ShopItem shopItem : entry.getValue()) {
+
                     CompoundTag itemTag = shopItem.itemDescription().toNbt();
                     itemTag.putDouble("adminShopBuyPrice", shopItem.price());
+
+                    // If the sell price is set, it will be overwritten later
+                    itemTag.putDouble("adminShopSellPrice", -1.0);
+
                     itemTag.putString("category", category.name + ":" + entry.getKey().name);
                     itemTag.putInt("slot", shopItem.slot());
 
@@ -348,7 +356,8 @@ public class EditAdminShopScreen extends AdminShopScreen {
                         itemTag.putString("customAdminShopName", shopItem.customName());
                     }
 
-                    itemsTag.add(itemTag);
+                    tagsForItems.put(shopItem.itemDescription(), itemTag);
+                    //itemsTag.add(itemTag);
                 }
 
                 innerCategoriesTag.add(innerCategoryTag);
@@ -356,6 +365,11 @@ public class EditAdminShopScreen extends AdminShopScreen {
 
             categoryTag.put("categories", innerCategoriesTag);
             categoriesTag.add(categoryTag);
+        });
+
+        sellPrices.forEach((itemDescription, amount) -> {
+            CompoundTag itemTag = tagsForItems.computeIfAbsent(itemDescription, ItemDescription::toNbt);
+            itemTag.putDouble("adminShopSellPrice", -1.0);
         });
 
         tag.put("items", itemsTag);
@@ -379,22 +393,45 @@ public class EditAdminShopScreen extends AdminShopScreen {
 
     @Override
     protected void slotClicked(@Nullable Slot pSlot, int pSlotId, int pMouseButton, ClickType pType) {
-        if (this.itemOnCursor == null && pSlot != null) {
+        if (pMouseButton == 0) {
+            if (this.itemOnCursor == null && pSlot != null) {
+                ItemStack itemStack = pSlot.getItem();
+                if (!itemStack.isEmpty()) {
+                    this.itemOnCursor = new ShopItem(ItemDescription.ofItem(itemStack), -1, -1, null, null);
+                }
+            } else if (pSlot == null) {
+                this.itemOnCursor = null;
+
+                if (this.floatingEditBox != null) {
+                    this.removeWidget(this.floatingEditBox);
+                    this.floatingEditBox = null;
+                }
+            }
+        } else if (pMouseButton == 1 && pSlot != null) {
             ItemStack itemStack = pSlot.getItem();
             if (!itemStack.isEmpty()) {
-                this.itemOnCursor = new ShopItem(ItemDescription.ofItem(itemStack), -1, -1, null);
-                return;
-            }
-        } else if (pSlot == null) {
-            this.itemOnCursor = null;
+                ItemDescription itemDescription = ItemDescription.ofItem(itemStack);
+                this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, this.leftPos + pSlot.x + 8, this.topPos + pSlot.y + 16, 50, 15, (value) -> {
+                    try {
+                        double newPrice = Double.parseDouble(value);
 
-            if (this.floatingEditBox != null) {
-                this.removeWidget(this.floatingEditBox);
-                this.floatingEditBox = null;
+                        sellPrices.put(itemDescription, newPrice);
+
+                        this.removeWidget(this.floatingEditBox);
+                        this.floatingEditBox = null;
+                    } catch (NumberFormatException ignored) {}
+                }));
+
+                if (sellPrices.containsKey(itemDescription)) {
+                    this.floatingEditBox.setValue(String.format(Locale.US, "%.2f", sellPrices.get(itemDescription)));
+                }
+
+                this.setFocused(this.floatingEditBox);
             }
+        } else if (pMouseButton == 2 && pSlot != null) {
+            ItemStack itemStack = pSlot.getItem();
+            sellPrices.remove(ItemDescription.ofItem(itemStack));
         }
-        // shut up, pSlot CAN BE NULL!!!
-        super.slotClicked(pSlot, pSlotId, pMouseButton, pType);
     }
 
     @Override

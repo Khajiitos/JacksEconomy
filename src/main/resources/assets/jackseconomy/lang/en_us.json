@@ -68,6 +68,7 @@
   "block.jackseconomy.currency_converter": "Currency Converter",
   "jackseconomy.items": "Items: %s",
   "jackseconomy.in_cart": "In cart: %s",
+  "jackseconomy.to_sell": "To sell: %s",
   "jackseconomy.no_wallet": "No wallet!",
   "jackseconomy.purchase": "Purchase",
   "jackseconomy.cant_afford": "Can't afford!",
@@ -121,5 +122,10 @@
   "jackseconomy.shop": "Shop",
   "jackseconomy.item_owner": "%s's %s",
   "jackseconomy.thanks_for_using": "Thank you for using Jack's Economy!",
-  "jackseconomy.capacity_overflow_reached": "Capacity Overflow Reached"
+  "jackseconomy.capacity_overflow_reached": "Capacity Overflow Reached",
+  "jackseconomy.no_sell_price": "No sell price",
+  "jackseconomy.middle_click_to_remove_sell_price": "Middle-click to remove sell price",
+  "block.jackseconomy.admin_shop": "Admin Shop",
+  "jackseconomy.locked": "Locked",
+  "jackseconomy.required_game_stage": "Required game stage: %s"
 }

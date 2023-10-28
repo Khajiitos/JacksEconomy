@@ -82,6 +82,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     maven {
+        name = "The Illusive C4"
         url = "https://maven.theillusivec4.top/"
     }
     maven {
@@ -92,7 +93,14 @@ repositories {
         name = 'tterrag maven'
         url = 'https://maven.tterrag.com/'
     }
-    maven { url 'https://maven.covers1624.net/' }
+    maven {
+        name = "BlameJared"
+        url 'https://maven.blamejared.com'
+    }
+    maven {
+        name = "Covers1624"
+        url 'https://maven.covers1624.net/'
+    }
 }
 
 dependencies {
@@ -108,10 +116,8 @@ dependencies {
     implementation fg.deobf("com.jozufozu.flywheel:flywheel-forge-${flywheel_minecraft_version}:${flywheel_version}")
     implementation fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}")
 
-    // Compile only because it crashes
-    //compileOnly fg.deobf("com.teamcofh:cofh_core:1.19.2-10.3.0.+")
-    //compileOnly fg.deobf("com.teamcofh:thermal_core:1.19.2-10.3.0.+")
-    //compileOnly fg.deobf("curse.maven:thermal-expansion-69163:4759909")
+    implementation fg.deobf("net.darkhax.gamestages:GameStages-Forge-${gamestages_version_minecraft}:${gamestages_version}")
+    implementation fg.deobf("net.darkhax.bookshelf:Bookshelf-Forge-${bookshelf_version_minecraft}:${bookshelf_version}")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

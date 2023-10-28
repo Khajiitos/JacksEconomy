@@ -23,6 +23,8 @@ public class Config {
     public static final ForgeConfigSpec.ConfigValue<Double> mechanicalExporterProgressPerSpeed;
     public static final ForgeConfigSpec.ConfigValue<Double> mechanicalExporterStressPerRPM;
     public static final ForgeConfigSpec.ConfigValue<Double> mechanicalImporterStressPerRPM;
+    public static final ForgeConfigSpec.ConfigValue<Boolean> showNamesForLockedAdminShopItems;
+    public static final ForgeConfigSpec.ConfigValue<Boolean> showStageForLockedAdminShopItems;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -46,6 +48,8 @@ public class Config {
         mechanicalExporterProgressPerSpeed = builder.define("mechanicalExporterProgressPerSpeed", 0.0002);
         mechanicalExporterStressPerRPM = builder.define("mechanicalExporterStressPerRPM", 8.0);
         mechanicalImporterStressPerRPM = builder.define("mechanicalImporterStressPerRPM", 8.0);
+        showNamesForLockedAdminShopItems = builder.comment("If an item in the Admin Shop is locked behind a game stage, it will (or won't) show what item that is").define("showNamesForLockedAdminShopItems", false);
+        showStageForLockedAdminShopItems = builder.comment("If an item in the Admin Shop is locked behind a game stage, it will (or won't) show what stage that item is locked behind").define("showStageForLockedAdminShopItems", false);
 
         SPEC = builder.build();
     }

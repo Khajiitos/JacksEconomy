@@ -27,14 +27,14 @@ public class AdminShopCommand {
     }
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("adminshop").executes(AdminShopCommand::execute));
+        dispatcher.register(Commands.literal("adminshop").requires(stack -> stack.hasPermission(4)).executes(AdminShopCommand::execute));
     }
 
     private static int execute(CommandContext<CommandSourceStack> ctx) {
         ServerPlayer player = ctx.getSource().getPlayer();
 
         if (player != null) {
-            CompoundTag compoundTag = ItemPriceManager.toAdminShopCompound();
+            CompoundTag compoundTag = ItemPriceManager.toAdminShopCompound(player);
             NetworkHooks.openScreen(player, new SimpleMenuProvider((pContainerId, pPlayerInventory, pPlayer) -> new AdminShopMenu(pContainerId, pPlayerInventory, compoundTag), Component.empty()), friendlyByteBuf -> friendlyByteBuf.writeNbt(compoundTag));
         }
 

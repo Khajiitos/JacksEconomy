@@ -2,11 +2,13 @@ package me.khajiitos.jackseconomy.price;
 
 import com.google.gson.*;
 import me.khajiitos.jackseconomy.JacksEconomy;
+import me.khajiitos.jackseconomy.gamestages.GameStagesManager;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.packet.PricesInfoPacket;
 import me.khajiitos.jackseconomy.util.ItemHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -27,7 +29,7 @@ public class ItemPriceManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     static {
-        itemPriceInfos.put(new ItemDescription(Items.DIAMOND, null), new ItemPriceInfo(50.0, 100.0, 150.0, "General:Gems", 0, null));
+        itemPriceInfos.put(new ItemDescription(Items.DIAMOND, null), new ItemPriceInfo(50.0, 45.0,100.0, 150.0, "General:Gems", 0, null, null));
 
         ArrayList<Category> categoriesInnerDefault = new ArrayList<>();
         categoriesInnerDefault.add(new Category("Gems", Items.DIAMOND));
@@ -50,7 +52,7 @@ public class ItemPriceManager {
         return categories;
     }
 
-    public static double getSellPrice(ItemDescription itemDescription, int count) {
+    public static double getExporterSellPrice(ItemDescription itemDescription, int count) {
         ItemPriceInfo cfgInfo = getInfo(itemDescription);
         return cfgInfo == null ? -1 : cfgInfo.sellPrice * count;
     }
@@ -58,6 +60,11 @@ public class ItemPriceManager {
     public static double getImporterBuyPrice(ItemDescription itemDescription, int count) {
         ItemPriceInfo cfgInfo = getInfo(itemDescription);
         return cfgInfo == null ? -1 : cfgInfo.importerBuyPrice * count;
+    }
+
+    public static double getAdminShopSellPrice(ItemDescription itemDescription, int count) {
+        ItemPriceInfo cfgInfo = getInfo(itemDescription);
+        return cfgInfo == null ? -1 : cfgInfo.adminShopSellPrice * count;
     }
 
     public static double getAdminShopBuyPrice(ItemDescription itemDescription, int count) {
@@ -206,7 +213,7 @@ public class ItemPriceManager {
         return listTag;
     }
 
-    public static CompoundTag toAdminShopCompound() {
+    public static CompoundTag toAdminShopCompound(Player player) {
         CompoundTag tag = new CompoundTag();
 
         ListTag itemsTag = new ListTag();
@@ -214,18 +221,22 @@ public class ItemPriceManager {
 
         AtomicReference<Integer> atomicItemId = new AtomicReference<>(0);
         itemPriceInfos.forEach((itemDescription, itemPriceInfo) -> {
-
-            if (itemPriceInfo.adminShopBuyPrice <= 0) {
+            if (itemPriceInfo.adminShopBuyPrice <= 0 && itemPriceInfo.adminShopSellPrice <= 0) {
                 return;
             }
 
             CompoundTag itemTag = itemDescription.toNbt();
             itemTag.putDouble("adminShopBuyPrice", itemPriceInfo.adminShopBuyPrice);
+            itemTag.putDouble("adminShopSellPrice", itemPriceInfo.adminShopSellPrice);
             itemTag.putString("category", itemPriceInfo.category);
             itemTag.putInt("slot", itemPriceInfo.adminShopSlot);
 
             if (itemPriceInfo.customAdminShopName != null) {
                 itemTag.putString("customAdminShopName", itemPriceInfo.customAdminShopName);
+            }
+
+            if (itemPriceInfo.adminShopStage != null) {
+                itemTag.putString("adminShopStage", itemPriceInfo.adminShopStage);
             }
 
             itemsTag.add(itemTag);
