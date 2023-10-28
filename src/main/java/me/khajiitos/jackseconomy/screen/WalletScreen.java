@@ -54,7 +54,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
     private static final ResourceLocation ID_CARD = new ResourceLocation(JacksEconomy.MOD_ID, "textures/gui/id_card.png");
 
     private List<Component> tooltip;
-    private boolean tooltipShiftLeft = false;
+    private boolean tooltipShift = false;
     private final List<ClickableCurrencyItem> clickableCurrencyItems = new ArrayList<>();
     private final ItemStack itemStack;
     private final boolean showAdminShopIcon;
@@ -116,19 +116,19 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
         this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 34, this.topPos + 14, 16, 16, CurrencyType.DIME));
         this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 50, this.topPos + 14, 16, 16, CurrencyType.QUARTER));
 
-        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 3, this.topPos - 2, 9, 16, CurrencyType.DOLLAR_BILL));
-        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 12, this.topPos - 2, 9, 16, CurrencyType.FIVE_DOLLAR_BILL));
-        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 21, this.topPos - 2, 9, 16, CurrencyType.TEN_DOLLAR_BILL));
-        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 30, this.topPos - 2, 9, 16, CurrencyType.TWENTY_DOLLAR_BILL));
-        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 39, this.topPos - 2, 9, 16, CurrencyType.FIFTY_DOLLAR_BILL));
-        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 48, this.topPos - 2, 9, 16, CurrencyType.HUNDRED_DOLLAR_BILL));
-        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 57, this.topPos - 2, 9, 16, CurrencyType.THOUSAND_DOLLAR_BILL));
+        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 3, this.topPos - 4, 9, 16, CurrencyType.DOLLAR_BILL));
+        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 12, this.topPos - 4, 9, 16, CurrencyType.FIVE_DOLLAR_BILL));
+        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 21, this.topPos - 4, 9, 16, CurrencyType.TEN_DOLLAR_BILL));
+        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 30, this.topPos - 4, 9, 16, CurrencyType.TWENTY_DOLLAR_BILL));
+        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 39, this.topPos - 4, 9, 16, CurrencyType.FIFTY_DOLLAR_BILL));
+        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 48, this.topPos - 4, 9, 16, CurrencyType.HUNDRED_DOLLAR_BILL));
+        this.clickableCurrencyItems.add(new ClickableCurrencyItem(this.leftPos + 57, this.topPos - 4, 9, 16, CurrencyType.THOUSAND_DOLLAR_BILL));
     }
 
     @Override
     protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
         tooltip = null;
-        tooltipShiftLeft = false;
+        tooltipShift = false;
         this.renderBackground(pPoseStack);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -219,6 +219,10 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 
         this.renderTooltip(pPoseStack, pMouseX, pMouseY);
 
+        RenderSystem.setShaderTexture(0, BACKGROUND);
+        this.blit(pPoseStack, this.leftPos + 3, this.topPos + 6, 176, 0, 65, 4);
+        this.blit(pPoseStack, this.leftPos + 3, this.topPos + 21, 176, 0, 65, 4);
+
         // Render hovered items last because they're larger and need to be drawn over others
         for (ClickableCurrencyItem item : this.clickableCurrencyItems.stream().sorted(Comparator.comparing(item -> (pMouseX > item.x && pMouseX <= item.x + item.width && pMouseY > item.y && pMouseY <= item.y + item.height) ? 1 : 0)).toList()) {
             RenderSystem.setShaderTexture(0, item.getTexture());
@@ -228,6 +232,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
             if (hovered) {
                 pPoseStack.pushPose();
                 pPoseStack.scale(1.25f, 1.25f, 1.25f);
+                pPoseStack.translate(-1.0, -2.5, 0.0);
                 RenderSystem.setShaderColor(1.25f, 1.25f, 1.25f, 1.f);
 
                 boolean shiftHeld = InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT);
@@ -240,7 +245,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
                         Component.translatable("jackseconomy.ctrl_coins").withStyle(ctrlHeld ? ChatFormatting.AQUA : ChatFormatting.GRAY),
                         Component.translatable("jackseconomy.normal_coins").withStyle(nothingHeld ? ChatFormatting.AQUA : ChatFormatting.GRAY)
                 );
-                this.tooltipShiftLeft = true;
+                this.tooltipShift = true;
             }
 
             blit(pPoseStack, (int)(item.x * (hovered ? (1.f / 1.25f) : 1.f)), (int)(item.y * (hovered ? (1.f / 1.25f) : 1.f)), 0, 0, item.width, item.height, item.width, item.height);
@@ -250,6 +255,10 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
                 RenderSystem.setShaderColor(1.f, 1.f, 1.f, 1.f);
             }
         }
+
+        RenderSystem.setShaderTexture(0, BACKGROUND);
+        this.blit(pPoseStack, this.leftPos + 3, this.topPos + 10, 176, 4, 67, 5);
+        this.blit(pPoseStack, this.leftPos + 3, this.topPos + 25, 176, 4, 67, 5);
 
         if (JacksEconomyClient.balanceDifPopup != null) {
             long timeDelta = System.currentTimeMillis() - JacksEconomyClient.balanceDifPopupStartMillis;
@@ -284,9 +293,9 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
         }
 
         if (tooltip != null) {
-            if (tooltipShiftLeft) {
+            if (tooltipShift) {
                 int maxWidth = tooltip.stream().map(a -> Minecraft.getInstance().font.width(a)).max(Comparator.naturalOrder()).orElse(0);
-                this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX - maxWidth - 20, pMouseY);
+                this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX - maxWidth / 2 - 10, this.topPos + 48);
             } else {
                 this.renderTooltip(pPoseStack, tooltip, Optional.empty(), pMouseX, pMouseY);
             }
