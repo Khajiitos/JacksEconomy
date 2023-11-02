@@ -2,6 +2,7 @@ package me.khajiitos.jackseconomy.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Pair;
+import me.khajiitos.jackseconomy.gamestages.GameStagesCheck;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.menu.AdminShopMenu;
 import me.khajiitos.jackseconomy.packet.UpdateAdminShopPacket;
@@ -280,6 +281,20 @@ public class EditAdminShopScreen extends AdminShopScreen {
                 if (itemAtSlot.customName() != null) {
                     this.floatingEditBox.setValue(itemAtSlot.customName());
                 }
+            } else if (GameStagesCheck.isInstalled() && InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_CONTROL)) {
+                this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, slotPos.getFirst() + 8, slotPos.getSecond() + 16, 50, 15, (value) -> {
+                    if (!value.isEmpty()) {
+                        this.setItemAtSlot(new ShopItem(itemAtSlot.itemDescription(), itemAtSlot.price(), slot, itemAtSlot.customName(), value), slot, this.selectedCategory);
+                    } else {
+                        this.setItemAtSlot(new ShopItem(itemAtSlot.itemDescription(), itemAtSlot.price(), slot, itemAtSlot.customName(), null), slot, this.selectedCategory);
+                    }
+                    this.removeWidget(this.floatingEditBox);
+                    this.floatingEditBox = null;
+                }));
+
+                if (itemAtSlot.customName() != null) {
+                    this.floatingEditBox.setValue(itemAtSlot.customName());
+                }
             } else {
                 this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, slotPos.getFirst() + 8, slotPos.getSecond() + 16, 50, 15, (value) -> {
                     try {
@@ -315,7 +330,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
         ListTag itemsTag = new ListTag();
         ListTag categoriesTag = new ListTag();
 
-        HashMap<ItemDescription, CompoundTag> tagsForItems = new HashMap<>();
+        HashMap<ItemDescription, List<CompoundTag>> tagsForItems = new HashMap<>();
 
         this.shopItems.forEach((category, innerCategories) -> {
             String itemName = ItemHelper.getItemName(category.item);
@@ -356,7 +371,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
                         itemTag.putString("customAdminShopName", shopItem.customName());
                     }
 
-                    tagsForItems.put(shopItem.itemDescription(), itemTag);
+                    tagsForItems.computeIfAbsent(shopItem.itemDescription(), (a) -> new ArrayList<>()).add(itemTag);
                     //itemsTag.add(itemTag);
                 }
 
@@ -368,9 +383,12 @@ public class EditAdminShopScreen extends AdminShopScreen {
         });
 
         sellPrices.forEach((itemDescription, amount) -> {
-            CompoundTag itemTag = tagsForItems.computeIfAbsent(itemDescription, ItemDescription::toNbt);
+            CompoundTag itemTag = itemDescription.toNbt();
             itemTag.putDouble("adminShopSellPrice", -1.0);
+            tagsForItems.computeIfAbsent(itemDescription, (a) -> new ArrayList<>()).add(itemTag);
         });
+
+        tagsForItems.forEach(((itemDescription, compoundTags) -> itemsTag.addAll(compoundTags)));
 
         tag.put("items", itemsTag);
         tag.put("categories", categoriesTag);

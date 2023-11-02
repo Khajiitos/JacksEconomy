@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
+import me.khajiitos.jackseconomy.gamestages.GameStagesCheck;
 import me.khajiitos.jackseconomy.gamestages.GameStagesManager;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.menu.AdminShopMenu;
@@ -504,9 +505,16 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
                         if (this.isEditMode()) {
                             this.tooltip.add(shopItem.price == -1 ? Component.translatable("jackseconomy.no_price").withStyle(ChatFormatting.GRAY) : Component.literal(CurrencyHelper.format(shopItem.price)).withStyle(ChatFormatting.GRAY));
+                            if (GameStagesCheck.isInstalled() && shopItem.stage() != null) {
+                                this.tooltip.add(Component.translatable("jackseconomy.locked_behind_stage", shopItem.stage()).withStyle(ChatFormatting.GRAY));
+                            }
                             this.tooltip.add(Component.translatable("jackseconomy.right_click_to_edit_price").withStyle(ChatFormatting.AQUA));
                             this.tooltip.add(Component.translatable("jackseconomy.shift_right_click_to_rename").withStyle(ChatFormatting.AQUA));
                             this.tooltip.add(Component.translatable("jackseconomy.middle_click_to_remove").withStyle(ChatFormatting.RED));
+
+                            if (GameStagesCheck.isInstalled()) {
+                                this.tooltip.add(Component.translatable("jackseconomy.lctrl_right_click_to_change_stage").withStyle(ChatFormatting.RED));
+                            }
                         } else {
                             if (shopItem.isLocked()) {
                                 this.tooltip.add(Component.translatable("jackseconomy.locked").withStyle(ChatFormatting.GRAY));

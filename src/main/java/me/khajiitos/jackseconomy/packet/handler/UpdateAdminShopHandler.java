@@ -34,19 +34,19 @@ public class UpdateAdminShopHandler {
         ListTag categoriesTag = data.getList("categories", Tag.TAG_COMPOUND);
         ListTag itemsTag = data.getList("items", Tag.TAG_COMPOUND);
 
-        LinkedHashMap<ItemDescription, ItemPriceInfo> itemPriceInfos = ItemPriceManager.getItemPriceInfos();
+        List<ItemPriceManager.ItemPriceEntry> itemPriceInfos = ItemPriceManager.getItemPriceInfos();
         LinkedHashMap<ItemPriceManager.Category, List<ItemPriceManager.Category>> categories = ItemPriceManager.getCategories();
 
         categories.clear();
 
         // Remove all properties related to the shop
         // if the item wasn't removed they will be restored
-        for (ItemPriceInfo itemPriceInfo : itemPriceInfos.values()) {
-            itemPriceInfo.adminShopBuyPrice = -1;
-            itemPriceInfo.adminShopSellPrice = -1;
-            itemPriceInfo.category = null;
-            itemPriceInfo.customAdminShopName = null;
-            itemPriceInfo.adminShopStage = null;
+        for (ItemPriceManager.ItemPriceEntry entry : itemPriceInfos) {
+            entry.itemPriceInfo().adminShopBuyPrice = -1;
+            entry.itemPriceInfo().adminShopSellPrice = -1;
+            entry.itemPriceInfo().category = null;
+            entry.itemPriceInfo().customAdminShopName = null;
+            entry.itemPriceInfo().adminShopStage = null;
         }
 
         categoriesTag.forEach(tag -> {
@@ -88,6 +88,9 @@ public class UpdateAdminShopHandler {
                 String customName = compoundTag.contains("customAdminShopName") ? compoundTag.getString("customAdminShopName") : null;
                 String stage = compoundTag.contains("adminShopStage") ? compoundTag.getString("adminShopStage") : null;
 
+                // TODO: keep admin shop entries and exporter/importer entries separate?
+
+                /*
                 if (itemPriceInfos.containsKey(itemDescription)) {
                     ItemPriceInfo priceInfo = itemPriceInfos.get(itemDescription);
                     priceInfo.category = category;
@@ -97,8 +100,8 @@ public class UpdateAdminShopHandler {
                     priceInfo.customAdminShopName = customName;
                     priceInfo.adminShopStage = stage;
                 } else {
-                    itemPriceInfos.put(itemDescription, new ItemPriceInfo(-1, sellPrice, -1, buyPrice, category, slot, customName, stage));
-                }
+                }*/
+                itemPriceInfos.add(new ItemPriceManager.ItemPriceEntry(itemDescription, new ItemPriceInfo(-1, sellPrice, -1, buyPrice, category, slot, customName, stage)));
             }
         });
 

@@ -127,5 +127,7 @@
   "jackseconomy.middle_click_to_remove_sell_price": "Middle-click to remove sell price",
   "block.jackseconomy.admin_shop": "Admin Shop",
   "jackseconomy.locked": "Locked",
-  "jackseconomy.required_game_stage": "Required game stage: %s"
+  "jackseconomy.required_game_stage": "Required game stage: %s",
+  "jackseconomy.lctrl_right_click_to_change_stage": "L-CTRL + Right-click to change unlock stage",
+  "jackseconomy.locked_behind_stage": "Locked behind game-stage: %s"
 }

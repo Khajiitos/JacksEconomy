@@ -7,6 +7,7 @@ import me.khajiitos.jackseconomy.config.ClientConfig;
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.curios.CuriosCheck;
 import me.khajiitos.jackseconomy.curios.CuriosHandler;
+import me.khajiitos.jackseconomy.gamestages.GameStagesManager;
 import me.khajiitos.jackseconomy.init.*;
 import me.khajiitos.jackseconomy.listener.ConfigEventListeners;
 import me.khajiitos.jackseconomy.listener.OtherEventListeners;
@@ -26,6 +27,11 @@ import org.slf4j.Logger;
 
 @Mod(JacksEconomy.MOD_ID)
 public class JacksEconomy {
+    /* TODO LIST */
+    // Break down item price entries into two types, that will be included in the JSON: "adminshop", and "prices". There can be multiple adminshop items, and only one prices item for given ItemDescription
+    // Newly unlocked items should be sent by the server perhaps? It would send what category and slot were unlocked. This data should probably be cleared in case the admin shop was changed
+    /* TODO LIST */
+
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final String MOD_ID = "jackseconomy";
     public static MinecraftServer server;
@@ -87,6 +93,8 @@ public class JacksEconomy {
                 return null;
             }
         });
+
+        GameStagesManager.init();
     }
 
     public static void onRegisterCommands(RegisterCommandsEvent e) {
