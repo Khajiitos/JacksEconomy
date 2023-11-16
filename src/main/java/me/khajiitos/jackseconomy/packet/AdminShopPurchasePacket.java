@@ -12,19 +12,29 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public record AdminShopPurchasePacket(Map<ItemDescription, Integer> shoppingCart) {
+public record AdminShopPurchasePacket(Map<ShopItemDescription, Integer> shoppingCart, Map<ItemDescription, Integer> itemsToSell) {
 
     public static void encode(AdminShopPurchasePacket msg, FriendlyByteBuf friendlyByteBuf) {
         CompoundTag compoundTag = new CompoundTag();
-        ListTag data = new ListTag();
+        ListTag shoppingCartData = new ListTag();
+        ListTag sellData = new ListTag();
 
         msg.shoppingCart().forEach((shopItem, amount) -> {
-            CompoundTag itemTag = shopItem.toNbt();
-            itemTag.putInt("Amount", amount);
-            data.add(itemTag);
+            CompoundTag itemTag = shopItem.itemDescription().toNbt();
+            itemTag.putInt("amount", amount);
+            itemTag.putInt("slot", shopItem.slot());
+            itemTag.putString("category", shopItem.category());
+            shoppingCartData.add(itemTag);
         });
 
-        compoundTag.put("Data", data);
+        msg.itemsToSell().forEach((itemDescription, integer) -> {
+            CompoundTag itemTag = itemDescription.toNbt();
+            itemTag.putInt("amount", integer);
+            sellData.add(itemTag);
+        });
+
+        compoundTag.put("shoppingCart", shoppingCartData);
+        compoundTag.put("sellData", sellData);
 
         friendlyByteBuf.writeNbt(compoundTag);
     }
@@ -32,31 +42,51 @@ public record AdminShopPurchasePacket(Map<ItemDescription, Integer> shoppingCart
     public static AdminShopPurchasePacket decode(FriendlyByteBuf friendlyByteBuf) {
         CompoundTag compoundTag = friendlyByteBuf.readNbt();
 
-        Map<ItemDescription, Integer> map = new HashMap<>();
+        Map<ShopItemDescription, Integer> shoppingCartMap = new HashMap<>();
+        Map<ItemDescription, Integer> itemsToSellMap = new HashMap<>();
 
         if (compoundTag != null) {
-            ListTag data = compoundTag.getList("Data", Tag.TAG_COMPOUND);
+            ListTag shoppingCartData = compoundTag.getList("shoppingCart", Tag.TAG_COMPOUND);
+            ListTag itemsToSellData = compoundTag.getList("sellData", Tag.TAG_COMPOUND);
 
-            data.forEach(tag -> {
+            shoppingCartData.forEach(tag -> {
                 if (tag instanceof CompoundTag itemTag) {
                     ItemDescription itemDescription = ItemDescription.fromNbt(itemTag);
 
                     if (itemDescription != null) {
-                        int amount = itemTag.getInt("Amount");
+                        int amount = itemTag.getInt("amount");
+                        String category = itemTag.getString("category");
+                        int slot = itemTag.getInt("slot");
 
                         if (amount > 0) {
-                            map.put(itemDescription, amount);
+                            shoppingCartMap.put(new ShopItemDescription(itemDescription, slot, category), amount);
+                        }
+                    }
+                }
+            });
+
+            itemsToSellData.forEach(tag -> {
+                if (tag instanceof CompoundTag itemTag) {
+                    ItemDescription itemDescription = ItemDescription.fromNbt(itemTag);
+
+                    if (itemDescription != null) {
+                        int amount = itemTag.getInt("amount");
+
+                        if (amount > 0) {
+                            itemsToSellMap.put(itemDescription, amount);
                         }
                     }
                 }
             });
         }
 
-        return new AdminShopPurchasePacket(map);
+        return new AdminShopPurchasePacket(shoppingCartMap, itemsToSellMap);
     }
 
     public static void handle(AdminShopPurchasePacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> AdminShopPurchaseHandler.handle(msg, ctx));
         ctx.get().setPacketHandled(true);
     }
+
+    public record ShopItemDescription(ItemDescription itemDescription, int slot, String category) { }
 }

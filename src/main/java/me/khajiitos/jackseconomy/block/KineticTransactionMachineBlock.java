@@ -2,7 +2,7 @@ package me.khajiitos.jackseconomy.block;
 
 import com.simibubi.create.content.kinetics.base.HorizontalKineticBlock;
 import com.simibubi.create.foundation.block.IBE;
-import me.khajiitos.jackseconomy.blockentity.TransactionMachineBlockEntity;
+import me.khajiitos.jackseconomy.blockentity.TransactionKineticMachineBlockEntity;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.ItemHelper;
 import net.minecraft.core.BlockPos;
@@ -46,7 +46,7 @@ public abstract class KineticTransactionMachineBlock<T extends BlockEntity> exte
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
             BlockEntity blockentity = level.getBlockEntity(pos);
-            if (blockentity instanceof TransactionMachineBlockEntity blockEntity) {
+            if (blockentity instanceof TransactionKineticMachineBlockEntity blockEntity) {
                 CurrencyHelper.getCurrencyItems(blockEntity.getBalance()).forEach(itemStack -> ItemHelper.dropItem(itemStack, level, blockEntity.getBlockPos()));
                 for (int i = 0; i < blockEntity.items.size(); i++) {
                     ItemStack stack = blockEntity.getItem(i);

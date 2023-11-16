@@ -1,6 +1,5 @@
 package me.khajiitos.jackseconomy.item;
 
-import me.khajiitos.jackseconomy.init.ItemBlockReg;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;

@@ -2,7 +2,6 @@ package me.khajiitos.jackseconomy.screen.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.khajiitos.jackseconomy.JacksEconomy;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;

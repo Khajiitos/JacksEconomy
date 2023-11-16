@@ -1,6 +1,6 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
-import me.khajiitos.jackseconomy.screen.AdminShopScreen;
+import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -9,26 +9,29 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.player.Inventory;
 
 import java.util.Map;
 
-public class ShoppingCartEntry extends AbstractWidget {
-    private final Map.Entry<AdminShopScreen.CategorizedShopItem, Integer> shoppingCartItem;
+public class ShoppingCartSellEntry extends AbstractWidget {
+    private final Map.Entry<ItemDescription, Integer> itemToSell;
     private final Runnable onChange;
     private final Runnable onRemoveClicked;
+    private final double itemPrice;
 
-    public ShoppingCartEntry(int pX, int pY, int pWidth, int pHeight, Map.Entry<AdminShopScreen.CategorizedShopItem, Integer> shoppingCartItem, Runnable onChange, Runnable onRemoveClicked) {
+    public ShoppingCartSellEntry(int pX, int pY, int pWidth, int pHeight, Map.Entry<ItemDescription, Integer> itemToSell, double itemPrice, Inventory inventory, Runnable onChange, Runnable onRemoveClicked) {
         super(pX, pY, pWidth, pHeight, Component.empty());
-        this.shoppingCartItem = shoppingCartItem;
+        this.itemToSell = itemToSell;
         this.onChange = onChange;
         this.onRemoveClicked = onRemoveClicked;
+        this.itemPrice = itemPrice;
     }
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        guiGraphics.renderItem(this.shoppingCartItem.getKey().itemDescription().createItemStack(), this.getX() + 3, this.getY());
+        guiGraphics.renderItem(this.itemToSell.getKey().createItemStack(), this.getX() + 3, this.getY());
 
-        MutableComponent itemName = (this.shoppingCartItem.getKey().customName() != null ? Component.literal(this.shoppingCartItem.getKey().customName()) : this.shoppingCartItem.getKey().itemDescription().item().getDescription().copy());
+        MutableComponent itemName = this.itemToSell.getKey().item().getDescription().copy();
 
         int width = Minecraft.getInstance().font.width(itemName);
 
@@ -39,8 +42,9 @@ public class ShoppingCartEntry extends AbstractWidget {
             guiGraphics.pose().pushPose();
             guiGraphics.pose().scale(scale, scale, scale);
         }
-        Component header = itemName.append(Component.literal(" (" + shoppingCartItem.getValue() + ")").withStyle(ChatFormatting.GRAY));
-        Component footer = Component.literal(CurrencyHelper.format(shoppingCartItem.getKey().price() * shoppingCartItem.getValue())).withStyle(ChatFormatting.DARK_GRAY);
+
+        Component header = itemName.append(Component.literal(" (" + itemToSell.getValue() + ")").withStyle(ChatFormatting.GRAY));
+        Component footer = Component.literal(CurrencyHelper.format(itemPrice * itemToSell.getValue())).withStyle(ChatFormatting.DARK_GRAY);
         guiGraphics.drawString(Minecraft.getInstance().font, header, (int) ((this.getX() + 22) / scale), (int) ((this.getY()) / scale), 0xFFFFFFFF);
         guiGraphics.drawString(Minecraft.getInstance().font, footer, (int) ((this.getX() + 22) / scale), (int) ((this.getY() + 9) / scale), 0xFFFFFFFF);
 
@@ -69,12 +73,12 @@ public class ShoppingCartEntry extends AbstractWidget {
     @Override
     public void onClick(double pMouseX, double pMouseY) {
         if (pMouseX >= this.getX() + 122 && pMouseX <= this.getX() + 137 && pMouseY >= this.getY() + 4 && pMouseY <= this.getY() + 18) {
-            if (shoppingCartItem.getValue() > 1) {
-                shoppingCartItem.setValue(shoppingCartItem.getValue() - 1);
+            if (itemToSell.getValue() > 1) {
+                itemToSell.setValue(itemToSell.getValue() - 1);
                 onChange.run();
             }
         } else if (pMouseX >= this.getX() + 142 && pMouseX <= this.getX() + 157 && pMouseY >= this.getY() + 4 && pMouseY <= this.getY() + 18) {
-            shoppingCartItem.setValue(shoppingCartItem.getValue() + 1);
+            itemToSell.setValue(itemToSell.getValue() + 1);
             onChange.run();
         } else if (pMouseX >= this.getX() + 102 && pMouseX <= this.getX() + 117 && pMouseY >= this.getY() + 4 && pMouseY <= this.getY() + 18) {
             onRemoveClicked.run();

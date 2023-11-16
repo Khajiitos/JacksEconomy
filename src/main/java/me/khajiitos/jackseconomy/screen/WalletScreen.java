@@ -5,9 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.JacksEconomyClient;
 import me.khajiitos.jackseconomy.config.ClientConfig;
-import me.khajiitos.jackseconomy.curios.CuriosWallet;
 import me.khajiitos.jackseconomy.init.Packets;
-import me.khajiitos.jackseconomy.init.Sounds;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.menu.WalletMenu;
 import me.khajiitos.jackseconomy.packet.CreateCheckPacket;
@@ -15,7 +13,6 @@ import me.khajiitos.jackseconomy.packet.DepositAllPacket;
 import me.khajiitos.jackseconomy.packet.WithdrawBalanceSpecificPacket;
 import me.khajiitos.jackseconomy.screen.widget.CheckCreatorWidget;
 import me.khajiitos.jackseconomy.screen.widget.SimpleButton;
-import me.khajiitos.jackseconomy.screen.widget.SimpleIconedButton;
 import me.khajiitos.jackseconomy.screen.widget.TextBox;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import me.khajiitos.jackseconomy.util.CurrencyType;
@@ -25,7 +22,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -68,9 +64,6 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 
         this.titleLabelY = -100;
         this.inventoryLabelY = -100;
-
-        ItemStack curiosWallet = CuriosWallet.get(Minecraft.getInstance().player);
-
     }
 
     public BigDecimal getBalance() {
@@ -148,7 +141,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
         }
 
         if (this.itemStack.getItem() instanceof WalletItem walletItem && WalletItem.getBalance(itemStack).compareTo(BigDecimal.valueOf(walletItem.getCapacity())) >= 0) {
-            guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("jackseconomy.capacity_overflow_reached").withStyle(ChatFormatting.RED), this.width / 2, this.topPos - 15, 0xFFFFFFFF, false);
+            guiGraphics.drawCenteredString(Minecraft.getInstance().font, Component.translatable("jackseconomy.capacity_overflow_reached").withStyle(ChatFormatting.RED), this.width / 2, this.topPos - 15, 0xFFFFFFFF);
         }
 
         Component header = Component.translatable("jackseconomy.item_owner", Component.literal(Minecraft.getInstance().player.getScoreboardName()), this.itemStack.getItem().getDescription());

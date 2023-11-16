@@ -39,4 +39,14 @@ public class AdminShopExitPromptScreen extends Screen {
 
         guiGraphics.drawCenteredString(this.font, Component.translatable("jackseconomy.admin_shop_exit_prompt").withStyle(ChatFormatting.YELLOW), this.width / 2, this.height / 2 - 5, 0xFFFFFFFF);
     }
+
+    @Override
+    public void onClose() {
+        super.onClose();
+
+        // It always will be AdminShopScreen tbh
+        if (this.parent instanceof AdminShopScreen adminShopScreen) {
+            adminShopScreen.sendShopUnlocksAcknowledgements();
+        }
+    }
 }

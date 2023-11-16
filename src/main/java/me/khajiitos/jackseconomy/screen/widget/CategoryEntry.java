@@ -17,12 +17,19 @@ public class CategoryEntry extends AbstractWidget {
     private final AdminShopScreen.Category category;
     private final BiConsumer<CategoryEntry, Integer> onClick;
     private final Supplier<Boolean> isSelectedSupplier;
+    private final Supplier<Boolean> shouldRenderStar;
 
-    public CategoryEntry(int pX, int pY, int pWidth, int pHeight, @Nullable AdminShopScreen.Category category, BiConsumer<CategoryEntry, Integer> onClick, Supplier<Boolean> isSelectedSupplier) {
+
+    public CategoryEntry(int pX, int pY, int pWidth, int pHeight, @Nullable AdminShopScreen.Category category, BiConsumer<CategoryEntry, Integer> onClick, Supplier<Boolean> isSelectedSupplier, Supplier<Boolean> shouldRenderStar) {
         super(pX, pY, pWidth, pHeight, Component.empty());
         this.category = category;
         this.onClick = onClick;
         this.isSelectedSupplier = isSelectedSupplier;
+        this.shouldRenderStar = shouldRenderStar;
+    }
+
+    public AdminShopScreen.Category getCategory() {
+        return category;
     }
 
     @Override
@@ -38,6 +45,10 @@ public class CategoryEntry extends AbstractWidget {
 
         if (category != null) {
             guiGraphics.renderItem(new ItemStack(category.getItem()), this.getX() + 2, this.getY() + 4);
+
+            if (shouldRenderStar.get()) {
+                AdminShopScreen.renderStar(guiGraphics, this.getX() + 6, this.getY() + 8);
+            }
         }
 
         MutableComponent name = Component.literal(category == null ? "..." : category.getName());

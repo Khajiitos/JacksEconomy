@@ -1,6 +1,5 @@
 package me.khajiitos.jackseconomy.item;
 
-import me.khajiitos.jackseconomy.init.ItemBlockReg;
 import me.khajiitos.jackseconomy.util.CurrencyType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;

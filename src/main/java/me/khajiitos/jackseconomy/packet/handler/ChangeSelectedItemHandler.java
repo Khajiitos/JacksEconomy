@@ -1,9 +1,7 @@
 package me.khajiitos.jackseconomy.packet.handler;
 
 import me.khajiitos.jackseconomy.blockentity.IImporterBlockEntity;
-import me.khajiitos.jackseconomy.blockentity.ImporterBlockEntity;
 import me.khajiitos.jackseconomy.menu.IBlockEntityContainer;
-import me.khajiitos.jackseconomy.menu.ImporterMenu;
 import me.khajiitos.jackseconomy.packet.ChangeSelectedItemPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;

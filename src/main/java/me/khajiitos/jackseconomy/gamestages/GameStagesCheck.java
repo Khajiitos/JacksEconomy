@@ -1,7 +1,5 @@
 package me.khajiitos.jackseconomy.gamestages;
 
-import net.darkhax.gamestages.GameStages;
-
 public class GameStagesCheck {
     private static boolean installed;
 

@@ -1,8 +1,8 @@
 package me.khajiitos.jackseconomy.gamestages;
 
+import me.khajiitos.jackseconomy.util.NewShopUnlocks;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 
 public class GameStagesManager {
 
@@ -13,9 +13,23 @@ public class GameStagesManager {
         return true;
     }
 
+    public static void acknowledgeUnlocks(ServerPlayer serverPlayer, NewShopUnlocks acknowledgedUnlocks) {
+        if (GameStagesCheck.isInstalled()) {
+            GameStagesIntegration.onUnlocksAcknowledged(serverPlayer, acknowledgedUnlocks);
+        }
+    }
+
+    public static NewShopUnlocks getNewShopUnlocks(Player player) {
+        if (GameStagesCheck.isInstalled()) {
+            return GameStagesIntegration.getNewShopUnlocks(player);
+        }
+
+        return null;
+    }
+
     public static void init() {
         if (GameStagesCheck.isInstalled()) {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> GameStagesIntegrationClient::init);
+            GameStagesIntegration.init();
         }
     }
 }

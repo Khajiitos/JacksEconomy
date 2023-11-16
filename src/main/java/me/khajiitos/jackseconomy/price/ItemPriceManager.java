@@ -6,6 +6,7 @@ import me.khajiitos.jackseconomy.gamestages.GameStagesManager;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.packet.PricesInfoPacket;
 import me.khajiitos.jackseconomy.util.ItemHelper;
+import me.khajiitos.jackseconomy.util.NewShopUnlocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.player.Player;
@@ -17,11 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.*;
 
 public class ItemPriceManager {
     //private static final LinkedHashMap<ItemDescription, ItemPriceInfo> itemPriceInfos = new LinkedHashMap<>();
@@ -31,7 +28,8 @@ public class ItemPriceManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     static {
-        itemPriceInfos.add(new ItemPriceEntry(new ItemDescription(Items.DIAMOND, null), new ItemPriceInfo(50.0, 45.0,100.0, 150.0, "General:Gems", 0, null, null)));
+        itemPriceInfos.add(new ItemPriceEntry(new ItemDescription(Items.DIAMOND, null), new PricesItemPriceInfo(50.0, 45.0,100.0, null)));
+        itemPriceInfos.add(new ItemPriceEntry(new ItemDescription(Items.DIAMOND, null), new AdminShopItemPriceInfo(150.0, "General:Gems", 0, null, null)));
 
         ArrayList<Category> categoriesInnerDefault = new ArrayList<>();
         categoriesInnerDefault.add(new Category("Gems", Items.DIAMOND));
@@ -41,6 +39,10 @@ public class ItemPriceManager {
     @Deprecated
     public static ItemPriceInfo getInfo(ItemDescription itemDescription) {
         return itemPriceInfos.stream().filter(itemPriceEntry -> itemPriceEntry.itemDescription.equals(itemDescription)).findFirst().map(ItemPriceEntry::itemPriceInfo).orElse(null);
+    }
+
+    public static PricesItemPriceInfo getPricesInfo(ItemDescription itemDescription) {
+        return itemPriceInfos.stream().filter(itemPriceEntry -> itemPriceEntry.itemDescription.equals(itemDescription) && itemPriceEntry.itemPriceInfo instanceof PricesItemPriceInfo).map(entry -> ((PricesItemPriceInfo)entry.itemPriceInfo)).findFirst().orElse(null);
     }
 
     public static ItemPriceInfo getInfo(ItemStack itemStack) {
@@ -56,21 +58,28 @@ public class ItemPriceManager {
     }
 
     public static double getExporterSellPrice(ItemDescription itemDescription, int count) {
-        return itemPriceInfos.stream().filter(entry -> entry.itemDescription.equals(itemDescription) && entry.itemPriceInfo.sellPrice != -1).findFirst().map(itemPriceEntry -> itemPriceEntry.itemPriceInfo.sellPrice * count).orElse(-1.0);
+        return itemPriceInfos.stream().filter(itemPriceEntry -> itemPriceEntry.itemDescription.equals(itemDescription) && itemPriceEntry.itemPriceInfo instanceof PricesItemPriceInfo).map(entry -> ((PricesItemPriceInfo)entry.itemPriceInfo).sellPrice * count).findFirst().orElse(-1.0);
     }
 
     public static double getImporterBuyPrice(ItemDescription itemDescription, int count) {
-        return itemPriceInfos.stream().filter(entry -> entry.itemDescription.equals(itemDescription) && entry.itemPriceInfo.importerBuyPrice != -1).findFirst().map(itemPriceEntry -> itemPriceEntry.itemPriceInfo.importerBuyPrice * count).orElse(-1.0);
+        return itemPriceInfos.stream().filter(itemPriceEntry -> itemPriceEntry.itemDescription.equals(itemDescription) && itemPriceEntry.itemPriceInfo instanceof PricesItemPriceInfo).map(entry -> ((PricesItemPriceInfo)entry.itemPriceInfo).importerBuyPrice * count).findFirst().orElse(-1.0);
     }
 
-    // TODO: check for slot/category too (there can be multiple items with the same ItemDescription)
     public static double getAdminShopSellPrice(ItemDescription itemDescription, int count) {
-        return itemPriceInfos.stream().filter(entry -> entry.itemDescription.equals(itemDescription) && entry.itemPriceInfo.adminShopSellPrice != -1).findFirst().map(itemPriceEntry -> itemPriceEntry.itemPriceInfo.adminShopSellPrice * count).orElse(-1.0);
+        return itemPriceInfos.stream().filter(itemPriceEntry -> itemPriceEntry.itemDescription.equals(itemDescription) && itemPriceEntry.itemPriceInfo instanceof PricesItemPriceInfo).map(entry -> ((PricesItemPriceInfo)entry.itemPriceInfo).adminShopSellPrice * count).findFirst().orElse(-1.0);
     }
 
-    // TODO: check for slot/category too (there can be multiple items with the same ItemDescription)
-    public static double getAdminShopBuyPrice(ItemDescription itemDescription, int count) {
-        return itemPriceInfos.stream().filter(entry -> entry.itemDescription.equals(itemDescription) && entry.itemPriceInfo.adminShopBuyPrice != -1).findFirst().map(itemPriceEntry -> itemPriceEntry.itemPriceInfo.adminShopBuyPrice * count).orElse(-1.0);
+    public static String getAdminShopSellStage(ItemDescription itemDescription) {
+        return itemPriceInfos.stream()
+                .filter(itemPriceEntry -> itemPriceEntry.itemDescription.equals(itemDescription) && itemPriceEntry.itemPriceInfo instanceof PricesItemPriceInfo)
+                .map(entry -> ((PricesItemPriceInfo)entry.itemPriceInfo).adminShopSellStage)
+                .map(Optional::ofNullable)
+                .findFirst()
+                .orElse(Optional.empty()).orElse(null);
+    }
+
+    public static double getAdminShopBuyPrice(ItemDescription itemDescription, int count, int slot, String category) {
+        return itemPriceInfos.stream().filter(itemPriceEntry -> itemPriceEntry.itemDescription.equals(itemDescription) && itemPriceEntry.itemPriceInfo instanceof AdminShopItemPriceInfo adminShopItemPriceInfo && adminShopItemPriceInfo.adminShopSlot == slot && Objects.equals(adminShopItemPriceInfo.category, category)).map(entry -> ((AdminShopItemPriceInfo)entry.itemPriceInfo).adminShopBuyPrice * count).findFirst().orElse(-1.0);
     }
 
     public static void load() {
@@ -137,9 +146,11 @@ public class ItemPriceManager {
 
                     ItemDescription itemDescription = ItemDescription.fromJson(object);
 
-                    ItemPriceInfo priceInfo = ItemPriceInfo.fromJson(object);
-                    if (itemDescription != null && priceInfo != null) {
-                        itemPriceInfos.add(new ItemPriceEntry(itemDescription, priceInfo));
+                    if (itemDescription != null) {
+                        ItemPriceInfo[] priceInfos = ItemPriceInfo.fromJson(object);
+                        for (ItemPriceInfo priceInfo : priceInfos) {
+                            itemPriceInfos.add(new ItemPriceEntry(itemDescription, priceInfo));
+                        }
                     } else {
                         JacksEconomy.LOGGER.warn("Invalid price info");
                     }
@@ -201,15 +212,16 @@ public class ItemPriceManager {
     public static ListTag toTag() {
         ListTag listTag = new ListTag();
         itemPriceInfos.forEach((entry) -> {
-            CompoundTag itemTag = entry.itemDescription.toNbt().copy();
-            itemTag.putDouble("sellPrice", entry.itemPriceInfo.sellPrice);
-            itemTag.putDouble("importerBuyPrice", entry.itemPriceInfo.importerBuyPrice);
-            itemTag.putDouble("adminShopBuyPrice", entry.itemPriceInfo.adminShopBuyPrice);
-
-            if (entry.itemPriceInfo.category != null) {
-                itemTag.putString("category", entry.itemPriceInfo.category);
+            if (entry.itemPriceInfo instanceof PricesItemPriceInfo itemPriceInfo) {
+                CompoundTag itemTag = entry.itemDescription.toNbt().copy();
+                itemTag.putDouble("sellPrice", itemPriceInfo.sellPrice);
+                itemTag.putDouble("importerBuyPrice", itemPriceInfo.importerBuyPrice);
+                itemTag.putDouble("adminShopSellPrice", itemPriceInfo.adminShopSellPrice);
+                if (itemPriceInfo.adminShopSellStage != null) {
+                    itemTag.putString("adminShopSellStage", itemPriceInfo.adminShopSellStage);
+                }
+                listTag.add(itemTag);
             }
-            listTag.add(itemTag);
         });
         return listTag;
     }
@@ -220,26 +232,47 @@ public class ItemPriceManager {
         ListTag itemsTag = new ListTag();
         ListTag categoriesTag = new ListTag();
 
+        NewShopUnlocks shopUnlocks = GameStagesManager.getNewShopUnlocks(player);
+
         itemPriceInfos.forEach((entry) -> {
-            if (entry.itemPriceInfo.adminShopBuyPrice <= 0 && entry.itemPriceInfo.adminShopSellPrice <= 0) {
-                return;
+            if (entry.itemPriceInfo instanceof AdminShopItemPriceInfo itemPriceInfo) {
+                if (itemPriceInfo.adminShopBuyPrice <= 0) {
+                    return;
+                }
+
+                CompoundTag itemTag = entry.itemDescription.toNbt();
+                itemTag.putDouble("adminShopBuyPrice", itemPriceInfo.adminShopBuyPrice);
+                itemTag.putString("category", itemPriceInfo.category);
+                itemTag.putInt("slot", itemPriceInfo.adminShopSlot);
+
+                if (itemPriceInfo.customAdminShopName != null) {
+                    itemTag.putString("customAdminShopName", itemPriceInfo.customAdminShopName);
+                }
+
+                if (itemPriceInfo.adminShopStage != null) {
+                    itemTag.putString("adminShopStage", itemPriceInfo.adminShopStage);
+                }
+
+                if (shopUnlocks != null && shopUnlocks.unlockedItems.contains(new NewShopUnlocks.Item(itemPriceInfo.adminShopSlot, itemPriceInfo.category))) {
+                    itemTag.putBoolean("recentlyUnlocked", true);
+                }
+
+                itemsTag.add(itemTag);
+            } else if (entry.itemPriceInfo instanceof PricesItemPriceInfo itemPriceInfo) {
+                if (itemPriceInfo.adminShopSellPrice <= 0) {
+                    return;
+                }
+
+                CompoundTag itemTag = entry.itemDescription.toNbt();
+
+                itemTag.putDouble("adminShopSellPrice", itemPriceInfo.adminShopSellPrice);
+
+                if (itemPriceInfo.adminShopSellStage != null) {
+                    itemTag.putString("adminShopSellStage", itemPriceInfo.adminShopSellStage);
+                }
+
+                itemsTag.add(itemTag);
             }
-
-            CompoundTag itemTag = entry.itemDescription.toNbt();
-            itemTag.putDouble("adminShopBuyPrice", entry.itemPriceInfo.adminShopBuyPrice);
-            itemTag.putDouble("adminShopSellPrice", entry.itemPriceInfo.adminShopSellPrice);
-            itemTag.putString("category", entry.itemPriceInfo.category);
-            itemTag.putInt("slot", entry.itemPriceInfo.adminShopSlot);
-
-            if (entry.itemPriceInfo.customAdminShopName != null) {
-                itemTag.putString("customAdminShopName", entry.itemPriceInfo.customAdminShopName);
-            }
-
-            if (entry.itemPriceInfo.adminShopStage != null) {
-                itemTag.putString("adminShopStage", entry.itemPriceInfo.adminShopStage);
-            }
-
-            itemsTag.add(itemTag);
         });
 
         categories.forEach((category, categories) -> {
@@ -254,6 +287,10 @@ public class ItemPriceManager {
             compoundTag.putString("name", category.name);
             compoundTag.putString("item", itemName);
 
+            if (shopUnlocks != null && shopUnlocks.unlockedCategories.contains(category.name)) {
+                compoundTag.putBoolean("recentlyUnlocked", true);
+            }
+
             ListTag innerCategories = new ListTag();
 
             categories.forEach(categoryInner -> {
@@ -267,6 +304,10 @@ public class ItemPriceManager {
 
                 compoundTagInner.putString("name", categoryInner.name);
                 compoundTagInner.putString("item", itemNameInner);
+
+                if (shopUnlocks != null && shopUnlocks.unlockedCategories.contains(category.name + ":" + categoryInner.name)) {
+                    compoundTagInner.putBoolean("recentlyUnlocked", true);
+                }
 
                 innerCategories.add(compoundTagInner);
             });

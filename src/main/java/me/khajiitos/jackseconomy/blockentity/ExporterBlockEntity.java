@@ -72,10 +72,6 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
         return balance;
     }
 
-    protected boolean hitCapacityLimit() {
-        return getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxExporterBalance.get())) >= 0;
-    }
-
     protected boolean isItemRejected(ItemStack itemStack) {
         ItemStack ticketItem = this.items.get(slotTicket);
         boolean isOnTicket = (ticketItem.getItem() instanceof GoldenExporterTicketItem || (ticketItem.getItem() instanceof ExporterTicketItem && ExporterTicketItem.getItems(ticketItem).contains(ItemDescription.ofItem(itemStack))));
@@ -261,7 +257,7 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
             return false;
         }
 
-        this.currency = this.currency.add(new BigDecimal(sellPrice));
+        this.currency = this.currency.add(BigDecimal.valueOf(sellPrice));
         itemStack.grow(-1);
         return true;
     }

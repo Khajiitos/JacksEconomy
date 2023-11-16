@@ -7,7 +7,6 @@ import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.menu.AdminShopMenu;
 import me.khajiitos.jackseconomy.packet.UpdateAdminShopPacket;
 import me.khajiitos.jackseconomy.price.ItemDescription;
-import me.khajiitos.jackseconomy.price.ItemPriceManager;
 import me.khajiitos.jackseconomy.screen.widget.BetterScrollPanel;
 import me.khajiitos.jackseconomy.screen.widget.EditCategoryEntry;
 import me.khajiitos.jackseconomy.screen.widget.FloatingEditBoxWidget;
@@ -45,7 +44,6 @@ public class EditAdminShopScreen extends AdminShopScreen {
 
     @Override
     protected void initCategoryPanel() {
-
         if (this.categoryPanel != null) {
             this.removeWidget(this.categoryPanel);
         }
@@ -53,6 +51,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
         this.categoryPanel = this.addRenderableWidget(new BetterScrollPanel(Minecraft.getInstance(), this.leftPos - 80, this.topPos + 20, 75, this.imageHeight - 40));
 
         for (Category category : shopItems.keySet()) {
+
             this.categoryPanel.children.add(new EditCategoryEntry(0, 0, 75, 25, category, (categoryEntry, button) -> {
                 if (button == 0) {
                     if (this.itemOnCursor != null) {
@@ -119,8 +118,12 @@ public class EditAdminShopScreen extends AdminShopScreen {
         }, () -> false, () -> tooltip = List.of(Component.translatable("jackseconomy.drop_item_to_create_category"))));
     }
 
+    protected List<InnerCategory> getInnerCategories(Category category) {
+        return this.shopItems.get(category).keySet().stream().toList();
+    }
+
     protected String getUnnamedInnerCategoryName() {
-        List<InnerCategory> categories = this.shopItems.get(selectedBigCategory).keySet().stream().toList();
+        List<InnerCategory> categories = this.getInnerCategories();
         int i = -1;
         while (true) {
             String name = "Unnamed" + (i == -1 ? "" : " " + i);
@@ -166,7 +169,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
     @Override
     protected boolean onCategorySlotClicked(int pButton, int categoryId) {
         if (pButton == 0) {
-            List<InnerCategory> categories = this.shopItems.get(selectedBigCategory).keySet().stream().toList();
+            List<InnerCategory> categories = this.getInnerCategories();
 
             if (categoryId == categories.size() && this.itemOnCursor != null && this.floatingEditBox == null) {
                 InnerCategory category = new InnerCategory(this.getUnnamedInnerCategoryName(), this.itemOnCursor.itemDescription().item());
@@ -357,18 +360,18 @@ public class EditAdminShopScreen extends AdminShopScreen {
                 innerCategoryTag.putString("item", innerItemName);
 
                 for (ShopItem shopItem : entry.getValue()) {
-
                     CompoundTag itemTag = shopItem.itemDescription().toNbt();
                     itemTag.putDouble("adminShopBuyPrice", shopItem.price());
-
-                    // If the sell price is set, it will be overwritten later
-                    itemTag.putDouble("adminShopSellPrice", -1.0);
 
                     itemTag.putString("category", category.name + ":" + entry.getKey().name);
                     itemTag.putInt("slot", shopItem.slot());
 
                     if (shopItem.customName() != null) {
                         itemTag.putString("customAdminShopName", shopItem.customName());
+                    }
+
+                    if (shopItem.stage() != null) {
+                        itemTag.putString("adminShopStage", shopItem.stage());
                     }
 
                     tagsForItems.computeIfAbsent(shopItem.itemDescription(), (a) -> new ArrayList<>()).add(itemTag);
@@ -382,10 +385,16 @@ public class EditAdminShopScreen extends AdminShopScreen {
             categoriesTag.add(categoryTag);
         });
 
-        sellPrices.forEach((itemDescription, amount) -> {
-            CompoundTag itemTag = itemDescription.toNbt();
-            itemTag.putDouble("adminShopSellPrice", -1.0);
-            tagsForItems.computeIfAbsent(itemDescription, (a) -> new ArrayList<>()).add(itemTag);
+        sellPrices.forEach((itemDescription, info) -> {
+            if (info.worth() > 0) {
+                CompoundTag itemTag = itemDescription.toNbt();
+                itemTag.putDouble("adminShopSellPrice", info.worth());
+
+                if (info.stage() != null) {
+                    itemTag.putString("adminShopSellStage", info.stage());
+                }
+                tagsForItems.computeIfAbsent(itemDescription, (a) -> new ArrayList<>()).add(itemTag);
+            }
         });
 
         tagsForItems.forEach(((itemDescription, compoundTags) -> itemsTag.addAll(compoundTags)));
@@ -426,34 +435,80 @@ public class EditAdminShopScreen extends AdminShopScreen {
                 }
             }
         } else if (pMouseButton == 1 && pSlot != null) {
+            if (this.floatingEditBox != null) {
+                this.removeWidget(this.floatingEditBox);
+                this.floatingEditBox = null;
+            }
             ItemStack itemStack = pSlot.getItem();
             if (!itemStack.isEmpty()) {
                 ItemDescription itemDescription = ItemDescription.ofItem(itemStack);
-                this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, this.leftPos + pSlot.x + 8, this.topPos + pSlot.y + 16, 50, 15, (value) -> {
-                    try {
-                        double newPrice = Double.parseDouble(value);
-
-                        sellPrices.put(itemDescription, newPrice);
+                if (GameStagesCheck.isInstalled() && InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)) {
+                    this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, this.leftPos + pSlot.x + 8, this.topPos + pSlot.y + 16, 50, 15, (value) -> {
+                        if (sellPrices.containsKey(itemDescription)) {
+                            sellPrices.put(itemDescription, new ItemSellabilityInfo(sellPrices.get(itemDescription).worth(), value));
+                        } else {
+                            sellPrices.put(itemDescription, new ItemSellabilityInfo(-1.0, value));
+                        }
 
                         this.removeWidget(this.floatingEditBox);
                         this.floatingEditBox = null;
-                    } catch (NumberFormatException ignored) {}
-                }));
+                    }));
 
-                if (sellPrices.containsKey(itemDescription)) {
-                    this.floatingEditBox.setValue(String.format(Locale.US, "%.2f", sellPrices.get(itemDescription)));
+                    if (sellPrices.containsKey(itemDescription)) {
+                        this.floatingEditBox.setValue(sellPrices.get(itemDescription).stage());
+                    }
+
+                    this.setFocused(this.floatingEditBox);
+                } else {
+                    this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, this.leftPos + pSlot.x + 8, this.topPos + pSlot.y + 16, 50, 15, (value) -> {
+                        try {
+                            double newPrice = Double.parseDouble(value);
+
+                            if (sellPrices.containsKey(itemDescription)) {
+                                sellPrices.put(itemDescription, new ItemSellabilityInfo(newPrice, sellPrices.get(itemDescription).stage()));
+                            } else {
+                                sellPrices.put(itemDescription, new ItemSellabilityInfo(newPrice, null));
+                            }
+
+                            this.removeWidget(this.floatingEditBox);
+                            this.floatingEditBox = null;
+                        } catch (NumberFormatException ignored) {}
+                    }));
+
+                    if (sellPrices.containsKey(itemDescription)) {
+                        this.floatingEditBox.setValue(String.format(Locale.US, "%.2f", sellPrices.get(itemDescription).worth()));
+                    }
+
+                    this.setFocused(this.floatingEditBox);
                 }
-
-                this.setFocused(this.floatingEditBox);
             }
         } else if (pMouseButton == 2 && pSlot != null) {
             ItemStack itemStack = pSlot.getItem();
-            sellPrices.remove(ItemDescription.ofItem(itemStack));
+
+            if (itemStack.isEmpty()) {
+                return;
+            }
+
+            ItemDescription itemDescription = ItemDescription.ofItem(itemStack);
+            if (GameStagesCheck.isInstalled() && InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)) {
+                ItemSellabilityInfo info = sellPrices.get(itemDescription);
+
+                if (info != null && info.stage() != null) {
+                    sellPrices.put(itemDescription, new ItemSellabilityInfo(info.worth(), null));
+                }
+            } else {
+                sellPrices.remove(itemDescription);
+            }
         }
     }
 
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        if (this.getFocused() instanceof FloatingEditBoxWidget) {
+            return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+            //return editBoxWidget.keyPressed(pKeyCode, pScanCode, pModifiers);
+        }
+
         if (pKeyCode == GLFW.GLFW_KEY_LEFT) {
             if (this.getFocused() instanceof AbstractWidget widget && this.renderables.contains(widget)) {
                 return false;

@@ -5,9 +5,8 @@ import me.khajiitos.jackseconomy.init.BlockEntityReg;
 import me.khajiitos.jackseconomy.init.ContainerReg;
 import me.khajiitos.jackseconomy.listener.ClientEventListeners;
 import me.khajiitos.jackseconomy.listener.ClientRenderEventListeners;
-import me.khajiitos.jackseconomy.listener.TextureEventListeners;
 import me.khajiitos.jackseconomy.price.ItemDescription;
-import me.khajiitos.jackseconomy.price.ItemPriceInfo;
+import me.khajiitos.jackseconomy.price.PricesItemPriceInfo;
 import me.khajiitos.jackseconomy.renderer.MechanicalTransactionMachineRenderer;
 import me.khajiitos.jackseconomy.screen.*;
 import net.minecraft.client.KeyMapping;
@@ -27,7 +26,7 @@ import java.util.HashMap;
 
 public class JacksEconomyClient {
     public static final KeyMapping OPEN_WALLET = new KeyMapping("key.jackseconomy.open_wallet", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_O, "key.categories.jackseconomy");
-    public static HashMap<ItemDescription, ItemPriceInfo> priceInfos = new HashMap<>();
+    public static HashMap<ItemDescription, PricesItemPriceInfo> priceInfos = new HashMap<>();
     public static BigDecimal balanceDifPopup = null;
     public static long balanceDifPopupStartMillis = -1;
 

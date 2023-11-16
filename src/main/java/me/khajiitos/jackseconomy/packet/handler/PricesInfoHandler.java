@@ -3,7 +3,7 @@ package me.khajiitos.jackseconomy.packet.handler;
 import me.khajiitos.jackseconomy.JacksEconomyClient;
 import me.khajiitos.jackseconomy.packet.PricesInfoPacket;
 import me.khajiitos.jackseconomy.price.ItemDescription;
-import me.khajiitos.jackseconomy.price.ItemPriceInfo;
+import me.khajiitos.jackseconomy.price.PricesItemPriceInfo;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -22,9 +22,9 @@ public class PricesInfoHandler {
                     double sellPrice = itemTag.getDouble("sellPrice");
                     double adminShopSellPrice = itemTag.getDouble("adminShopSellPrice");
                     double importerBuyPrice = itemTag.getDouble("importerBuyPrice");
-                    double adminShopBuyPrice = itemTag.getDouble("adminShopBuyPrice");
+                    String adminShopSellStage = itemTag.contains("adminShopSellStage") ? itemTag.getString("adminShopSellStage") : null;
 
-                    JacksEconomyClient.priceInfos.put(itemDescription, new ItemPriceInfo(sellPrice, adminShopSellPrice, importerBuyPrice, adminShopBuyPrice, null, -1, null, null));
+                    JacksEconomyClient.priceInfos.put(itemDescription, new PricesItemPriceInfo(sellPrice, adminShopSellPrice, importerBuyPrice, adminShopSellStage));
                 }
             }
         });

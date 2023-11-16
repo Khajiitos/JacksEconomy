@@ -1,6 +1,5 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;

@@ -1,9 +1,10 @@
 package me.khajiitos.jackseconomy.packet.handler;
 
 import me.khajiitos.jackseconomy.packet.UpdateAdminShopPacket;
+import me.khajiitos.jackseconomy.price.AdminShopItemPriceInfo;
 import me.khajiitos.jackseconomy.price.ItemDescription;
-import me.khajiitos.jackseconomy.price.ItemPriceInfo;
 import me.khajiitos.jackseconomy.price.ItemPriceManager;
+import me.khajiitos.jackseconomy.price.PricesItemPriceInfo;
 import me.khajiitos.jackseconomy.util.ItemHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -34,20 +35,22 @@ public class UpdateAdminShopHandler {
         ListTag categoriesTag = data.getList("categories", Tag.TAG_COMPOUND);
         ListTag itemsTag = data.getList("items", Tag.TAG_COMPOUND);
 
-        List<ItemPriceManager.ItemPriceEntry> itemPriceInfos = ItemPriceManager.getItemPriceInfos();
+        List<AdminShopItemPriceInfo> itemPriceInfos = ItemPriceManager.getItemPriceInfos().stream().filter(itemPriceEntry -> itemPriceEntry.itemPriceInfo() instanceof AdminShopItemPriceInfo).map(itemPriceEntry -> (AdminShopItemPriceInfo)itemPriceEntry.itemPriceInfo()).toList();
         LinkedHashMap<ItemPriceManager.Category, List<ItemPriceManager.Category>> categories = ItemPriceManager.getCategories();
 
         categories.clear();
 
+        /*
         // Remove all properties related to the shop
         // if the item wasn't removed they will be restored
-        for (ItemPriceManager.ItemPriceEntry entry : itemPriceInfos) {
-            entry.itemPriceInfo().adminShopBuyPrice = -1;
-            entry.itemPriceInfo().adminShopSellPrice = -1;
-            entry.itemPriceInfo().category = null;
-            entry.itemPriceInfo().customAdminShopName = null;
-            entry.itemPriceInfo().adminShopStage = null;
-        }
+        for (AdminShopItemPriceInfo entry : itemPriceInfos) {
+            entry.adminShopBuyPrice = -1;
+            entry.category = null;
+            entry.customAdminShopName = null;
+            entry.adminShopStage = null;
+        }*/
+        // Whatever, let's just remove them all... what's the worst that could happen?
+        ItemPriceManager.getItemPriceInfos().removeIf(itemPriceEntry -> itemPriceEntry.itemPriceInfo() instanceof AdminShopItemPriceInfo);
 
         categoriesTag.forEach(tag -> {
             if (tag instanceof CompoundTag compoundTag) {
@@ -73,6 +76,14 @@ public class UpdateAdminShopHandler {
             }
         });
 
+        ItemPriceManager.getItemPriceInfos().forEach(itemPriceEntry -> {
+            if (itemPriceEntry.itemPriceInfo() instanceof PricesItemPriceInfo priceInfo) {
+                // Will be brought back later if not removed
+                priceInfo.adminShopSellPrice = -1.0;
+                priceInfo.adminShopSellStage = null;
+            }
+        });
+
         itemsTag.forEach(tag -> {
             if (tag instanceof CompoundTag compoundTag) {
                 ItemDescription itemDescription = ItemDescription.fromNbt(compoundTag);
@@ -81,33 +92,34 @@ public class UpdateAdminShopHandler {
                     return;
                 }
 
+                double sellPrice = compoundTag.contains("adminShopSellPrice") ?  compoundTag.getDouble("adminShopSellPrice") : -1.0;
+                String sellStage = compoundTag.contains("adminShopSellStage") ? compoundTag.getString("adminShopSellStage") : null;
+
+                if (sellPrice > 0) {
+                    PricesItemPriceInfo pricesItemPriceInfo = ItemPriceManager.getPricesInfo(itemDescription);
+
+                    if (pricesItemPriceInfo != null) {
+                        pricesItemPriceInfo.adminShopSellPrice = sellPrice;
+                        pricesItemPriceInfo.adminShopSellStage = sellStage;
+                    } else {
+                        ItemPriceManager.addPriceInfo(itemDescription, new PricesItemPriceInfo(-1, sellPrice, -1, sellStage));
+                    }
+
+                    // Sell price/stage entries and admin shop entries are separate
+                    return;
+                }
+
                 String category = compoundTag.getString("category");
                 double buyPrice = compoundTag.getDouble("adminShopBuyPrice");
-                double sellPrice = compoundTag.getDouble("adminShopSellPrice");
                 int slot = compoundTag.contains("slot") ? compoundTag.getInt("slot") : -1;
                 String customName = compoundTag.contains("customAdminShopName") ? compoundTag.getString("customAdminShopName") : null;
                 String stage = compoundTag.contains("adminShopStage") ? compoundTag.getString("adminShopStage") : null;
 
-                // TODO: keep admin shop entries and exporter/importer entries separate?
-
-                /*
-                if (itemPriceInfos.containsKey(itemDescription)) {
-                    ItemPriceInfo priceInfo = itemPriceInfos.get(itemDescription);
-                    priceInfo.category = category;
-                    priceInfo.adminShopBuyPrice = buyPrice;
-                    priceInfo.adminShopSellPrice = sellPrice;
-                    priceInfo.adminShopSlot = slot;
-                    priceInfo.customAdminShopName = customName;
-                    priceInfo.adminShopStage = stage;
-                } else {
-                }*/
-                itemPriceInfos.add(new ItemPriceManager.ItemPriceEntry(itemDescription, new ItemPriceInfo(-1, sellPrice, -1, buyPrice, category, slot, customName, stage)));
+                ItemPriceManager.addPriceInfo(itemDescription, new AdminShopItemPriceInfo(buyPrice, category, slot, customName, stage));
             }
         });
 
         ItemPriceManager.save();
-        // TODO: Make sure it works!
-        // Update: it doesn't
-        // TODO: did I forget to remove this TODO? Maybe I should re-test this again later...
+        ItemPriceManager.sendDataToPlayers();
     }
 }

@@ -5,7 +5,6 @@ import me.khajiitos.jackseconomy.block.*;
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.item.*;
 import me.khajiitos.jackseconomy.util.CurrencyType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;

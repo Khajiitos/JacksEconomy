@@ -1,7 +1,6 @@
 package me.khajiitos.jackseconomy.item;
 
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
-import me.khajiitos.jackseconomy.init.ItemBlockReg;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.init.Sounds;
 import me.khajiitos.jackseconomy.packet.WalletBalanceDifPacket;

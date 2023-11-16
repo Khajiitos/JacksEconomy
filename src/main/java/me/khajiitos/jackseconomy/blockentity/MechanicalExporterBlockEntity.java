@@ -261,7 +261,7 @@ public class MechanicalExporterBlockEntity extends TransactionKineticMachineBloc
             return false;
         }
 
-        this.currency = this.currency.add(new BigDecimal(sellPrice));
+        this.currency = this.currency.add(BigDecimal.valueOf(sellPrice));
         itemStack.grow(-1);
         return true;
     }

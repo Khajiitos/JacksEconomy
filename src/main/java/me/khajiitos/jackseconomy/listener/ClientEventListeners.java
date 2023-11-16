@@ -7,7 +7,7 @@ import me.khajiitos.jackseconomy.curios.CuriosWallet;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.packet.OpenCuriosWalletPacket;
 import me.khajiitos.jackseconomy.price.ItemDescription;
-import me.khajiitos.jackseconomy.price.ItemPriceInfo;
+import me.khajiitos.jackseconomy.price.PricesItemPriceInfo;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -43,7 +43,7 @@ public class ClientEventListeners {
             return;
         }
 
-        ItemPriceInfo priceInfo = JacksEconomyClient.priceInfos.get(ItemDescription.ofItem(e.getItemStack()));
+        PricesItemPriceInfo priceInfo = JacksEconomyClient.priceInfos.get(ItemDescription.ofItem(e.getItemStack()));
 
         if (priceInfo == null) {
             return;

@@ -4,8 +4,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import me.khajiitos.jackseconomy.price.ItemDescription;
-import me.khajiitos.jackseconomy.price.ItemPriceInfo;
 import me.khajiitos.jackseconomy.price.ItemPriceManager;
+import me.khajiitos.jackseconomy.price.PricesItemPriceInfo;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -49,7 +49,8 @@ public class PriceCommands {
             return 1;
         }
 
-        double price = DoubleArgumentType.getDouble(ctx, "price");
+        double priceArg = DoubleArgumentType.getDouble(ctx, "price");
+        final double price = priceArg <= 0 ? -1.0 : priceArg;
 
         ItemStack itemInHand = player.getMainHandItem();
 
@@ -58,15 +59,19 @@ public class PriceCommands {
             return 1;
         }
 
-        ItemPriceInfo existingInfo = ItemPriceManager.getInfo(new ItemDescription(itemInHand.getItem(), stripNbt ? null : itemInHand.getTag()));
+        PricesItemPriceInfo existingInfo = ItemPriceManager.getPricesInfo(new ItemDescription(itemInHand.getItem(), stripNbt ? null : itemInHand.getTag()));
 
         if (existingInfo != null) {
             existingInfo.importerBuyPrice = price;
         } else {
-            ItemPriceManager.addPriceInfo(itemInHand, new ItemPriceInfo(-1, -1, price, -1, null, -1, null, null));
+            ItemPriceManager.addPriceInfo(itemInHand, new PricesItemPriceInfo(-1, -1, price, null));
         }
 
-        ctx.getSource().sendSuccess(() -> Component.translatable("jackseconomy.importer_price_set", itemInHand.getItem().getDescription().copy().withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD), true);
+        if (price > 0) {
+            ctx.getSource().sendSuccess(() -> Component.translatable("jackseconomy.importer_price_set", itemInHand.getItem().getDescription().copy().withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD), true);
+        } else {
+            ctx.getSource().sendSuccess(() -> Component.translatable("jackseconomy.importer_price_removed", itemInHand.getItem().getDescription().copy().withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD), true);
+        }
 
         ItemPriceManager.save();
         ItemPriceManager.sendDataToPlayers();
@@ -81,7 +86,8 @@ public class PriceCommands {
             return 1;
         }
 
-        double price = DoubleArgumentType.getDouble(ctx, "price");
+        double priceArg = DoubleArgumentType.getDouble(ctx, "price");
+        final double price = priceArg <= 0 ? -1.0 : priceArg;
 
         ItemStack itemInHand = player.getMainHandItem();
 
@@ -90,15 +96,19 @@ public class PriceCommands {
             return 1;
         }
 
-        ItemPriceInfo existingInfo = ItemPriceManager.getInfo(new ItemDescription(itemInHand.getItem(), stripNbt ? null : itemInHand.getTag()));
+        PricesItemPriceInfo existingInfo = ItemPriceManager.getPricesInfo(new ItemDescription(itemInHand.getItem(), stripNbt ? null : itemInHand.getTag()));
 
         if (existingInfo != null) {
             existingInfo.sellPrice = price;
         } else {
-            ItemPriceManager.addPriceInfo(itemInHand, new ItemPriceInfo(price, -1, -1, -1, null, -1, null, null));
+            ItemPriceManager.addPriceInfo(itemInHand, new PricesItemPriceInfo(price, -1, -1, null));
         }
 
-        ctx.getSource().sendSuccess(() -> Component.translatable("jackseconomy.exporter_price_set", itemInHand.getItem().getDescription().copy().withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD), true);
+        if (price > 0) {
+            ctx.getSource().sendSuccess(() -> Component.translatable("jackseconomy.exporter_price_set", itemInHand.getItem().getDescription().copy().withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD), true);
+        } else {
+            ctx.getSource().sendSuccess(() -> Component.translatable("jackseconomy.exporter_price_removed", itemInHand.getItem().getDescription().copy().withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD), true);
+        }
 
         ItemPriceManager.save();
         ItemPriceManager.sendDataToPlayers();
