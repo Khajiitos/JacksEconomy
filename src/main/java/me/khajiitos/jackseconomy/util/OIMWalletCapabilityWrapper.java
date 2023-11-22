@@ -1,15 +1,12 @@
 package me.khajiitos.jackseconomy.util;
 
 import me.khajiitos.jackseconomy.init.ItemBlockReg;
-import me.khajiitos.jackseconomy.item.CurrencyItem;
 import me.khajiitos.jackseconomy.item.OIMWalletItem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;

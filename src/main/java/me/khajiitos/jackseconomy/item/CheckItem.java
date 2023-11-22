@@ -21,7 +21,6 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.text.CompactNumberFormat;
 import java.util.List;
 
 public class CheckItem extends Item implements IDisablable {

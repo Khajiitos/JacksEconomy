@@ -5,7 +5,6 @@ import me.khajiitos.jackseconomy.init.BlockEntityReg;
 import me.khajiitos.jackseconomy.init.ContainerReg;
 import me.khajiitos.jackseconomy.listener.ClientEventListeners;
 import me.khajiitos.jackseconomy.listener.ClientRenderEventListeners;
-import me.khajiitos.jackseconomy.menu.OIMWalletMenu;
 import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.price.PricesItemPriceInfo;
 import me.khajiitos.jackseconomy.renderer.MechanicalTransactionMachineRenderer;

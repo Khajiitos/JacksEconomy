@@ -8,7 +8,6 @@ import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.gui.widget.ForgeSlider;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class ClientConfigScreen extends Screen {

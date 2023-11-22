@@ -22,7 +22,6 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
