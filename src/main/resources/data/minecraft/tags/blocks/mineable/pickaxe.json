@@ -4,6 +4,7 @@
     "jackseconomy:importer",
     "jackseconomy:mechanical_exporter",
     "jackseconomy:mechanical_importer",
-    "jackseconomy:currency_converter"
+    "jackseconomy:currency_converter",
+    "jackseconomy:admin_shop"
   ]
 }

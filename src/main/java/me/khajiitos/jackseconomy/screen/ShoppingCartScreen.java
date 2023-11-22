@@ -6,8 +6,10 @@ import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
 import me.khajiitos.jackseconomy.gamestages.GameStagesManager;
+import me.khajiitos.jackseconomy.init.ItemBlockReg;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.init.Sounds;
+import me.khajiitos.jackseconomy.item.OIMWalletItem;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.menu.AdminShopMenu;
 import me.khajiitos.jackseconomy.packet.AdminShopPurchasePacket;
@@ -47,13 +49,14 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
     private BetterScrollPanel shoppingCartPanel;
     private List<Component> tooltip;
     private Button purchaseButton;
-
+    private final boolean oneItemCurrencyMode;
 
     public ShoppingCartScreen(AdminShopMenu pMenu, Inventory pPlayerInventory, AdminShopScreen parent) {
         super(pMenu, pPlayerInventory, Component.empty());
         this.parent = parent;
         this.imageHeight = 232;
         this.inventoryLabelY = this.imageHeight - 94;
+        this.oneItemCurrencyMode = parent.oneItemCurrencyMode;
     }
 
     public BigDecimal getShoppingCartValue() {
@@ -76,7 +79,13 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
     public void addPurchaseButton() {
         ItemStack wallet = CuriosWallet.get(Minecraft.getInstance().player);
         BigDecimal toPay = getShoppingCartValue().subtract(getSoldValue());
-        boolean canAfford = !wallet.isEmpty() && WalletItem.getBalance(wallet).compareTo(toPay) >= 0;
+        boolean canAfford;
+
+        if (this.oneItemCurrencyMode) {
+            canAfford = OIMWalletItem.getTotalDollars(wallet, Minecraft.getInstance().player) >= toPay.longValue();
+        } else {
+            canAfford = !wallet.isEmpty() && WalletItem.getBalance(wallet).compareTo(toPay) >= 0;
+        }
 
         MutableComponent buttonName;
         if (!this.parent.itemsToSell.isEmpty()) {
@@ -117,7 +126,7 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
         }
 
         for (Map.Entry<AdminShopScreen.CategorizedShopItem, Integer> shoppingCartEntry : parent.shoppingCart.entrySet()) {
-            this.shoppingCartPanel.children.add(new ShoppingCartEntry(0, 0, 162, 20, shoppingCartEntry, () -> {
+            this.shoppingCartPanel.children.add(new ShoppingCartEntry(0, 0, 162, 20, this.oneItemCurrencyMode, shoppingCartEntry, () -> {
                 this.removeWidget(purchaseButton);
                 this.addPurchaseButton();
             }, () -> {
@@ -133,7 +142,7 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
 
         for (Map.Entry<ItemDescription, Integer> itemToSell : parent.itemsToSell.entrySet()) {
             assert Minecraft.getInstance().player != null;
-            this.shoppingCartPanel.children.add(new ShoppingCartSellEntry(0, 0, 162, 20, itemToSell, parent.sellPrices.get(itemToSell.getKey()).worth(), Minecraft.getInstance().player.getInventory(), () -> {
+            this.shoppingCartPanel.children.add(new ShoppingCartSellEntry(0, 0, 162, 20, this.oneItemCurrencyMode, itemToSell, parent.sellPrices.get(itemToSell.getKey()).worth(), Minecraft.getInstance().player.getInventory(), () -> {
                 this.parent.reduceSellItemsIfMissing();
                 this.removeWidget(purchaseButton);
                 this.addPurchaseButton();
@@ -167,9 +176,15 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
             BigDecimal shoppingCartValue = getShoppingCartValue();
             BigDecimal soldValue = getSoldValue();
             BigDecimal totalValue = shoppingCartValue.subtract(soldValue);
-            boolean canAfford = !wallet.isEmpty() && WalletItem.getBalance(wallet).compareTo(totalValue) >= 0;
+            boolean canAfford;
 
-            if (wallet.isEmpty()) {
+            if (this.oneItemCurrencyMode) {
+                canAfford = OIMWalletItem.getTotalDollars(wallet, Minecraft.getInstance().player) >= totalValue.longValue();
+            } else {
+                canAfford = !wallet.isEmpty() && WalletItem.getBalance(wallet).compareTo(totalValue) >= 0;
+            }
+
+            if (wallet.isEmpty() && !this.oneItemCurrencyMode) {
                 tooltip = List.of(Component.translatable("jackseconomy.no_wallet").withStyle(ChatFormatting.YELLOW));
             } else if (!canAfford) {
                 tooltip = List.of(Component.translatable("jackseconomy.cant_afford").withStyle(ChatFormatting.RED));
@@ -178,14 +193,14 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
             } else {
                 tooltip = new ArrayList<>();
                 if (!this.parent.shoppingCart.isEmpty()) {
-                    tooltip.add(Component.translatable("jackseconomy.bought_items", Component.literal(CurrencyHelper.format(shoppingCartValue)).withStyle(ChatFormatting.AQUA)).withStyle(ChatFormatting.DARK_AQUA));
+                    tooltip.add(Component.translatable("jackseconomy.bought_items", Component.literal(Config.oneItemCurrencyMode.get() ? "$" + shoppingCartValue.longValue() : CurrencyHelper.format(shoppingCartValue)).withStyle(ChatFormatting.AQUA)).withStyle(ChatFormatting.DARK_AQUA));
                 }
 
                 if (!this.parent.itemsToSell.isEmpty()) {
-                    tooltip.add(Component.translatable("jackseconomy.sold_items", Component.literal(CurrencyHelper.format(soldValue)).withStyle(ChatFormatting.AQUA)).withStyle(ChatFormatting.DARK_AQUA));
+                    tooltip.add(Component.translatable("jackseconomy.sold_items", Component.literal(Config.oneItemCurrencyMode.get() ? "$" + soldValue.longValue() : CurrencyHelper.format(soldValue)).withStyle(ChatFormatting.AQUA)).withStyle(ChatFormatting.DARK_AQUA));
                 }
 
-                tooltip.add(Component.translatable("jackseconomy.total", Component.literal(CurrencyHelper.format(totalValue)).withStyle(ChatFormatting.AQUA)).withStyle(ChatFormatting.DARK_AQUA));
+                tooltip.add(Component.translatable("jackseconomy.total", Component.literal(Config.oneItemCurrencyMode.get() ? "$" + totalValue.longValue() : CurrencyHelper.format(totalValue)).withStyle(ChatFormatting.AQUA)).withStyle(ChatFormatting.DARK_AQUA));
 
                 if (!this.parent.shoppingCart.isEmpty()) {
                     tooltip.add(Component.literal(" "));
@@ -209,7 +224,7 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
 
         ItemStack wallet = CuriosWallet.get(Minecraft.getInstance().player);
 
-        if (wallet != null && wallet.getItem() instanceof WalletItem walletItem) {
+        if (!Config.oneItemCurrencyMode.get() && wallet != null && wallet.getItem() instanceof WalletItem walletItem) {
             BigDecimal balance = WalletItem.getBalance(wallet);
 
             Component component = Component.literal(CurrencyHelper.formatShortened(balance));
@@ -220,22 +235,34 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
             guiGraphics.renderItem(wallet, this.leftPos + 183, this.topPos + 8);
             guiGraphics.drawString(this.font, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
 
+            RenderSystem.setShaderTexture(0, BALANCE_PROGRESS);
+
             int barStartX = this.leftPos + 181 + ((totalWidth - 51) / 2);
             int barStartY = this.topPos + 26;
             double progress = balance.divide(BigDecimal.valueOf(walletItem.getCapacity()), RoundingMode.DOWN).min(BigDecimal.ONE).doubleValue();
-            guiGraphics.blit(BALANCE_PROGRESS, barStartX, barStartY, 0/*this.getBlitOffset()*/, 0, 0, 51, 5, 256, 256);
-            guiGraphics.blit(BALANCE_PROGRESS, barStartX, barStartY, 0/*this.getBlitOffset()*/, 0, 5, ((int)(51 * progress)), 5, 256, 256);
+            guiGraphics.blit(BALANCE_PROGRESS, barStartX, barStartY, 0, 0, 0, 51, 5, 256, 256);
+            guiGraphics.blit(BALANCE_PROGRESS, barStartX, barStartY, 0, 0, 5, ((int)(51 * progress)), 5, 256, 256);
 
             if (pMouseX >= barStartX && pMouseX <= barStartX + 51 && pMouseY >= barStartY && pMouseY <= barStartY + 5) {
                 tooltip = List.of(Component.translatable("jackseconomy.balance_out_of", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(walletItem.getCapacity()))).withStyle(ChatFormatting.GOLD));
             }
+        } else if (Config.oneItemCurrencyMode.get()) {
+            long balance = OIMWalletItem.getTotalDollars(wallet, Minecraft.getInstance().player);
+
+            Component component = Component.literal("$" + balance);
+            int textWidth = this.font.width(component);
+            int totalWidth = 29 + textWidth;
+            guiGraphics.fill(this.leftPos + 181, this.topPos + 5, this.leftPos + 181 + totalWidth, this.topPos + 27, 0xFF4c4c4c);
+            guiGraphics.fill(this.leftPos + 182, this.topPos + 6, this.leftPos + 182 + totalWidth, this.topPos + 26, 0xFFc6c6c6);
+            guiGraphics.renderItem(wallet != null && !wallet.isEmpty() ? wallet : new ItemStack(ItemBlockReg.WALLET_ITEM.get()), this.leftPos + 183, this.topPos + 8);
+            guiGraphics.drawString(this.font, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
         } else {
             Component component = Component.translatable("jackseconomy.no_wallet").withStyle(ChatFormatting.DARK_RED);
             int width = this.font.width(component);
             guiGraphics.fill(this.leftPos + 181, this.topPos + 5, this.leftPos + 209 + width, this.topPos + 25, 0xFF4c4c4c);
             guiGraphics.fill(this.leftPos + 182, this.topPos + 6, this.leftPos + 208 + width, this.topPos + 24, 0xFFc6c6c6);
-            guiGraphics.blit(NO_WALLET, this.leftPos + 183, this.topPos + 8, 0/*this.getBlitOffset()*/, 0, 0, 16, 16, 16, 16);
-            guiGraphics.drawString(this.font, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF, false);
+            guiGraphics.blit(NO_WALLET, this.leftPos + 183, this.topPos + 8, 0, 0, 0, 16, 16, 16, 16);
+            guiGraphics.drawString(Minecraft.getInstance().font, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF, false);
         }
 
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
@@ -259,7 +286,7 @@ public class ShoppingCartScreen extends AbstractContainerScreen<AdminShopMenu> {
                     }
                 } else {
                     if (price != -1) {
-                        tooltip.add(Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.GRAY));
+                        tooltip.add(Component.literal(oneItemCurrencyMode ? "$" + (long)price : CurrencyHelper.format(price)).withStyle(ChatFormatting.GRAY));
                         tooltip.add(Component.translatable("jackseconomy.to_sell", Component.literal(String.valueOf(parent.itemsToSell.getOrDefault(itemDescription, 0))).withStyle(ChatFormatting.AQUA)));
                     } else {
                         tooltip.add(Component.translatable("jackseconomy.no_sell_price").withStyle(ChatFormatting.GRAY));

@@ -1,6 +1,8 @@
 package me.khajiitos.jackseconomy.item;
 
+import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
+import me.khajiitos.jackseconomy.util.IDisablable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -14,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class WalletItem extends Item {
+public class WalletItem extends Item implements IDisablable {
     // to be edited with values from the config
     public Supplier<ForgeConfigSpec.ConfigValue<Double>> capacity;
 
@@ -60,7 +62,16 @@ public class WalletItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
-        BigDecimal balance = getBalance(pStack);
-        pTooltipComponents.add(Component.translatable("jackseconomy.balance_out_of", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(getCapacity())).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD));
+        if (isDisabled()) {
+            pTooltipComponents.addAll(this.getDisabledTooltip());
+        } else {
+            BigDecimal balance = getBalance(pStack);
+            pTooltipComponents.add(Component.translatable("jackseconomy.balance_out_of", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(getCapacity())).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD));
+        }
+    }
+
+    @Override
+    public boolean isDisabled() {
+        return Config.oneItemCurrencyMode.get();
     }
 }

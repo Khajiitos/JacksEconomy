@@ -27,6 +27,7 @@ public class Config {
     public static final ForgeConfigSpec.ConfigValue<Boolean> showStageForLockedAdminShopItems;
     public static final ForgeConfigSpec.ConfigValue<Boolean> showStageForLockedSellItems;
     public static final ForgeConfigSpec.ConfigValue<Boolean> disableAdminShopSelling;
+    public static final ForgeConfigSpec.ConfigValue<Boolean> oneItemCurrencyMode;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -54,6 +55,7 @@ public class Config {
         showStageForLockedAdminShopItems = builder.comment("If an item in the Admin Shop is locked behind a game stage, it will (or won't) show what stage that item is locked behind").define("showStageForLockedAdminShopItems", false);
         showStageForLockedSellItems = builder.comment("If an item to sell in the Admin Shop is locked behind a game stage, it will (or won't) show what stage that item is locked behind").define("showStageForLockedSellItems", false);
         disableAdminShopSelling = builder.define("disableAdminShopSelling", false);
+        oneItemCurrencyMode = builder.define("oneItemCurrencyMode", false);
 
         SPEC = builder.build();
     }

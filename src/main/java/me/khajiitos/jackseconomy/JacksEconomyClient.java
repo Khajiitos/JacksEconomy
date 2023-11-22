@@ -5,6 +5,7 @@ import me.khajiitos.jackseconomy.init.BlockEntityReg;
 import me.khajiitos.jackseconomy.init.ContainerReg;
 import me.khajiitos.jackseconomy.listener.ClientEventListeners;
 import me.khajiitos.jackseconomy.listener.ClientRenderEventListeners;
+import me.khajiitos.jackseconomy.menu.OIMWalletMenu;
 import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.price.PricesItemPriceInfo;
 import me.khajiitos.jackseconomy.renderer.MechanicalTransactionMachineRenderer;
@@ -47,6 +48,7 @@ public class JacksEconomyClient {
         MenuScreens.register(ContainerReg.MECHANICAL_EXPORTER_MENU.get(), MechanicalExporterScreen::new);
         MenuScreens.register(ContainerReg.MECHANICAL_IMPORTER_MENU.get(), MechanicalImporterScreen::new);
         MenuScreens.register(ContainerReg.WALLET_MENU.get(), WalletScreen::new);
+        MenuScreens.register(ContainerReg.OIM_WALLET_MENU.get(), OIMWalletScreen::new);
         MenuScreens.register(ContainerReg.ADMIN_SHOP_MENU.get(), AdminShopScreen::new);
         MenuScreens.register(ContainerReg.CURRENCY_CONVERTER_MENU.get(), CurrencyConverterScreen::new);
         MenuScreens.register(ContainerReg.IMPORTER_TICKET_CREATOR_MENU.get(), TicketCreatorScreen::new);

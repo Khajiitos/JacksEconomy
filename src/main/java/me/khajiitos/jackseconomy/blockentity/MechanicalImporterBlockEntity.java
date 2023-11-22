@@ -185,7 +185,7 @@ public class MechanicalImporterBlockEntity extends TransactionKineticMachineBloc
             return;
         }
 
-        if (importer.getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get())) < 0) {
+        if (importer.getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxImporterBalance.get())) < 0) {
             for (int i = 0; i < 3; i++) {
                 ItemStack inputItem = importer.getItem(i);
 

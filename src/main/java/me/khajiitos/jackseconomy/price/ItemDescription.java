@@ -72,7 +72,13 @@ public record ItemDescription(Item item, CompoundTag compoundTag) {
 
     public ItemStack createItemStack() {
         ItemStack itemStack = new ItemStack(this.item);
-        itemStack.setTag(this.compoundTag().copy());
+
+        CompoundTag tag = this.compoundTag();
+
+        if (!tag.isEmpty()) {
+            itemStack.setTag(tag.copy());
+        }
+
         return itemStack;
     }
 

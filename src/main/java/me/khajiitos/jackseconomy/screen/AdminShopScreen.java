@@ -8,7 +8,9 @@ import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
 import me.khajiitos.jackseconomy.gamestages.GameStagesCheck;
 import me.khajiitos.jackseconomy.gamestages.GameStagesManager;
+import me.khajiitos.jackseconomy.init.ItemBlockReg;
 import me.khajiitos.jackseconomy.init.Packets;
+import me.khajiitos.jackseconomy.item.OIMWalletItem;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.menu.AdminShopMenu;
 import me.khajiitos.jackseconomy.packet.AcknowledgeUnlocksPacket;
@@ -85,9 +87,12 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
     protected final NewShopUnlocks newShopUnlocks;
     protected final NewShopUnlocks acknowledgedShopUnlocks;
+    public final boolean oneItemCurrencyMode;
 
     public AdminShopScreen(AdminShopMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
+
+        this.oneItemCurrencyMode = pMenu.oneItemCurrencyMode;
 
         CompoundTag data = pMenu.data;
 
@@ -158,7 +163,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                 if (compoundTag.contains("adminShopSellPrice")) {
                     double sellPrice = compoundTag.getDouble("adminShopSellPrice");
                     String sellStage = compoundTag.contains("adminShopSellStage") ? compoundTag.getString("adminShopSellStage") : null;
-                    sellPrices.put(itemDescription, new ItemSellabilityInfo(sellPrice, sellStage));
+                    sellPrices.put(itemDescription, new ItemSellabilityInfo(oneItemCurrencyMode ? Math.round(sellPrice) : sellPrice, sellStage));
                     return;
                 }
 
@@ -173,7 +178,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                 }
 
                 if (slot < 0) {
-                    slotlessShopItems.computeIfAbsent(category, categoryName -> new ArrayList<>()).add(new UnpreparedShopItem(itemDescription, buyPrice, customName, stage));
+                    slotlessShopItems.computeIfAbsent(category, categoryName -> new ArrayList<>()).add(new UnpreparedShopItem(itemDescription, oneItemCurrencyMode ? Math.round(buyPrice) : buyPrice, customName, stage));
                 } else {
                     String[] categoryNamesInner = category.split(":", 2);
                     if (categoryNamesInner.length < 2) {
@@ -187,7 +192,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                         if (categoryEntry.getKey().name.equals(bigCategoryName)) {
                             for (Map.Entry<InnerCategory, List<ShopItem>> entry : shopItems.get(categoryEntry.getKey()).entrySet()) {
                                 if (entry.getKey().name.equals(innerCategoryName)) {
-                                    entry.getValue().add(new ShopItem(itemDescription, buyPrice, slot, customName, stage));
+                                    entry.getValue().add(new ShopItem(itemDescription, oneItemCurrencyMode ? Math.round(buyPrice) : buyPrice, slot, customName, stage));
                                     break;
                                 }
                             }
@@ -612,7 +617,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
         if (shoppingCartButton != null && shoppingCartButton.isHovered()) {
             this.tooltip = List.of(Component.translatable("jackseconomy.items", Component.literal(String.valueOf(this.shoppingCart.size()))).withStyle(ChatFormatting.GRAY),
-                    Component.translatable("jackseconomy.value", Component.literal(CurrencyHelper.format(getShoppingCartValue()))).withStyle(ChatFormatting.GRAY));
+                    Component.translatable("jackseconomy.value", Component.literal(oneItemCurrencyMode ? "$" + getShoppingCartValue().longValue() : CurrencyHelper.format(getShoppingCartValue()))).withStyle(ChatFormatting.GRAY));
         }
 
         /*
@@ -720,7 +725,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                         }
 
                         if (this.isEditMode()) {
-                            this.tooltip.add(shopItem.price == -1 ? Component.translatable("jackseconomy.no_price").withStyle(ChatFormatting.GRAY) : Component.literal(CurrencyHelper.format(shopItem.price)).withStyle(ChatFormatting.GRAY));
+                            this.tooltip.add(shopItem.price == -1 ? Component.translatable("jackseconomy.no_price").withStyle(ChatFormatting.GRAY) : Component.literal(oneItemCurrencyMode ? "$" + (long)shopItem.price : CurrencyHelper.format(shopItem.price)).withStyle(ChatFormatting.GRAY));
                             if (GameStagesCheck.isInstalled() && shopItem.stage() != null) {
                                 this.tooltip.add(Component.translatable("jackseconomy.locked_behind_stage", shopItem.stage()).withStyle(ChatFormatting.GRAY));
                             }
@@ -738,7 +743,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                                     this.tooltip.add(Component.translatable("jackseconomy.required_game_stage", Component.literal(shopItem.stage())).withStyle(ChatFormatting.GRAY));
                                 }
                             } else {
-                                this.tooltip.add(Component.literal(CurrencyHelper.format(shopItem.price)).withStyle(ChatFormatting.GRAY));
+                                this.tooltip.add(Component.literal(oneItemCurrencyMode ? "$" + (long)shopItem.price : CurrencyHelper.format(shopItem.price)).withStyle(ChatFormatting.GRAY));
                                 this.tooltip.add(Component.translatable("jackseconomy.in_cart", Component.literal(String.valueOf(shoppingCart.getOrDefault(new CategorizedShopItem(shopItem, selectedBigCategory.name + ":" + selectedCategory.name), 0))).withStyle(ChatFormatting.AQUA)));
                             }
                         }
@@ -750,7 +755,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
         if (!this.isEditMode()) {
             ItemStack wallet = CuriosWallet.get(Minecraft.getInstance().player);
 
-            if (wallet != null && wallet.getItem() instanceof WalletItem walletItem) {
+            if (!Config.oneItemCurrencyMode.get() && wallet != null && wallet.getItem() instanceof WalletItem walletItem) {
                 BigDecimal balance = WalletItem.getBalance(wallet);
 
                 Component component = Component.literal(CurrencyHelper.formatShortened(balance));
@@ -772,6 +777,16 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                 if (pMouseX >= barStartX && pMouseX <= barStartX + 51 && pMouseY >= barStartY && pMouseY <= barStartY + 5) {
                     tooltip = List.of(Component.translatable("jackseconomy.balance_out_of", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.YELLOW), Component.literal(CurrencyHelper.format(walletItem.getCapacity()))).withStyle(ChatFormatting.GOLD));
                 }
+            } else if (Config.oneItemCurrencyMode.get()) {
+                long balance = OIMWalletItem.getTotalDollars(wallet, Minecraft.getInstance().player);
+
+                Component component = Component.literal("$" + balance);
+                int textWidth = this.font.width(component);
+                int totalWidth = 29 + textWidth;
+                guiGraphics.fill(this.leftPos + 181, this.topPos + 5, this.leftPos + 181 + totalWidth, this.topPos + 27, 0xFF4c4c4c);
+                guiGraphics.fill(this.leftPos + 182, this.topPos + 6, this.leftPos + 182 + totalWidth, this.topPos + 26, 0xFFc6c6c6);
+                guiGraphics.renderItem(wallet != null && !wallet.isEmpty() ? wallet : new ItemStack(ItemBlockReg.WALLET_ITEM.get()), this.leftPos + 183, this.topPos + 8);
+                guiGraphics.drawString(this.font, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF);
             } else {
                 Component component = Component.translatable("jackseconomy.no_wallet").withStyle(ChatFormatting.DARK_RED);
                 int width = this.font.width(component);
@@ -780,6 +795,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                 guiGraphics.blit(NO_WALLET, this.leftPos + 183, this.topPos + 8, 0, 0, 0, 16, 16, 16, 16);
                 guiGraphics.drawString(Minecraft.getInstance().font, component, this.leftPos + 203, this.topPos + 13, 0xFFFFFFFF, false);
             }
+
         }
 
         this.shouldRenderBackground = false;
@@ -792,7 +808,6 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
 
             List<Component> tooltip = new ArrayList<>(this.getTooltipFromContainerItem(itemstack));
 
-            // TODO: check if has gamestage/config enabled
             ItemDescription itemDescription = ItemDescription.ofItem(itemstack);
             ItemSellabilityInfo info = sellPrices.get(itemDescription);
             String stage = info != null ? info.stage : null;
@@ -803,7 +818,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                     tooltip.add(Component.literal(" "));
 
                     if (price != -1) {
-                        tooltip.add(Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.GRAY));
+                        tooltip.add(Component.literal(oneItemCurrencyMode ? "$" + (long)price : CurrencyHelper.format(price)).withStyle(ChatFormatting.GRAY));
                     } else {
                         tooltip.add(Component.translatable("jackseconomy.no_sell_price").withStyle(ChatFormatting.GRAY));
                     }
@@ -836,7 +851,7 @@ public class AdminShopScreen extends AbstractContainerScreen<AdminShopMenu> {
                         }
                     } else {
                         if (price != -1) {
-                            tooltip.add(Component.literal(CurrencyHelper.format(price)).withStyle(ChatFormatting.GRAY));
+                            tooltip.add(Component.literal(oneItemCurrencyMode ? "$" + (long)price : CurrencyHelper.format(price)).withStyle(ChatFormatting.GRAY));
                             tooltip.add(Component.translatable("jackseconomy.to_sell", Component.literal(String.valueOf(itemsToSell.getOrDefault(itemDescription, 0))).withStyle(ChatFormatting.AQUA)));
                         } else {
                             tooltip.add(Component.translatable("jackseconomy.no_sell_price").withStyle(ChatFormatting.GRAY));

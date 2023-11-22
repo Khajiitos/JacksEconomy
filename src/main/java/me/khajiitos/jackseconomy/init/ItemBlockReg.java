@@ -5,19 +5,20 @@ import me.khajiitos.jackseconomy.block.*;
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.item.*;
 import me.khajiitos.jackseconomy.util.CurrencyType;
+import me.khajiitos.jackseconomy.util.IDisablable;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class ItemBlockReg {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, JacksEconomy.MOD_ID);
@@ -36,7 +37,14 @@ public class ItemBlockReg {
     public static final RegistryObject<BlockItem> IMPORTER_ITEM = ITEMS.register("importer", () -> new BlockItem(IMPORTER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> MECHANICAL_EXPORTER_ITEM = ITEMS.register("mechanical_exporter", () -> new BlockItem(MECHANICAL_EXPORTER.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> MECHANICAL_IMPORTER_ITEM = ITEMS.register("mechanical_importer", () -> new BlockItem(MECHANICAL_IMPORTER.get(), new Item.Properties()));
-    public static final RegistryObject<BlockItem> CURRENCY_CONVERTER_ITEM = ITEMS.register("currency_converter", () -> new BlockItem(CURRENCY_CONVERTER.get(), new Item.Properties()));
+    public static final RegistryObject<BlockItem> CURRENCY_CONVERTER_ITEM = ITEMS.register("currency_converter", () -> new BlockItem(CURRENCY_CONVERTER.get(), new Item.Properties()) {
+        @Override
+        public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltip, TooltipFlag pFlag) {
+            if (this.getBlock() instanceof IDisablable disablable && disablable.isDisabled()) {
+                pTooltip.addAll(disablable.getDisabledTooltip());
+            }
+        }
+    });
     public static final RegistryObject<BlockItem> ADMIN_SHOP_ITEM = ITEMS.register("admin_shop", () -> new BlockItem(ADMIN_SHOP.get(), new Item.Properties()));
 
     public static final RegistryObject<CurrencyItem> PENNY_ITEM = ITEMS.register("penny", () -> new CurrencyItem(new BigDecimal("0.01"), false));
@@ -79,6 +87,7 @@ public class ItemBlockReg {
     public static final RegistryObject<WalletItem> INTERMEDIATE_WALLET_ITEM = ITEMS.register("intermediate_wallet", () -> new WalletItem(() -> Config.intermediateWalletCapacity));
     public static final RegistryObject<WalletItem> ADVANCED_WALLET_ITEM = ITEMS.register("advanced_wallet", () -> new WalletItem(() -> Config.advancedWalletCapacity));
     public static final RegistryObject<WalletItem> THE_PHAT_WALLET_ITEM = ITEMS.register("the_phat_wallet", () -> new WalletItem(() -> Config.thePhatWalletCapacity));
+    public static final RegistryObject<OIMWalletItem> WALLET_ITEM = ITEMS.register("wallet", OIMWalletItem::new);
 
     public static final RegistryObject<CheckItem> CHECK_ITEM = ITEMS.register("check", CheckItem::new);
     public static final RegistryObject<ImporterTicketItem> IMPORTER_TICKET_ITEM = ITEMS.register("importer_manifest", ImporterTicketItem::new);
@@ -120,6 +129,7 @@ public class ItemBlockReg {
         output.accept(ItemBlockReg.INTERMEDIATE_WALLET_ITEM.get());
         output.accept(ItemBlockReg.ADVANCED_WALLET_ITEM.get());
         output.accept(ItemBlockReg.THE_PHAT_WALLET_ITEM.get());
+        output.accept(ItemBlockReg.WALLET_ITEM.get());
         output.accept(ItemBlockReg.GOLDEN_EXPORTER_TICKET_ITEM.get());
         output.accept(ItemBlockReg.EMPTY_EXPORTER_TICKET_ITEM.get());
         output.accept(ItemBlockReg.EMPTY_IMPORTER_TICKET_ITEM.get());

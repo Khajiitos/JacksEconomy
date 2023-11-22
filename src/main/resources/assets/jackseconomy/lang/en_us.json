@@ -12,6 +12,7 @@
   "item.jackseconomy.fifty_dollar_bill": "Fifty Dollar Bill",
   "item.jackseconomy.hundred_dollar_bill": "Hundred Dollar Bill",
   "item.jackseconomy.thousand_dollar_bill": "Thousand Dollar Bill",
+  "item.jackseconomy.wallet": "Wallet",
   "item.jackseconomy.basic_wallet": "Basic Wallet",
   "item.jackseconomy.intermediate_wallet": "Intermediate Wallet",
   "item.jackseconomy.advanced_wallet": "Advanced Wallet",
@@ -86,6 +87,8 @@
   "jackseconomy.click_to_copy": "Click here to copy the command!",
   "jackseconomy.config.hide_price_tooltips": "Hide price tooltips: %s",
   "jackseconomy.config.alternative_tooltip_format": "Alternative tooltip format: %s",
+  "jackseconomy.config.wallet_hud_position_right": "Wallet HUD position on the right: %s",
+  "jackseconomy.config.wallet_hud_position_y_offset": "Wallet HUD position Y offset: %s",
   "jackseconomy.true": "true",
   "jackseconomy.false": "false",
   "jackseconomy.golden_exporter_manifest_description": "Allows selling any sellable item in the exporter",
@@ -141,5 +144,6 @@
   "jackseconomy.selling_locked": "Selling locked",
   "jackseconomy.selling_locked_behind_gamestage": "Selling locked behind game-stage: %s",
   "jackseconomy.shift_right_click_to_edit_stage": "L-Shift + Right-click to edit required stage",
-  "jackseconomy.shift_middle_click_to_remove_stage": "L-Shift + Middle-click to remove required stage"
+  "jackseconomy.shift_middle_click_to_remove_stage": "L-Shift + Middle-click to remove required stage",
+  "jackseconomy.item_disabled": "Disabled"
 }

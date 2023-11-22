@@ -1,5 +1,6 @@
 package me.khajiitos.jackseconomy.util;
 
+import me.khajiitos.jackseconomy.config.Config;
 import net.minecraft.world.item.ItemStack;
 
 import java.math.BigDecimal;
@@ -15,7 +16,7 @@ public class CurrencyHelper {
 
     public static List<ItemStack> getCurrencyItems(BigDecimal value) {
         List<ItemStack> items = new ArrayList<>();
-        List<CurrencyType> sortedCurrencies = Arrays.stream(CurrencyType.values()).sorted(Comparator.comparing(CurrencyType::getWorth).reversed()).toList();
+        List<CurrencyType> sortedCurrencies = Config.oneItemCurrencyMode.get() ? List.of(CurrencyType.DOLLAR_BILL) : Arrays.stream(CurrencyType.values()).sorted(Comparator.comparing(CurrencyType::getWorth).reversed()).toList();
 
         while (value.compareTo(BigDecimal.ZERO) > 0) {
             boolean anything = false;

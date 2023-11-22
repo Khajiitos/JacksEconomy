@@ -7,6 +7,7 @@ import me.khajiitos.jackseconomy.init.BlockEntityReg;
 import me.khajiitos.jackseconomy.item.CurrencyItem;
 import me.khajiitos.jackseconomy.menu.CurrencyConverterMenu;
 import me.khajiitos.jackseconomy.util.CurrencyType;
+import me.khajiitos.jackseconomy.util.IDisablable;
 import me.khajiitos.jackseconomy.util.SideConfig;
 import me.khajiitos.jackseconomy.util.SlottedItemStackHandler;
 import net.minecraft.core.BlockPos;
@@ -40,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class CurrencyConverterBlockEntity extends BlockEntity implements WorldlyContainer, Container, MenuProvider, ISideConfigurable {
+public class CurrencyConverterBlockEntity extends BlockEntity implements WorldlyContainer, Container, MenuProvider, ISideConfigurable, IDisablable {
     public NonNullList<ItemStack> items;
     public CurrencyType selectedCurrencyType = CurrencyType.PENNY;
     protected BigDecimal currency = BigDecimal.ZERO;
@@ -159,6 +160,10 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
             return;
         }
 
+        if (blockEntity.isDisabled()) {
+            return;
+        }
+
         boolean updated = false;
 
         if (blockEntity.getTotalBalance().compareTo(BigDecimal.valueOf(Config.maxCurrencyConverterBalance.get())) < 0) {
@@ -183,7 +188,7 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
             }
         }
 
-        int toAdd = Math.min(64, (blockEntity.currency.divide(blockEntity.selectedCurrencyType.worth, RoundingMode.DOWN).intValue()));
+        int toAdd = Math.min(blockEntity.selectedCurrencyType.item.getMaxStackSize(), (blockEntity.currency.divide(blockEntity.selectedCurrencyType.worth, RoundingMode.DOWN).intValue()));
 
         if (toAdd > 0) {
             ItemStack stack = new ItemStack(blockEntity.selectedCurrencyType.item, toAdd);
@@ -340,5 +345,10 @@ public class CurrencyConverterBlockEntity extends BlockEntity implements Worldly
     @Override
     public SideConfig getSideConfig() {
         return this.sideConfig;
+    }
+
+    @Override
+    public boolean isDisabled() {
+        return Config.oneItemCurrencyMode.get();
     }
 }

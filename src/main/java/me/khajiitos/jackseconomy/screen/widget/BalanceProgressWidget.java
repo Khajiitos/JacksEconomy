@@ -1,6 +1,7 @@
 package me.khajiitos.jackseconomy.screen.widget;
 
 import me.khajiitos.jackseconomy.JacksEconomy;
+import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -48,8 +49,8 @@ public class BalanceProgressWidget extends AbstractWidget {
 
         if (isHovered()) {
             onTooltip.accept(List.of(
-                    Component.translatable("jackseconomy.balance", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW),
-                    Component.translatable("jackseconomy.max_storage", Component.literal(CurrencyHelper.format(capacity)).withStyle(ChatFormatting.GOLD), Component.literal((int)(progress * 100) + "%").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW)
+                    Component.translatable("jackseconomy.balance", Component.literal(Config.oneItemCurrencyMode.get() ? "$" + balance.longValue() : CurrencyHelper.format(balance)).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW),
+                    Component.translatable("jackseconomy.max_storage", Component.literal(Config.oneItemCurrencyMode.get() ? "$" + capacity.longValue() :CurrencyHelper.format(capacity)).withStyle(ChatFormatting.GOLD), Component.literal((int)(progress * 100) + "%").withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW)
             ));
         }
     }

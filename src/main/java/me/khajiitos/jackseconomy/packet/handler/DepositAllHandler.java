@@ -56,7 +56,7 @@ public class DepositAllHandler {
 
             BigDecimal fraction = freeBalance.divide(value, RoundingMode.UP).setScale(0, RoundingMode.UP);
 
-            int toConsume = value.compareTo(BigDecimal.ZERO) == 0 ? count : Math.min(fraction.intValue(), count);
+            int toConsume = (int)(value.compareTo(BigDecimal.ZERO) == 0 ? count : Math.min(fraction.longValue(), count));
 
             if (toConsume <= 0) {
                 return;

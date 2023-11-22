@@ -8,6 +8,7 @@ import me.khajiitos.jackseconomy.item.CurrencyItem;
 import me.khajiitos.jackseconomy.item.WalletItem;
 import me.khajiitos.jackseconomy.packet.UpdateWalletBalancePacket;
 import me.khajiitos.jackseconomy.packet.WalletBalanceDifPacket;
+import me.khajiitos.jackseconomy.util.IDisablable;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -104,7 +105,7 @@ public class WalletMenu extends AbstractContainerMenu {
                 BigDecimal freeBalance = BigDecimal.valueOf(walletItem.getCapacity()).subtract(oldBalance);
 
                 BigDecimal fraction = freeBalance.divide(value, RoundingMode.UP).setScale(0, RoundingMode.UP);
-                int toConsume = value.compareTo(BigDecimal.ZERO) == 0 ? count : Math.min(fraction.intValue(), count);
+                int toConsume = (int)(value.compareTo(BigDecimal.ZERO) == 0 ? count : Math.min(fraction.longValue(), count));
 
                 if (toConsume <= 0) {
                     return;
@@ -131,6 +132,9 @@ public class WalletMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player pPlayer) {
+        if (this.itemStack.getItem() instanceof IDisablable disablable && disablable.isDisabled()) {
+            return false;
+        }
         return !this.itemStack.isEmpty();
     }
 

@@ -16,12 +16,14 @@ public class ShoppingCartEntry extends AbstractWidget {
     private final Map.Entry<AdminShopScreen.CategorizedShopItem, Integer> shoppingCartItem;
     private final Runnable onChange;
     private final Runnable onRemoveClicked;
+    private final boolean oneItemCurrencyMode;
 
-    public ShoppingCartEntry(int pX, int pY, int pWidth, int pHeight, Map.Entry<AdminShopScreen.CategorizedShopItem, Integer> shoppingCartItem, Runnable onChange, Runnable onRemoveClicked) {
+    public ShoppingCartEntry(int pX, int pY, int pWidth, int pHeight, boolean oneItemCurrencyMode, Map.Entry<AdminShopScreen.CategorizedShopItem, Integer> shoppingCartItem, Runnable onChange, Runnable onRemoveClicked) {
         super(pX, pY, pWidth, pHeight, Component.empty());
         this.shoppingCartItem = shoppingCartItem;
         this.onChange = onChange;
         this.onRemoveClicked = onRemoveClicked;
+        this.oneItemCurrencyMode = oneItemCurrencyMode;
     }
 
     @Override
@@ -40,7 +42,7 @@ public class ShoppingCartEntry extends AbstractWidget {
             guiGraphics.pose().scale(scale, scale, scale);
         }
         Component header = itemName.append(Component.literal(" (" + shoppingCartItem.getValue() + ")").withStyle(ChatFormatting.GRAY));
-        Component footer = Component.literal(CurrencyHelper.format(shoppingCartItem.getKey().price() * shoppingCartItem.getValue())).withStyle(ChatFormatting.DARK_GRAY);
+        Component footer = Component.literal(oneItemCurrencyMode ? "$" + (long)(shoppingCartItem.getKey().price() * shoppingCartItem.getValue()) : CurrencyHelper.format(shoppingCartItem.getKey().price() * shoppingCartItem.getValue())).withStyle(ChatFormatting.DARK_GRAY);
         guiGraphics.drawString(Minecraft.getInstance().font, header, (int) ((this.getX() + 22) / scale), (int) ((this.getY()) / scale), 0xFFFFFFFF);
         guiGraphics.drawString(Minecraft.getInstance().font, footer, (int) ((this.getX() + 22) / scale), (int) ((this.getY() + 9) / scale), 0xFFFFFFFF);
 

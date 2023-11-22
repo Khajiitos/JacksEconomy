@@ -1,10 +1,12 @@
 package me.khajiitos.jackseconomy.item;
 
+import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.init.Sounds;
 import me.khajiitos.jackseconomy.packet.WalletBalanceDifPacket;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
+import me.khajiitos.jackseconomy.util.IDisablable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,9 +21,10 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.text.CompactNumberFormat;
 import java.util.List;
 
-public class CheckItem extends Item {
+public class CheckItem extends Item implements IDisablable {
     public CheckItem() {
         super(new Properties().stacksTo(1));
     }
@@ -48,6 +51,10 @@ public class CheckItem extends Item {
 
         if (balance != null) {
             pTooltipComponents.add(Component.translatable("jackseconomy.value", Component.literal(CurrencyHelper.format(balance)).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GOLD));
+        }
+
+        if (this.isDisabled()) {
+            pTooltipComponents.addAll(this.getDisabledTooltip());
         }
     }
 
@@ -83,5 +90,10 @@ public class CheckItem extends Item {
         pPlayer.level().playSound(null, pPlayer.blockPosition(), Sounds.CASH.get(), SoundSource.PLAYERS, 1.f, 1.f);
 
         return InteractionResultHolder.success(itemStack);
+    }
+
+    @Override
+    public boolean isDisabled() {
+        return Config.oneItemCurrencyMode.get();
     }
 }

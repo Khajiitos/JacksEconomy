@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=east": {
+      "model": "jackseconomy:block/admin_shop",
+      "y": 90
+    },
+    "facing=north": {
       "model": "jackseconomy:block/admin_shop"
+    },
+    "facing=south": {
+      "model": "jackseconomy:block/admin_shop",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "jackseconomy:block/admin_shop",
+      "y": 270
     }
   }
 }

@@ -3,7 +3,7 @@
   "textures": {
     "down": "jackseconomy:block/machine",
     "up": "jackseconomy:block/machine",
-    "front": "jackseconomy:block/machine",
+    "front": "jackseconomy:block/admin_shop",
     "east": "jackseconomy:block/machine",
     "south": "jackseconomy:block/machine",
     "west": "jackseconomy:block/machine"

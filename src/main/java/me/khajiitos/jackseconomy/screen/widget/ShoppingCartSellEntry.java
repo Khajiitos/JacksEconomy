@@ -18,13 +18,15 @@ public class ShoppingCartSellEntry extends AbstractWidget {
     private final Runnable onChange;
     private final Runnable onRemoveClicked;
     private final double itemPrice;
+    private final boolean oneItemCurrencyMode;
 
-    public ShoppingCartSellEntry(int pX, int pY, int pWidth, int pHeight, Map.Entry<ItemDescription, Integer> itemToSell, double itemPrice, Inventory inventory, Runnable onChange, Runnable onRemoveClicked) {
+    public ShoppingCartSellEntry(int pX, int pY, int pWidth, int pHeight, boolean oneItemCurrencyMode, Map.Entry<ItemDescription, Integer> itemToSell, double itemPrice, Inventory inventory, Runnable onChange, Runnable onRemoveClicked) {
         super(pX, pY, pWidth, pHeight, Component.empty());
         this.itemToSell = itemToSell;
         this.onChange = onChange;
         this.onRemoveClicked = onRemoveClicked;
         this.itemPrice = itemPrice;
+        this.oneItemCurrencyMode = oneItemCurrencyMode;
     }
 
     @Override
@@ -44,7 +46,7 @@ public class ShoppingCartSellEntry extends AbstractWidget {
         }
 
         Component header = itemName.append(Component.literal(" (" + itemToSell.getValue() + ")").withStyle(ChatFormatting.GRAY));
-        Component footer = Component.literal(CurrencyHelper.format(itemPrice * itemToSell.getValue())).withStyle(ChatFormatting.DARK_GRAY);
+        Component footer = Component.literal(oneItemCurrencyMode ? "$" + (long)(itemPrice * itemToSell.getValue()) : CurrencyHelper.format(itemPrice * itemToSell.getValue())).withStyle(ChatFormatting.DARK_GRAY);
         guiGraphics.drawString(Minecraft.getInstance().font, header, (int) ((this.getX() + 22) / scale), (int) ((this.getY()) / scale), 0xFFFFFFFF);
         guiGraphics.drawString(Minecraft.getInstance().font, footer, (int) ((this.getX() + 22) / scale), (int) ((this.getY() + 9) / scale), 0xFFFFFFFF);
 

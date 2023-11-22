@@ -26,6 +26,7 @@ public class ContainerReg {
     public static final RegistryObject<MenuType<MechanicalImporterMenu>> MECHANICAL_IMPORTER_MENU = MENU_TYPES.register("mechanical_importer", regBlockMenu(MechanicalImporterMenu::new));
     public static final RegistryObject<MenuType<CurrencyConverterMenu>> CURRENCY_CONVERTER_MENU = MENU_TYPES.register("currency_converter", regBlockMenu(CurrencyConverterMenu::new));
     public static final RegistryObject<MenuType<WalletMenu>> WALLET_MENU = MENU_TYPES.register("wallet", regItemMenu(WalletMenu::new));
+    public static final RegistryObject<MenuType<OIMWalletMenu>> OIM_WALLET_MENU = MENU_TYPES.register("oim_wallet", regItemMenu(OIMWalletMenu::new));
     public static final RegistryObject<MenuType<AdminShopMenu>> ADMIN_SHOP_MENU = MENU_TYPES.register("admin_shop", regCompoundMenu(AdminShopMenu::new));
     public static final RegistryObject<MenuType<ExporterTicketCreatorMenu>> EXPORTER_TICKET_CREATOR_MENU = MENU_TYPES.register("exporter_ticket_creator", () -> new MenuType<>(ExporterTicketCreatorMenu::new, FeatureFlagSet.of()));
     public static final RegistryObject<MenuType<ImporterTicketCreatorMenu>> IMPORTER_TICKET_CREATOR_MENU = MENU_TYPES.register("importer_ticket_creator", () -> new MenuType<>(ImporterTicketCreatorMenu::new, FeatureFlagSet.of()));

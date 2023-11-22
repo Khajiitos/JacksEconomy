@@ -3,6 +3,7 @@ package me.khajiitos.jackseconomy.listener;
 import com.mojang.blaze3d.platform.InputConstants;
 import me.khajiitos.jackseconomy.JacksEconomyClient;
 import me.khajiitos.jackseconomy.config.ClientConfig;
+import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.curios.CuriosWallet;
 import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.packet.OpenCuriosWalletPacket;
@@ -12,6 +13,7 @@ import me.khajiitos.jackseconomy.util.CurrencyHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.event.TickEvent;
@@ -51,24 +53,26 @@ public class ClientEventListeners {
 
         if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_ALT)) {
             if (priceInfo.sellPrice > 0) {
+                MutableComponent sellPrice = Component.literal(Config.oneItemCurrencyMode.get() ? "$" + (long)priceInfo.sellPrice : CurrencyHelper.format(priceInfo.sellPrice));
                 if (ClientConfig.alternativeTooltipFormat.get()) {
-                    e.getToolTip().add(Component.translatable("jackseconomy.exporter_price", Component.literal(CurrencyHelper.format(priceInfo.sellPrice)).withStyle(ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY));
+                    e.getToolTip().add(Component.translatable("jackseconomy.exporter_price", sellPrice.withStyle(ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY));
                 } else {
-                    e.getToolTip().add(Component.translatable("jackseconomy.sell_price", Component.literal("1").withStyle(ChatFormatting.DARK_AQUA), Component.literal(CurrencyHelper.format(priceInfo.sellPrice)).withStyle(ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY));
+                    e.getToolTip().add(Component.translatable("jackseconomy.sell_price", Component.literal("1").withStyle(ChatFormatting.DARK_AQUA), sellPrice.withStyle(ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY));
                     if (e.getItemStack().getCount() > 1) {
-                        e.getToolTip().add(Component.translatable("jackseconomy.sell_price", Component.literal(String.valueOf(e.getItemStack().getCount())).withStyle(ChatFormatting.DARK_AQUA), Component.literal(CurrencyHelper.format(priceInfo.sellPrice * e.getItemStack().getCount())).withStyle(ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY));
+                        e.getToolTip().add(Component.translatable("jackseconomy.sell_price", Component.literal(String.valueOf(e.getItemStack().getCount())).withStyle(ChatFormatting.DARK_AQUA), Component.literal(Config.oneItemCurrencyMode.get() ? "$" + ((long)priceInfo.sellPrice * e.getItemStack().getCount()) : CurrencyHelper.format(priceInfo.sellPrice * e.getItemStack().getCount())).withStyle(ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY));
                     }
                 }
             }
 
-
             if (priceInfo.importerBuyPrice > 0) {
+                MutableComponent buyPrice = Component.literal(Config.oneItemCurrencyMode.get() ? "$" + (long)priceInfo.importerBuyPrice : CurrencyHelper.format(priceInfo.importerBuyPrice));
+
                 if (ClientConfig.alternativeTooltipFormat.get()) {
-                    e.getToolTip().add(Component.translatable("jackseconomy.importer_price", Component.literal(CurrencyHelper.format(priceInfo.importerBuyPrice)).withStyle(ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY));
+                    e.getToolTip().add(Component.translatable("jackseconomy.importer_price", buyPrice.withStyle(ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY));
                 } else {
-                    e.getToolTip().add(Component.translatable("jackseconomy.buy_price", Component.literal("1").withStyle(ChatFormatting.DARK_AQUA), Component.literal(CurrencyHelper.format(priceInfo.importerBuyPrice)).withStyle(ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY));
+                    e.getToolTip().add(Component.translatable("jackseconomy.buy_price", Component.literal("1").withStyle(ChatFormatting.DARK_AQUA), buyPrice.withStyle(ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY));
                     if (e.getItemStack().getCount() > 1) {
-                        e.getToolTip().add(Component.translatable("jackseconomy.buy_price", Component.literal(String.valueOf(e.getItemStack().getCount())).withStyle(ChatFormatting.DARK_AQUA), Component.literal(CurrencyHelper.format(priceInfo.importerBuyPrice * e.getItemStack().getCount())).withStyle(ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY));
+                        e.getToolTip().add(Component.translatable("jackseconomy.buy_price", Component.literal(String.valueOf(e.getItemStack().getCount())).withStyle(ChatFormatting.DARK_AQUA), Component.literal(Config.oneItemCurrencyMode.get() ? "$" + ((long)priceInfo.sellPrice * e.getItemStack().getCount()) : CurrencyHelper.format(priceInfo.importerBuyPrice * e.getItemStack().getCount())).withStyle(ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY));
                     }
                 }
             }

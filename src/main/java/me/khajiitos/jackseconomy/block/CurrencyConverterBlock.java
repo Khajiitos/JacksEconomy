@@ -1,8 +1,10 @@
 package me.khajiitos.jackseconomy.block;
 
 import me.khajiitos.jackseconomy.blockentity.CurrencyConverterBlockEntity;
+import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.init.BlockEntityReg;
 import me.khajiitos.jackseconomy.util.CurrencyHelper;
+import me.khajiitos.jackseconomy.util.IDisablable;
 import me.khajiitos.jackseconomy.util.ItemHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,7 +27,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
-public class CurrencyConverterBlock extends BaseEntityBlock {
+public class CurrencyConverterBlock extends BaseEntityBlock implements IDisablable {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 
     public CurrencyConverterBlock() {
@@ -52,6 +54,10 @@ public class CurrencyConverterBlock extends BaseEntityBlock {
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (this.isDisabled()) {
+            return InteractionResult.PASS;
+        }
+
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof CurrencyConverterBlockEntity currencyConverterBlockEntity) {
             if (!level.isClientSide()) {
@@ -88,5 +94,10 @@ public class CurrencyConverterBlock extends BaseEntityBlock {
 
             //super.onRemove(state, level, pos, newState, isMoving);
         }
+    }
+
+    @Override
+    public boolean isDisabled() {
+        return Config.oneItemCurrencyMode.get();
     }
 }
