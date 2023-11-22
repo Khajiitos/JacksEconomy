@@ -11,13 +11,39 @@ public class FloatingEditBoxWidget extends EditBox {
     private final int midX;
     private final OnDone onDone;
 
-    public FloatingEditBoxWidget(Font pFont, int midX, int pY, int minWidth, int height, OnDone onDone) {
+    public FloatingEditBoxWidget(Font pFont, int midX, int pY, int minWidth, int height, boolean showDollarSign, OnDone onDone) {
         super(pFont, midX, pY, minWidth, height, Component.empty());
         this.midX = midX;
         this.minWidth = minWidth;
         this.onDone = onDone;
 
+        if (showDollarSign) {
+            this.setFilter(newValue -> {
+                boolean hasDot = false;
+                for (int i = 0; i < newValue.length(); i++) {
+                    char c = newValue.charAt(i);
+
+                    if (c == '.') {
+                        if (hasDot) {
+                            return false;
+                        }
+                        hasDot = true;
+                    }
+
+                    if (c != '.' && (c < '0' || c > '9')) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+        }
+
         this.calculateWidthAndPos();
+    }
+
+    public FloatingEditBoxWidget(Font pFont, int midX, int pY, int minWidth, int height, OnDone onDone) {
+        this(pFont, midX, pY, minWidth, height, false, onDone);
     }
 
     public void calculateWidthAndPos() {

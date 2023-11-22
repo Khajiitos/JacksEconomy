@@ -64,6 +64,7 @@ public class ClientRenderEventListeners {
         }
 
         if (JacksEconomyClient.balanceDifPopup != null) {
+            // tbh using millis here might not be the best idea but idc it works
             long timeDelta = System.currentTimeMillis() - JacksEconomyClient.balanceDifPopupStartMillis;
             long maxTimeDelta = (long)(ClientConfig.balanceChangePopupTime.get() * 1000);
 
@@ -92,7 +93,7 @@ public class ClientRenderEventListeners {
 
             int balanceDifWidth = Minecraft.getInstance().font.width(balanceDifComponent);
 
-            int startX = ClientConfig.walletHudPositionRight.get() ? e.getGuiGraphics().guiWidth() - balanceTextWidth - balanceDifWidth - 22 : 16 + balanceDifWidth;
+            int startX = ClientConfig.walletHudPositionRight.get() ? e.getGuiGraphics().guiWidth() - balanceTextWidth - balanceDifWidth - 22 : 24 + balanceTextWidth;
             e.getGuiGraphics().drawString(Minecraft.getInstance().font, balanceDifComponent, startX, 7 + yOffset, 0x00FFFFFF | (alpha << 24));
         }
     }

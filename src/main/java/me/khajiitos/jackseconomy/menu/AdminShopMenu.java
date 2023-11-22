@@ -2,7 +2,6 @@ package me.khajiitos.jackseconomy.menu;
 
 import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.init.ContainerReg;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -13,14 +12,12 @@ import net.minecraft.world.item.ItemStack;
 import java.util.function.Supplier;
 
 public class AdminShopMenu extends AbstractContainerMenu {
-    public final CompoundTag data;
     public final Inventory inventory;
     private boolean slotsLocked = true;
     public final boolean oneItemCurrencyMode;
 
-    public AdminShopMenu(int pContainerId, Inventory inventory, CompoundTag data) {
+    public AdminShopMenu(int pContainerId, Inventory inventory) {
         super(ContainerReg.ADMIN_SHOP_MENU.get(), pContainerId);
-        this.data = data;
         this.inventory = inventory;
         this.oneItemCurrencyMode = Config.oneItemCurrencyMode.get();
 

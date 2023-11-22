@@ -19,7 +19,6 @@ public class CategoryEntry extends AbstractWidget {
     private final Supplier<Boolean> isSelectedSupplier;
     private final Supplier<Boolean> shouldRenderStar;
 
-
     public CategoryEntry(int pX, int pY, int pWidth, int pHeight, @Nullable AdminShopScreen.Category category, BiConsumer<CategoryEntry, Integer> onClick, Supplier<Boolean> isSelectedSupplier, Supplier<Boolean> shouldRenderStar) {
         super(pX, pY, pWidth, pHeight, Component.empty());
         this.category = category;

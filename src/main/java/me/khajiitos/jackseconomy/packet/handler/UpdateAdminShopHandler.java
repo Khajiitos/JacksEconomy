@@ -6,9 +6,11 @@ import me.khajiitos.jackseconomy.price.ItemDescription;
 import me.khajiitos.jackseconomy.price.ItemPriceManager;
 import me.khajiitos.jackseconomy.price.PricesItemPriceInfo;
 import me.khajiitos.jackseconomy.util.ItemHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.network.NetworkEvent;
@@ -121,5 +123,7 @@ public class UpdateAdminShopHandler {
 
         ItemPriceManager.save();
         ItemPriceManager.sendDataToPlayers();
+
+        sender.sendSystemMessage(Component.translatable("jackseconomy.admin_shop_saved").withStyle(ChatFormatting.GREEN));
     }
 }

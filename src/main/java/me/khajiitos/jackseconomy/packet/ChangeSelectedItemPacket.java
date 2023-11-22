@@ -14,7 +14,7 @@ public record ChangeSelectedItemPacket(ItemDescription selectedItem) {
     }
 
     public static ChangeSelectedItemPacket decode(FriendlyByteBuf friendlyByteBuf) {
-        CompoundTag nbt = friendlyByteBuf.readNbt();
+        CompoundTag nbt = friendlyByteBuf.readAnySizeNbt();
         return new ChangeSelectedItemPacket(ItemDescription.fromNbt(nbt == null ? new CompoundTag() : nbt));
     }
 

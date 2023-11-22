@@ -3,7 +3,6 @@ package me.khajiitos.jackseconomy.init;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import me.khajiitos.jackseconomy.menu.*;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -27,7 +26,7 @@ public class ContainerReg {
     public static final RegistryObject<MenuType<CurrencyConverterMenu>> CURRENCY_CONVERTER_MENU = MENU_TYPES.register("currency_converter", regBlockMenu(CurrencyConverterMenu::new));
     public static final RegistryObject<MenuType<WalletMenu>> WALLET_MENU = MENU_TYPES.register("wallet", regItemMenu(WalletMenu::new));
     public static final RegistryObject<MenuType<OIMWalletMenu>> OIM_WALLET_MENU = MENU_TYPES.register("oim_wallet", regItemMenu(OIMWalletMenu::new));
-    public static final RegistryObject<MenuType<AdminShopMenu>> ADMIN_SHOP_MENU = MENU_TYPES.register("admin_shop", regCompoundMenu(AdminShopMenu::new));
+    public static final RegistryObject<MenuType<AdminShopMenu>> ADMIN_SHOP_MENU = MENU_TYPES.register("admin_shop", () -> new MenuType<>(AdminShopMenu::new, FeatureFlagSet.of()));
     public static final RegistryObject<MenuType<ExporterTicketCreatorMenu>> EXPORTER_TICKET_CREATOR_MENU = MENU_TYPES.register("exporter_ticket_creator", () -> new MenuType<>(ExporterTicketCreatorMenu::new, FeatureFlagSet.of()));
     public static final RegistryObject<MenuType<ImporterTicketCreatorMenu>> IMPORTER_TICKET_CREATOR_MENU = MENU_TYPES.register("importer_ticket_creator", () -> new MenuType<>(ImporterTicketCreatorMenu::new, FeatureFlagSet.of()));
 
@@ -41,10 +40,6 @@ public class ContainerReg {
     }
 
     static <M extends AbstractContainerMenu> Supplier<MenuType<M>> regItemMenu(ItemMenuFactory<M> factory) {
-        return () -> new MenuType<>(factory, FeatureFlagSet.of());
-    }
-
-    static <M extends AbstractContainerMenu> Supplier<MenuType<M>> regCompoundMenu(CompoundMenuFactory<M> factory) {
         return () -> new MenuType<>(factory, FeatureFlagSet.of());
     }
 
@@ -64,15 +59,5 @@ public class ContainerReg {
         }
 
         M create(int id, Inventory inventory, ItemStack stack);
-    }
-
-    interface CompoundMenuFactory<M extends AbstractContainerMenu> extends IContainerFactory<M> {
-
-        @Override
-        default M create(int windowId, Inventory inv, FriendlyByteBuf data) {
-            return create(windowId, inv, data.readNbt());
-        }
-
-        M create(int id, Inventory inventory, CompoundTag compoundTag);
     }
 }

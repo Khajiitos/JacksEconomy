@@ -61,7 +61,7 @@ public class BetterScrollPanel extends ScrollPanel {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
         if (scroll != 0) {
-            this.scrollDistance += -scroll * getScrollAmount();
+            this.scrollDistance += (float) (-scroll * getScrollAmount());
             applyScrollLimits();
             return true;
         }
@@ -70,5 +70,21 @@ public class BetterScrollPanel extends ScrollPanel {
 
     private void applyScrollLimits() {
         this.scrollDistance = Math.min(this.getMaxScroll(), Math.max(0.0f, this.scrollDistance));
+    }
+
+    public boolean isScrollbarDisplayed() {
+        return (this.getContentHeight() + border) - height > 0;
+    }
+
+    public float getScrollDistance() {
+        return this.scrollDistance;
+    }
+
+    public void setScrollDistance(float scrollDistance, boolean applyLimit) {
+        this.scrollDistance = scrollDistance;
+
+        if (applyLimit) {
+            this.applyScrollLimits();
+        }
     }
 }

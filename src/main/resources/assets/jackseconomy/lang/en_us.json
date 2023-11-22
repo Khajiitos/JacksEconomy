@@ -145,5 +145,6 @@
   "jackseconomy.selling_locked_behind_gamestage": "Selling locked behind game-stage: %s",
   "jackseconomy.shift_right_click_to_edit_stage": "L-Shift + Right-click to edit required stage",
   "jackseconomy.shift_middle_click_to_remove_stage": "L-Shift + Middle-click to remove required stage",
-  "jackseconomy.item_disabled": "Disabled"
+  "jackseconomy.item_disabled": "Disabled",
+  "jackseconomy.admin_shop_saved": "Admin shop saved!"
 }

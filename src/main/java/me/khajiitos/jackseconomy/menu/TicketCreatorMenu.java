@@ -1,5 +1,6 @@
 package me.khajiitos.jackseconomy.menu;
 
+import me.khajiitos.jackseconomy.config.Config;
 import me.khajiitos.jackseconomy.item.EmptyTicketItem;
 import me.khajiitos.jackseconomy.item.TicketItem;
 import me.khajiitos.jackseconomy.price.ItemDescription;
@@ -97,7 +98,6 @@ public abstract class TicketCreatorMenu extends AbstractContainerMenu {
 
     @Override
     public void removed(Player pPlayer) {
-
         if (!(pPlayer instanceof ServerPlayer serverPlayer)) {
             return;
         }
@@ -124,9 +124,20 @@ public abstract class TicketCreatorMenu extends AbstractContainerMenu {
                 ItemStack item = this.container.getItem(i);
 
                 if (!item.isEmpty()) {
-                    itemDescriptions.add(ItemDescription.ofItem(item));
+                    ItemDescription itemDescription = ItemDescription.ofItem(item);
+
+                    if (!itemDescriptions.contains(itemDescription)) {
+                        itemDescriptions.add(itemDescription);
+                    }
+
+                    if (Config.returnManifestItems.get()) {
+                        if (!serverPlayer.getInventory().add(item)) {
+                            ItemHelper.dropItem(item, serverPlayer.level(), serverPlayer.blockPosition());
+                        }
+                    }
                 }
             }
+            this.container.clearContent();
 
             TicketItem.setItems(ticketItem, itemDescriptions);
 
@@ -134,10 +145,12 @@ public abstract class TicketCreatorMenu extends AbstractContainerMenu {
 
             CompoundTag nbt = ticketItem.getOrCreateTag();
 
-            String command = "/give @p " + ItemHelper.getItemName(ticketItem.getItem()) + nbt;
+            if (serverPlayer.hasPermissions(4) && serverPlayer.isCreative()) {
+                String command = "/give @p " + ItemHelper.getItemName(ticketItem.getItem()) + nbt;
 
-            serverPlayer.sendSystemMessage(Component.translatable("jackseconomy.generate_this_ticket").withStyle(ChatFormatting.GOLD));
-            serverPlayer.sendSystemMessage(Component.literal(command).withStyle(ChatFormatting.YELLOW).append(" ").append(Component.translatable("jackseconomy.copy").setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, command)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("jackseconomy.click_to_copy"))).withBold(true).withColor(ChatFormatting.GOLD))));
+                serverPlayer.sendSystemMessage(Component.translatable("jackseconomy.generate_this_ticket").withStyle(ChatFormatting.GOLD));
+                serverPlayer.sendSystemMessage(Component.literal(command).withStyle(ChatFormatting.YELLOW).append(" ").append(Component.translatable("jackseconomy.copy").setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, command)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("jackseconomy.click_to_copy"))).withBold(true).withColor(ChatFormatting.GOLD))));
+            }
         }
 
         super.removed(pPlayer);

@@ -40,7 +40,7 @@ public record AdminShopPurchasePacket(Map<ShopItemDescription, Integer> shopping
     }
 
     public static AdminShopPurchasePacket decode(FriendlyByteBuf friendlyByteBuf) {
-        CompoundTag compoundTag = friendlyByteBuf.readNbt();
+        CompoundTag compoundTag = friendlyByteBuf.readAnySizeNbt();
 
         Map<ShopItemDescription, Integer> shoppingCartMap = new HashMap<>();
         Map<ItemDescription, Integer> itemsToSellMap = new HashMap<>();

@@ -15,7 +15,7 @@ public record AcknowledgeUnlocksPacket(NewShopUnlocks newShopUnlocks) {
     }
 
     public static AcknowledgeUnlocksPacket decode(FriendlyByteBuf friendlyByteBuf) {
-        return new AcknowledgeUnlocksPacket(NewShopUnlocks.fromNbt(Objects.requireNonNull(friendlyByteBuf.readNbt())));
+        return new AcknowledgeUnlocksPacket(NewShopUnlocks.fromNbt(Objects.requireNonNull(friendlyByteBuf.readAnySizeNbt())));
     }
 
     public static void handle(AcknowledgeUnlocksPacket msg, Supplier<NetworkEvent.Context> ctx) {

@@ -31,8 +31,8 @@ public class EditAdminShopScreen extends AdminShopScreen {
     protected ShopItem itemOnCursor;
     protected FloatingEditBoxWidget floatingEditBox;
 
-    public EditAdminShopScreen(AdminShopMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
-        super(pMenu, pPlayerInventory, pTitle);
+    public EditAdminShopScreen(AdminShopMenu pMenu, Inventory pPlayerInventory, Component pTitle, LinkedHashMap<Category, LinkedHashMap<InnerCategory, List<ShopItem>>> shopItems, HashMap<ItemDescription, ItemSellabilityInfo> sellPrices) {
+        super(pMenu, pPlayerInventory, pTitle, shopItems, sellPrices);
 
         pMenu.setSlotsLocked(true);
     }
@@ -43,11 +43,22 @@ public class EditAdminShopScreen extends AdminShopScreen {
     }
 
     @Override
+    protected void selectBigCategory(Category bigCategory) {
+        super.selectBigCategory(bigCategory);
+
+        if (this.floatingEditBox != null) {
+            this.removeWidget(this.floatingEditBox);
+            this.floatingEditBox = null;
+        }
+    }
+
+    @Override
     protected void initCategoryPanel() {
         if (this.categoryPanel != null) {
             this.removeWidget(this.categoryPanel);
         }
 
+        BetterScrollPanel oldPanel = this.categoryPanel;
         this.categoryPanel = this.addRenderableWidget(new BetterScrollPanel(Minecraft.getInstance(), this.leftPos - 80, this.topPos + 20, 75, this.imageHeight - 40));
 
         for (Category category : shopItems.keySet()) {
@@ -116,6 +127,11 @@ public class EditAdminShopScreen extends AdminShopScreen {
                 this.itemOnCursor = null;
             }
         }, () -> false, () -> tooltip = List.of(Component.translatable("jackseconomy.drop_item_to_create_category"))));
+
+        // Makes the list not scroll all the way up when adding new categories
+        if (oldPanel != null) {
+            this.categoryPanel.setScrollDistance(oldPanel.getScrollDistance(), true);
+        }
     }
 
     protected List<InnerCategory> getInnerCategories(Category category) {
@@ -204,6 +220,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
                         return;
                     }
                 }));
+                //this.floatingEditBox.setValue(category.getName());
                 this.setFocused(this.floatingEditBox);
 
                 this.itemOnCursor = null;
@@ -238,12 +255,15 @@ public class EditAdminShopScreen extends AdminShopScreen {
 
     @Override
     protected void onSlotClicked(int slot, int pButton) {
+        if (this.selectedCategory == null) {
+            return;
+        }
         if (pButton == 0) {
             ShopItem onCursorBefore = this.itemOnCursor;
             if (onCursorBefore != null && onCursorBefore.price() == -1 && this.floatingEditBox == null) {
                 Pair<Integer, Integer> slotPos = this.getSlotPos(slot);
 
-                this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, slotPos.getFirst() + 8, slotPos.getSecond() + 18, 50, 15, (value) -> {
+                this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, slotPos.getFirst() + 8, slotPos.getSecond() + 18, 50, 15, true, (value) -> {
                     try {
                         double newPrice = Double.parseDouble(value);
 
@@ -295,11 +315,11 @@ public class EditAdminShopScreen extends AdminShopScreen {
                     this.floatingEditBox = null;
                 }));
 
-                if (itemAtSlot.customName() != null) {
-                    this.floatingEditBox.setValue(itemAtSlot.customName());
+                if (itemAtSlot.stage() != null) {
+                    this.floatingEditBox.setValue(itemAtSlot.stage());
                 }
             } else {
-                this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, slotPos.getFirst() + 8, slotPos.getSecond() + 16, 50, 15, (value) -> {
+                this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, slotPos.getFirst() + 8, slotPos.getSecond() + 16, 50, 15, true, (value) -> {
                     try {
                         double newPrice = Double.parseDouble(value);
 
@@ -414,7 +434,10 @@ public class EditAdminShopScreen extends AdminShopScreen {
         super.renderStageTwo(guiGraphics, pMouseX, pMouseY, pPartialTick);
 
         if (this.itemOnCursor != null) {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0, 0, 512);
             guiGraphics.renderItem(this.itemOnCursor.itemDescription().createItemStack(), pMouseX - 8, pMouseY - 8);
+            guiGraphics.pose().popPose();
         }
     }
 
@@ -460,7 +483,7 @@ public class EditAdminShopScreen extends AdminShopScreen {
 
                     this.setFocused(this.floatingEditBox);
                 } else {
-                    this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, this.leftPos + pSlot.x + 8, this.topPos + pSlot.y + 16, 50, 15, (value) -> {
+                    this.floatingEditBox = this.addRenderableWidget(new FloatingEditBoxWidget(this.font, this.leftPos + pSlot.x + 8, this.topPos + pSlot.y + 16, 50, 15, true, (value) -> {
                         try {
                             double newPrice = Double.parseDouble(value);
 

@@ -1,6 +1,8 @@
 package me.khajiitos.jackseconomy.block;
 
+import me.khajiitos.jackseconomy.init.Packets;
 import me.khajiitos.jackseconomy.menu.AdminShopMenu;
+import me.khajiitos.jackseconomy.packet.AdminShopSchemaPacket;
 import me.khajiitos.jackseconomy.price.ItemPriceManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -44,8 +46,9 @@ public class AdminShopBlock extends Block {
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player player, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide && player instanceof ServerPlayer serverPlayer) {
-            CompoundTag compoundTag = ItemPriceManager.toAdminShopCompound(serverPlayer);
-            NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider((pContainerId, pPlayerInventory, pPlayer) -> new AdminShopMenu(pContainerId, pPlayerInventory, compoundTag), Component.empty()), friendlyByteBuf -> friendlyByteBuf.writeNbt(compoundTag));
+            CompoundTag compoundTag = ItemPriceManager.toAdminShopSchemaCompound(serverPlayer);
+            NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider((pContainerId, pPlayerInventory, pPlayer) -> new AdminShopMenu(pContainerId, pPlayerInventory), Component.empty()));
+            Packets.sendToClient(serverPlayer, new AdminShopSchemaPacket(compoundTag));
         }
 
         return InteractionResult.SUCCESS;

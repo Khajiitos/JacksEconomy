@@ -207,6 +207,9 @@ public class ExporterBlockEntity extends TransactionMachineBlockEntity implement
         Direction facing = this.getBlockState().getValue(TransactionMachineBlock.FACING);
 
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
+            if (side == null) {
+                return itemHandlerOutputLazy.cast();
+            }
             switch (sideConfig.getValue(SideConfig.directionRelative(facing, side))) {
                 case INPUT -> {
                     return itemHandlerInputLazy.cast();

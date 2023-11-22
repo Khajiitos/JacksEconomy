@@ -226,7 +226,23 @@ public class ItemPriceManager {
         return listTag;
     }
 
-    public static CompoundTag toAdminShopCompound(Player player) {
+    private static int getPagesCount(String categoryName) {
+        int maxPage = 1;
+        for (ItemPriceEntry entry : itemPriceInfos) {
+            if (entry.itemPriceInfo instanceof AdminShopItemPriceInfo adminShopItemPriceInfo) {
+                if (Objects.equals(adminShopItemPriceInfo.category, categoryName)) {
+                    int itemPage = 1 + adminShopItemPriceInfo.adminShopSlot / 27;
+
+                    if (itemPage > maxPage) {
+                        maxPage = itemPage;
+                    }
+                }
+            }
+        }
+        return maxPage;
+    }
+
+    public static CompoundTag toAdminShopSchemaCompound(Player player) {
         CompoundTag tag = new CompoundTag();
 
         ListTag itemsTag = new ListTag();

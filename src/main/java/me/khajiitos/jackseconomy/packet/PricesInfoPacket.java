@@ -17,7 +17,7 @@ public record PricesInfoPacket(ListTag data) {
     }
 
     public static PricesInfoPacket decode(FriendlyByteBuf friendlyByteBuf) {
-        CompoundTag dataCompound = friendlyByteBuf.readNbt();
+        CompoundTag dataCompound = friendlyByteBuf.readAnySizeNbt();
 
         if (dataCompound == null) {
             return new PricesInfoPacket(new ListTag());

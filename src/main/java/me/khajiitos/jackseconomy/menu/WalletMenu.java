@@ -96,7 +96,7 @@ public class WalletMenu extends AbstractContainerMenu {
                 } else if (input.getItem() instanceof CheckItem) {
                     value = CheckItem.getBalance(input);
                 } else {
-                    return;
+                    continue;
                 }
 
                 int count = input.getCount();

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import net.minecraft.nbt.*;
+import net.minecraft.world.item.CreativeModeTabs;
 
 public class NBTUtil {
 
@@ -18,6 +19,8 @@ public class NBTUtil {
             return new JsonPrimitive(doubleTag.getAsDouble());
         } else if (tag instanceof ShortTag shortTag) {
             return new JsonPrimitive(shortTag.getAsShort());
+        } else if (tag instanceof ByteTag byteTag) {
+            return new JsonPrimitive(byteTag.getAsByte());
         } else if (tag instanceof CompoundTag compoundTag) {
             JsonObject resultObj = new JsonObject();
 

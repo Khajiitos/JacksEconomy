@@ -221,16 +221,23 @@ public class AdminShopPurchaseHandler {
         }
 
         for (Map.Entry<AdminShopPurchasePacket.ShopItemDescription, Integer> entry : msg.shoppingCart().entrySet()) {
-            double price = ItemPriceManager.getAdminShopBuyPrice(entry.getKey().itemDescription(), entry.getValue(), entry.getKey().slot(), entry.getKey().category());
-            if (price <= 0) {
-                return;
-            }
+            int countLeft = entry.getValue();
+            int stackCount = entry.getKey().itemDescription().item().getMaxStackSize();
 
-            ItemStack itemStack = entry.getKey().itemDescription().createItemStack();
-            itemStack.setCount(entry.getValue());
+            while (countLeft > 0) {
+                int thisStackCount = Math.min(countLeft, stackCount);
+                double price = ItemPriceManager.getAdminShopBuyPrice(entry.getKey().itemDescription(), thisStackCount, entry.getKey().slot(), entry.getKey().category());
+                if (price <= 0) {
+                    continue;
+                }
 
-            if (!sender.addItem(itemStack)) {
-                ItemHelper.dropItem(itemStack, sender.level(), sender.blockPosition());
+                ItemStack itemStack = entry.getKey().itemDescription().createItemStack();
+                itemStack.setCount(thisStackCount);
+
+                if (!sender.addItem(itemStack)) {
+                    ItemHelper.dropItem(itemStack, sender.level(), sender.blockPosition());
+                }
+                countLeft -= thisStackCount;
             }
         }
 
