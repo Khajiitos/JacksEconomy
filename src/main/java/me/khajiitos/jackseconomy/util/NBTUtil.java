@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import net.minecraft.nbt.*;
-import net.minecraft.world.item.CreativeModeTabs;
 
 public class NBTUtil {
 

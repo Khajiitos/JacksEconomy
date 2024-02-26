@@ -11,7 +11,6 @@ import me.khajiitos.jackseconomy.renderer.MechanicalTransactionMachineRenderer;
 import me.khajiitos.jackseconomy.screen.*;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.gui.screens.worldselection.WorldSelectionList;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
