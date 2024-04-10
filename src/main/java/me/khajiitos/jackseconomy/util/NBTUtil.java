@@ -1,15 +1,15 @@
 package me.khajiitos.jackseconomy.util;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import me.khajiitos.jackseconomy.JacksEconomy;
 import net.minecraft.nbt.*;
+import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nullable;
 
 public class NBTUtil {
 
-    public static JsonElement nbtToJson(Tag tag) {
+    public static @NotNull JsonElement nbtToJson(@Nullable Tag tag) {
         if (tag instanceof StringTag stringTag) {
             return new JsonPrimitive(stringTag.getAsString());
         } else if (tag instanceof IntTag intTag) {
@@ -46,14 +46,24 @@ public class NBTUtil {
             });
 
             return resultArray;
+        } else if (tag instanceof IntArrayTag intArrayTag) {
+            JsonArray jsonArray = new JsonArray();
+
+            for (IntTag intTag : intArrayTag) {
+                jsonArray.add(intTag.getAsInt());
+            }
+
+            return jsonArray;
+        } else if (tag == null) {
+            return JsonNull.INSTANCE;
         } else {
             JacksEconomy.LOGGER.warn("NBTUtil::nbtToJson - unsupported tag type " + tag.getClass().getSimpleName());
         }
 
-        return null;
+        return JsonNull.INSTANCE;
     }
 
-    public static Tag jsonToNbt(JsonElement jsonElement) {
+    public static @Nullable Tag jsonToNbt(JsonElement jsonElement) {
         if (jsonElement instanceof JsonPrimitive jsonPrimitive) {
             if (jsonPrimitive.isBoolean()) {
                 return ByteTag.valueOf(jsonElement.getAsBoolean());
@@ -79,7 +89,7 @@ public class NBTUtil {
             ListTag listTag = new ListTag();
             jsonArray.forEach(element -> listTag.add(jsonToNbt(element)));
             return listTag;
-        } else {
+        } else if (!(jsonElement instanceof JsonNull)) {
             JacksEconomy.LOGGER.warn("NBTUtil::jsonToNbt - unsupported element type " + jsonElement.getClass().getSimpleName());
         }
 
